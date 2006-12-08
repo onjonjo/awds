@@ -1,4 +1,4 @@
-SUBDIRS = propagation crypto 
+SUBDIRS =  crypto 
 
 
 module_flags = -module  -avoid-version -export-symbols-regex gea_main
