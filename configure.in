@@ -73,7 +73,6 @@ AM_CONDITIONAL(AES_MMX, test x$aes_mmx = xtrue)
 
 AC_CONFIG_FILES([Makefile
  src/Makefile
- src/propagation/Makefile
  src/crypto/Makefile
  scripts/Makefile
 ])
