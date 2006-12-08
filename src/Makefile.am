@@ -76,22 +76,7 @@ rawbasic_la_LDFLAGS = -module  -avoid-version -export-symbols-regex gea_main
 
 pinger_la_SOURCES = pinger.cc
 
-csdetect_la_SOURCES = cs_detect.cc \
-	CsPacket.cc \
-	CsResult.cc \
-	cs_detect.h \
-	CsPacket.h \
-	CsProbe.h \
-	CsResult.h
 
-
-cs_detector_la_SOURCES = cs_detector.cc \
-	CsPacket.cc \
-	CsResult.cc \
-	cs_detector.h \
-	CsPacket.h \
-	CsProbe.h
-cs_detector_la_LDFLAGS = -module  -avoid-version -export-symbols-regex gea_main
 
 
 
@@ -113,19 +98,11 @@ shell_la_LDFLAGS  = -module  -avoid-version -export-symbols-regex gea_main
 
 topodump_la_SOURCES = dumpTopo.cc
 
-patterngen_la_SOURCES = traffic_pattern.cc 
-
-receiveprobs_la_SOURCES = receiveprobs.cc
 
 xmltopodumper_la_SOURCES = xmltopodumper.cc 
 
-EXTRA_PROGRAMS = trisearch awds 
+EXTRA_PROGRAMS =  awds 
 
-madwifi_rate_la_SOURCES = madwifi/RateMonitor.h \
-	madwifi/MadwifiRateMonitor.cc \
-	madwifi/MadwifiRateMonitor.h 
-madwifi_rate_la_CPPFLAGS = -DMODULE_NAME=madwifi_rate
-madwifi_rate_la_LDFLAGS  = -module  -avoid-version -export-symbols-regex gea_main
 
 
 if AES_MMX
@@ -158,9 +135,6 @@ aesccm_la_CPPFLAGS = -DMODULE_NAME=aesccm
 aesccm_la_LDFLAGS  = -module  -avoid-version -export-symbols-regex gea_main
 
 
-trisearch_SOURCES = trinery_search.cc
-trisearch_CPPFLAGS = -O6 -march=pentium-m -mfpmath=sse 
-trisearch_LDFLAGS = -O6 -march=pentium-m -mfpmath=sse 
 
 awds_SOURCES = awds.cc
 awds_LDADD  = -lgea-posix rawbasic.la interf.la tapiface2.la 
