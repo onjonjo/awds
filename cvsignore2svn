@@ -1,0 +1,11 @@
+#! /bin/sh
+
+BASE=`pwd`
+
+DIRS=`find -name .cvsignore -exec dirname {} \;`
+
+for i in $DIRS; do
+echo in $BASE/$i/
+cd $BASE/$i
+svn propset svn:ignore -F .cvsignore .
+done

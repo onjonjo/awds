@@ -1,0 +1,4 @@
+usr/include/awds/*
+usr/lib/awds/*.la
+usr/lib/awds/*.a
+

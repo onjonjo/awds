@@ -1,0 +1,24 @@
+Source: awds
+Section: net
+Priority: optional
+Maintainer: Andre Herms <aherms@ivs.cs.uni-magdeburg.de>
+Build-Depends: debhelper (>= 4.2.32), autotools-dev, libgea-dev, nasm
+Standards-Version: 3.7.2
+
+Package: awds
+Architecture: any
+Depends: libgea (>= 1.3)
+Description: A multi-hop routing for wireless ad-hoc networks
+ This package contains the multi-hop rounting AWDS. It creates a
+ virtual network interface on all participating stations that are 
+ logically connected like a switched Ethernet. Thus, all high-level 
+ protocols like IPv4, IPv6, DHCP, ARP, etc. can be used without any
+ modifications. Futhermore the virtual interface can be bridged with 
+ other devices to integrate the virtual network in an existing infrastructure.
+
+Package: awds-dev
+Architecture: any
+Depends: libgea (>= 1.3), awds
+Description: This packages contains all header files of awds for creating
+ extensions for the AWDS routing. 
+

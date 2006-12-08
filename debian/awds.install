@@ -1,0 +1,6 @@
+/etc/awds.key
+/etc/awds.conf
+/usr/lib/awds/*.so
+/usr/bin/*
+/usr/sbin/*
+

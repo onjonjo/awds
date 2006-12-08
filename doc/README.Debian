@@ -1,0 +1,50 @@
+
+Installation for Debian Linux
+
+1) Automatic bridging of awds devices -
+
+A common problem with bridging the awds network device is the
+execution order:
+
+First the routing is started in background. Afterwards, the awds0
+device is created. Then it can be added to the bridge. A typical 
+solution could look like this:
+
+------------------------WRONG-SOLUTION------------------------------------
+
+start_awds </dev/null >/dev/null 2>&1 &
+
+brctrl addif br0 awds0
+
+--------------------------------------------------------------------------
+
+The problem is that the device awds0 may not exist when the second
+command is executed. A sleep 1 can reduce the problem. However, the
+correct sollution is to bring up the AFTER the device is created. 
+
+The best solution is to the kernel event notification that generates
+events when a network device is created. These events are handled by
+the udev system. Therefore, a udev rule can be used. 
+A typical rule can look like this. 
+
+ACTION=="add", SUBSYSTEM=="net", ENV{INTERFACE}=="awds0", RUN+="/usr/sbin/brctl addif br0 awds0"
+
+Copy this line to a file (e.g. awds.rules) in the /etc/udev
+directory. It must be linked to the /etc/udev/rules.d directory:
+
+ln -s /etc/awds.rules /etc/udev/rules.d/
+
+Now, after a network device awds0 is created, it is automatically
+added to the bridge br0.  Normally you want to bring up the interface
+and eventually run a DHCP client or configure static
+addresses. Replacing the brctl command with an appropriate shell 
+script is the best solution. It is IMPORTANT to give the full path to
+the script, as udev does not consult the PATH environment variable. 
+
+
+
+
+
+
+
+
