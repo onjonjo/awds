@@ -17,7 +17,6 @@ pkglib_LTLIBRARIES = \
 	topowatch.la \
 	shell.la \
 	topodump.la \
-	receiveprobs.la \
 	xmltopodumper.la \
 	aesccm.la  \
 	rawbasic.la
