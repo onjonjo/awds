@@ -71,6 +71,9 @@ for $a (@autoconf) {
 
 if ($use_aclocal && $use_automake && $use_autoconf) {
 
+  print "running libtoolize -f\n";
+  system("libtoolize -f");
+
   print "Running aclocal ...\n";
   system($use_aclocal);
 
