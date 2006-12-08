@@ -1,0 +1,57 @@
+#!/bin/sh
+
+AP=ath0
+WDS=ath1
+
+case "$1" in
+start)
+	echo "AWDS: configuring wireless..."
+	wlanconfig ath0 destroy > /dev/null 2>&1
+	wlanconfig ath1 destroy > /dev/null 2>&1
+
+	wlanconfig $AP create wlandev wifi0 wlanmode master
+	sysctl -w dev.wifi0.diversity=0
+	sysctl -w dev.wifi0.txantenna=1
+	sysctl -w dev.wifi0.rxantenna=1
+	iwconfig $AP essid AWDS channel 0
+	ip l set $AP up
+
+	wlanconfig $WDS create wlandev wifi1 wlanmode adhoc
+	sysctl -w dev.wifi1.diversity=0
+	sysctl -w dev.wifi1.txantenna=1
+	sysctl -w dev.wifi1.rxantenna=1
+	iwconfig $WDS essid AWDSbackbone channel 0
+	ip l set $WDS up
+
+
+	echo "AWDS: starting service..."
+	start_awds $WDS > /dev/null &
+	sleep 5
+
+	echo "AWDS: configuring bridge..."
+	brctl addbr br0
+	brctl addif br0 eth0
+	brctl addif br0 $AP
+	brctl addif br0 awds0
+	brctl setfd br0 0
+
+	;;
+stop)
+	echo "AWDS: stopping service..."
+	killall gea_start
+	echo "AWDS: removing wireless devices..."
+	wlanconfig ath0 destroy
+	wlanconfig ath1 destroy
+	echo "AWDS: removing bridge..."
+	ip l set br0 down
+	brctl delif br0 eth0
+	brctl delbr br0
+	;;
+restart)
+	$0 stop
+	$0 start
+	;;
+*)
+	echo "$0 {start|stop|restart}"
+	;;
+esac
