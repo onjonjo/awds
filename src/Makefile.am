@@ -12,18 +12,14 @@ pkglib_LTLIBRARIES = \
 	interf.la \
 	udpbasic.la \
 	pinger.la \
-	csdetect.la\
-	cs_detector.la \
 	tapiface.la \
 	tapiface2.la \
 	topowatch.la \
 	shell.la \
-	patterngen.la \
 	topodump.la \
 	receiveprobs.la \
 	xmltopodumper.la \
 	aesccm.la  \
-	madwifi_rate.la \
 	rawbasic.la
 
 #	tapiface_crypto.la \
