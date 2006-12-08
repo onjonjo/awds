@@ -1,0 +1,12 @@
+Makefile.in
+*.gz
+.libs
+.deps
+log
+Makefile
+out.ifx
+out2.ifx
+*.svg
+*.dot
+trisearch
+*log
