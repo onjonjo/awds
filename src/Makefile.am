@@ -93,7 +93,6 @@ shell_la_LDFLAGS  = -module  -avoid-version -export-symbols-regex gea_main
 topodump_la_SOURCES = dumpTopo.cc
 
 
-xmltopodumper_la_SOURCES = xmltopodumper.cc 
 
 EXTRA_PROGRAMS =  awds 
 
