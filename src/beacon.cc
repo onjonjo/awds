@@ -22,7 +22,7 @@ void Beacon::setPeriod(const gea::Duration& d) {
 
 
 
-void Beacon::setNeigh(AwdsRouting *interf, gea::AbsTime  t) {
+void Beacon::setNeigh(AwdsRouting *awdsRouting, gea::AbsTime  t) {
     
     
     int i;
@@ -34,25 +34,25 @@ void Beacon::setNeigh(AwdsRouting *interf, gea::AbsTime  t) {
 
  
     // insert all MPR nodes:
-    for (i = 0; i != interf->numNeigh; ++i) {
+    for (i = 0; i != awdsRouting->numNeigh; ++i) {
 
-	if ( interf->neighbors[i].isGood(t) &&
-	     interf->neighbors[i].mpr ) 
+	if ( awdsRouting->neighbors[i].isGood(t) &&
+	     awdsRouting->neighbors[i].mpr ) 
 	    {
 		
-		interf->neighbors[i].id.toArray(addr);
+		awdsRouting->neighbors[i].id.toArray(addr);
 		++numMpr;
 		addr += NodeId::size;
 	    }
     }
     
-    for (i = 0; i != interf->numNeigh; ++i) {
+    for (i = 0; i != awdsRouting->numNeigh; ++i) {
 	
-	if ( interf->neighbors[i].isGood(t) &&
-	     ! interf->neighbors[i].mpr ) 
+	if ( awdsRouting->neighbors[i].isGood(t) &&
+	     ! awdsRouting->neighbors[i].mpr ) 
 	    {
 		
-		interf->neighbors[i].id.toArray(addr);
+		awdsRouting->neighbors[i].id.toArray(addr);
 		++numNoMpr;
 		addr += NodeId::size;
 	    }
@@ -117,7 +117,7 @@ bool Beacon::hasNeigh(const NodeId& id) {
     return hasMpr(id) || hasNoMpr(id);
 }
 
-void Beacon::add2Hop(AwdsRouting *interf) {
+void Beacon::add2Hop(AwdsRouting *awdsRouting) {
     char *addr =  &(packet.buffer[OffsetLNeigh]);
     int n = getNumNoMpr() + getNumMpr();
     
@@ -126,17 +126,17 @@ void Beacon::add2Hop(AwdsRouting *interf) {
 	n2hop.fromArray(addr);
 	addr += NodeId::size;
 	
-	AwdsRouting::Hop2List::iterator itr = interf->hop2list.find(n2hop);
-	if (itr == interf->hop2list.end()) {
+	AwdsRouting::Hop2List::iterator itr = awdsRouting->hop2list.find(n2hop);
+	if (itr == awdsRouting->hop2list.end()) {
 	    
-	    interf->hop2list[n2hop] = AwdsRouting::Hop2RefCount(1);
+	    awdsRouting->hop2list[n2hop] = AwdsRouting::Hop2RefCount(1);
 	} else {
-	    interf->hop2list[n2hop].stat++;
+	    awdsRouting->hop2list[n2hop].stat++;
 	}
     }
 }
 
-void Beacon::remove2Hop(AwdsRouting *interf) {
+void Beacon::remove2Hop(AwdsRouting *awdsRouting) {
     char *addr =  &(packet.buffer[OffsetLNeigh]);
     int n = getNumNoMpr() + getNumMpr();
     
@@ -145,17 +145,17 @@ void Beacon::remove2Hop(AwdsRouting *interf) {
 	n2hop.fromArray(addr);
 	addr += NodeId::size;
 	
-	AwdsRouting::Hop2List::iterator itr = interf->hop2list.find(n2hop);
-	assert (itr != interf->hop2list.end()); 
+	AwdsRouting::Hop2List::iterator itr = awdsRouting->hop2list.find(n2hop);
+	assert (itr != awdsRouting->hop2list.end()); 
 	
 	if ( (--itr->second.stat) == 0) {
-	    interf->hop2list.erase(itr);
+	    awdsRouting->hop2list.erase(itr);
 	}
 	
     }
 }
 
-bool Beacon::tryRemoveFromMpr(AwdsRouting *interf) {
+bool Beacon::tryRemoveFromMpr(AwdsRouting *awdsRouting) {
     
     
     NodeId src = getSrc();
@@ -171,8 +171,8 @@ bool Beacon::tryRemoveFromMpr(AwdsRouting *interf) {
 	n2hop.fromArray(addr);
 	addr += NodeId::size;
 	
-	AwdsRouting::Hop2List::iterator itr = interf->hop2list.find(n2hop);
-	assert (itr != interf->hop2list.end()); 
+	AwdsRouting::Hop2List::iterator itr = awdsRouting->hop2list.find(n2hop);
+	assert (itr != awdsRouting->hop2list.end()); 
 
 	
 	if (itr->second.dyn == 1) { // reference counter would fall to zero
@@ -188,8 +188,8 @@ bool Beacon::tryRemoveFromMpr(AwdsRouting *interf) {
 	n2hop.fromArray(addr);
 	addr += NodeId::size;
 	
-	AwdsRouting::Hop2List::iterator itr = interf->hop2list.find(n2hop);
-	assert (itr != interf->hop2list.end()); 
+	AwdsRouting::Hop2List::iterator itr = awdsRouting->hop2list.find(n2hop);
+	assert (itr != awdsRouting->hop2list.end()); 
 	itr->second.dyn--;
 	assert(itr->second.dyn > 0);
     }

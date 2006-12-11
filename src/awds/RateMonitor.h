@@ -3,6 +3,7 @@
 
 #include <awds/NodeId.h>
 
+/** abstact base class for rate-base routing metrics */
 class RateMonitor {
 public:
     

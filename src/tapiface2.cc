@@ -14,9 +14,9 @@ int tapiface2_gea_main(int argc, const char  * const *argv)
     
     ObjRepository& rep = ObjRepository::instance(); 
     
-    Routing *routing = (Routing *)rep.getObj("interf");
+    Routing *routing = (Routing *)rep.getObj("awdsRouting");
     if (!routing) {
-	GEA.dbg() << "cannot find object 'interf' in repository" << std::endl; 
+	GEA.dbg() << "cannot find object 'awdsRouting' in repository" << std::endl; 
 	return -1;
     }
     

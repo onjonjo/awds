@@ -4,40 +4,40 @@
 
 #include <awds/TopoPacket.h>
 #include <awds/routing.h>
-#include <madwifi/RateMonitor.h>
+#include <awds/RateMonitor.h>
 
 using namespace std;
 
-void TopoPacket::setNeigh(AwdsRouting *interf, gea::AbsTime t) {
+void TopoPacket::setNeigh(AwdsRouting *awdsRouting, gea::AbsTime t) {
   
     unsigned char  n = 0;
 	    
     char *addr =  &(packet.buffer[OffsetLinks]);
 
-    RateMonitor *rm = interf->madwifiRateMonitor;
+    RateMonitor *rm = awdsRouting->madwifiRateMonitor;
     
-    if ( (interf->metrics == Routing::TransmitDurationMetrics) && (rm != 0) )
+    if ( (awdsRouting->metrics == Routing::TransmitDurationMetrics) && (rm != 0) )
 	rm->update();
     
 
-    for (int i = 0; i < interf->numNeigh; ++i) {
+    for (int i = 0; i < awdsRouting->numNeigh; ++i) {
 	    
-	if ( interf->neighbors[i].isBidiGood(t, interf->myNodeId) )
+	if ( awdsRouting->neighbors[i].isBidiGood(t, awdsRouting->myNodeId) )
 	    {
-		NodeId nId = interf->neighbors[i].id;
+		NodeId nId = awdsRouting->neighbors[i].id;
 		nId.toArray(addr); 
 		++n;
 		addr += NodeId::size;
 		int metric;
 		
-		switch (interf->metrics) {
+		switch (awdsRouting->metrics) {
 		
 		case Routing::PacketLossMetrics:
-		    metric = 0xff - (interf->neighbors[i].quality() - 1) * (0x100 / 32);    
+		    metric = 0xff - (awdsRouting->neighbors[i].quality() - 1) * (0x100 / 32);    
 		    break;
 		
 		case Routing::EtxMetrics: 
-		    metric = 0xff - (interf->neighbors[i].quality() - 1) * (0x100 / 32);
+		    metric = 0xff - (awdsRouting->neighbors[i].quality() - 1) * (0x100 / 32);
 		    break;
 		
 		case Routing::TransmitDurationMetrics:

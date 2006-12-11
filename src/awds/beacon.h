@@ -50,17 +50,17 @@ public:
 	packet.buffer[OffsetNumMpr] = (char)n;
     }
 
-    void setNeigh(class AwdsRouting *interf, gea::AbsTime t);
+    void setNeigh(class AwdsRouting *awdsRouting, gea::AbsTime t);
     
-    void add2Hop(class AwdsRouting *interf);
-    void remove2Hop(class AwdsRouting *interf);
+    void add2Hop(class AwdsRouting *awdsRouting);
+    void remove2Hop(class AwdsRouting *awdsRouting);
     
     bool hasNoMpr(const NodeId& id);
     
     bool hasMpr(const NodeId& id);
     bool hasNeigh(const NodeId& id);
 
-    bool tryRemoveFromMpr(AwdsRouting *interf);
+    bool tryRemoveFromMpr(AwdsRouting *awdsRouting);
 
 private:
     

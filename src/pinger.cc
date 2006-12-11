@@ -12,28 +12,28 @@
 struct Pinger {
     
     NodeId dest;
-    Routing *interf;
+    Routing *awdsRouting;
     gea::Blocker blocker;
     
     gea::Duration period;
     
     unsigned char seq;
     
-    Pinger( Routing *interf):
-	interf(interf),
+    Pinger( Routing *awdsRouting):
+	awdsRouting(awdsRouting),
 	period(2.),
 	seq(0)
     {
 	
 	// register ping protocol
-	interf->registerUnicastProtocol(42, ping_recv, (void*)this );
+	awdsRouting->registerUnicastProtocol(42, ping_recv, (void*)this );
     }
     
     
     
-    Pinger(const NodeId& id, Routing *interf):
+    Pinger(const NodeId& id, Routing *awdsRouting):
 	dest(id),
-	interf(interf),
+	awdsRouting(awdsRouting),
 	period(2.),
 	seq(0)
     {
@@ -45,7 +45,7 @@ struct Pinger {
 	
 	
 	// register ping protocol
-	interf->registerUnicastProtocol(42, ping_recv, (void *)this);
+	awdsRouting->registerUnicastProtocol(42, ping_recv, (void *)this);
 	
     }
 
@@ -78,7 +78,7 @@ void Pinger::next_ping(gea::Handle *h, gea::AbsTime t, void *data) {
     
     Pinger *self = static_cast<Pinger *>(data);
 
-    BasePacket *p = self->interf->newUnicastPacket(42);
+    BasePacket *p = self->awdsRouting->newUnicastPacket(42);
     p->setDest(self->dest);
     
     UnicastPacket uniP(*p);
@@ -92,7 +92,7 @@ void Pinger::next_ping(gea::Handle *h, gea::AbsTime t, void *data) {
     
     GEA.dbg() << "sending ping to " << self->dest << std::endl;
     
-    self->interf->sendUnicast(p, t);
+    self->awdsRouting->sendUnicast(p, t);
     p->unref();
 
     GEA.waitFor( &self->blocker, 
@@ -120,11 +120,11 @@ void Pinger::ping_recv(BasePacket *p, gea::AbsTime t, void *data) {
 	GEA.dbg() << "received ping from " << uniP.getSrc() << std::endl;
 	
 	uniP.setUcDest(uniP.getSrc());
-	uniP.setSrc(self->interf->myNodeId);
+	uniP.setSrc(self->awdsRouting->myNodeId);
 	uniP.setTTL(44);
 	p->buffer[UnicastPacket::UnicastPacketEnd] = 'o';
 	p->ref();
-	self->interf->sendUnicast(p, t);
+	self->awdsRouting->sendUnicast(p, t);
 	p->unref();
     } else {
 	
@@ -144,9 +144,9 @@ int gea_main(int argc, const char  * const * argv) {
     
     
     ObjRepository& rep = ObjRepository::instance();
-    Routing *interf = (Routing *)rep.getObj("interf");
-    if (!interf) {
-	GEA.dbg() << "cannot find object 'interf' in repository" << std::endl; 
+    Routing *awdsRouting = (Routing *)rep.getObj("awdsRouting");
+    if (!awdsRouting) {
+	GEA.dbg() << "cannot find object 'awdsRouting' in repository" << std::endl; 
 	return -1;
     }
     
@@ -155,9 +155,9 @@ int gea_main(int argc, const char  * const * argv) {
     
     if (argc > 1) {
 	NodeId dest(atoi(argv[1]));
-	(void)new Pinger(dest,interf);
+	(void)new Pinger(dest,awdsRouting);
     } else 
-	(void)new Pinger(interf);
+	(void)new Pinger(awdsRouting);
     return 0;
 }
 /* This stuff is for emacs

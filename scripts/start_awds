@@ -31,7 +31,7 @@ echo Starting AWDS on $DEVICE
 
 exec gea_start -i <<END
 rawbasic.so $DEVICE
-interf.so 
+awdsrouting.so 
 #.libs/pinger.so
 $AESCCM
 tapiface2.so

@@ -590,7 +590,7 @@ extern "C"
 #ifdef PIC
 int gea_main(int argc, const char  * const * argv) 
 #else
-int interf_gea_main(int argc, const char  * const *argv) 
+int awdsRouting_gea_main(int argc, const char  * const *argv) 
 #endif
 
 {
@@ -602,16 +602,16 @@ int interf_gea_main(int argc, const char  * const *argv)
 	return -1;
     }
     
-    AwdsRouting* interf = new AwdsRouting(base);
+    AwdsRouting* awdsRouting = new AwdsRouting(base);
     
-    rep.insertObj("interf", "AwdsRouting", interf);
-    rep.insertObj("topology","Topology", interf->topology);
+    rep.insertObj("awdsRouting", "AwdsRouting", awdsRouting);
+    rep.insertObj("topology","Topology", awdsRouting->topology);
     
     RateMonitor *rateMonitor = (RateMonitor *)rep.getObj("rateMonitor");
     if (rateMonitor) {
-	interf->madwifiRateMonitor = rateMonitor;
+	awdsRouting->madwifiRateMonitor = rateMonitor;
 	GEA.dbg() << "adding transmission duration metrics of rate module" << endl;
-	interf->metrics = Routing::TransmitDurationMetrics; 
+	awdsRouting->metrics = Routing::TransmitDurationMetrics; 
 	//	rateMonitor->update();
     }
     

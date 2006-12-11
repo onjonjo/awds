@@ -60,7 +60,7 @@ public:
     virtual bool   getNodeForMacAddress(const char* mac, NodeId& id, gea::AbsTime t);
 
     /** store node ID and src MAC in the internal table.
-     *  this is not used in the basic tap interface
+     *  this is not used in the basic tap awdsRoutingace
      */
     virtual void   storeSrcAndMac(const NodeId &id, const char *bufO, gea::AbsTime t);
     

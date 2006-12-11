@@ -18,8 +18,7 @@
 #include <awds/NodeId.h>
 #include <awds/beacon.h>
 #include <awds/settings.h>
-
-#include <madwifi/RateMonitor.h>
+#include <awds/RateMonitor.h>
 
 class AwdsRouting : public Routing { 
     

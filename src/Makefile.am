@@ -1,4 +1,4 @@
-SUBDIRS =  crypto 
+	SUBDIRS =  crypto 
 
 
 module_flags = -module  -avoid-version -export-symbols-regex gea_main
@@ -9,7 +9,7 @@ AM_CPPFLAGS=  -pedantic -Wno-long-long
 nobase_include_HEADERS = awds/*.h
 
 pkglib_LTLIBRARIES = \
-	interf.la \
+	awdsrouting.la \
 	udpbasic.la \
 	pinger.la \
 	tapiface.la \
@@ -18,6 +18,7 @@ pkglib_LTLIBRARIES = \
 	shell.la \
 	topodump.la \
 	aesccm.la  \
+	stdout.la \
 	rawbasic.la
 
 #	tapiface_crypto.la \
@@ -27,7 +28,7 @@ pkglib_LTLIBRARIES = \
 AM_LDFLAGS =  -module --avoid-version
 
 
-interf_la_SOURCES =  \
+awdsrouting_la_SOURCES =  \
         awds/AbstractId.h \
         awds/AwdsRouting.h \
         awds/BasePacket.h \
@@ -55,12 +56,14 @@ interf_la_SOURCES =  \
 	awds/sqrt_int.h sqrt_int.c 
 
 
-interf_la_CPPFLAGS = -DMODULE_NAME=interf
-interf_la_LDFLAGS = -module  -avoid-version -export-symbols-regex gea_main
+awdsrouting_la_CPPFLAGS = -DMODULE_NAME=interf
+awdsrouting_la_LDFLAGS = -module  -avoid-version -export-symbols-regex gea_main
+
 
 
 udpbasic_la_SOURCES = udpBasic.cc awds/basic.h basic.cc
 udpbasic_la_CPPFLAGS = -DMODULE_NAME=udpbasic
+udpbasic_la_LDFLAGS = -module  -avoid-version -export-symbols-regex gea_main
 
 
 rawbasic_la_SOURCES = rawbasic.cc basic.cc awds/basic.h awds/NodeId.h
@@ -69,12 +72,11 @@ rawbasic_la_LDFLAGS = -module  -avoid-version -export-symbols-regex gea_main
 
 
 pinger_la_SOURCES = pinger.cc
-
-
-
+pinger_la_LDFLAGS = -module  -avoid-version -export-symbols-regex gea_main
 
 
 tapiface_la_SOURCES = TapInterface.cc tapiface.cc awds/tapiface.h
+tapiface_la_LDFLAGS = -module  -avoid-version -export-symbols-regex gea_main
 
 
 tapiface2_la_SOURCES = TapInterface.cc TapInterface2.cc awds/tapiface.h tapiface2.cc  awds/tapiface2.h
@@ -91,6 +93,7 @@ shell_la_CPPFLAGS = -DMODULE_NAME=shell
 shell_la_LDFLAGS  = -module  -avoid-version -export-symbols-regex gea_main
 
 topodump_la_SOURCES = dumpTopo.cc
+topodump_la_LDFLAGS = -module  -avoid-version -export-symbols-regex gea_main
 
 
 
@@ -127,6 +130,9 @@ aesccm_la_SOURCES = \
 aesccm_la_CPPFLAGS = -DMODULE_NAME=aesccm
 aesccm_la_LDFLAGS  = -module  -avoid-version -export-symbols-regex gea_main
 
+stdout_la_SOURCES = stdout.cc
+stdout_la_CPPFLAGS = -DMODULE_NAME=stdout
+stdout_la_LDFLAGS  = -module  -avoid-version -export-symbols-regex gea_main
 
 
 awds_SOURCES = awds.cc
