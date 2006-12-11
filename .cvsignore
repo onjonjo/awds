@@ -6,3 +6,11 @@ libtool
 autom4te.cache
 Makefile
 aclocal.m4
+build-stamp
+depcomp
+compile
+ltmain.sh
+missing
+install-sh
+config.guess
+config.sub
