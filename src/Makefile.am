@@ -6,7 +6,7 @@ module_flags = -module  -avoid-version -export-symbols-regex gea_main
 #AM_CPPFLAGS= @GEAINC@ -pedantic -Wno-long-long
 AM_CPPFLAGS=  -pedantic -Wno-long-long 
 
-nobase_include_HEADERS = awds/*.h
+nobase_include_HEADERS = awds/*.h awds/ext/*.h
 
 pkglib_LTLIBRARIES = \
 	awdsrouting.la \
