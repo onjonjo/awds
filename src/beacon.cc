@@ -156,7 +156,9 @@ void Beacon::remove2Hop(AwdsRouting *awdsRouting) {
 }
 
 bool Beacon::tryRemoveFromMpr(AwdsRouting *awdsRouting) {
-    
+
+    // disable MPR calculation ....
+    return true;
     
     NodeId src = getSrc();
     
