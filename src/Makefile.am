@@ -18,7 +18,6 @@ pkglib_LTLIBRARIES = \
 	shell.la \
 	topodump.la \
 	aesccm.la  \
-	stdout.la \
 	rawbasic.la
 
 #	tapiface_crypto.la \
@@ -130,9 +129,6 @@ aesccm_la_SOURCES = \
 aesccm_la_CPPFLAGS = -DMODULE_NAME=aesccm
 aesccm_la_LDFLAGS  = -module  -avoid-version -export-symbols-regex gea_main
 
-stdout_la_SOURCES = stdout.cc
-stdout_la_CPPFLAGS = -DMODULE_NAME=stdout
-stdout_la_LDFLAGS  = -module  -avoid-version -export-symbols-regex gea_main
 
 
 awds_SOURCES = awds.cc
