@@ -51,8 +51,6 @@
 #include <cassert>
 #include <iostream>
 
-using namespace std;
-
 class UnixFdStreamBuf : public  std::basic_streambuf<char> {
   
   static const size_t bufSize = 256;
@@ -123,12 +121,3 @@ public:
 
 
 
-
-int main() {
-
-  std::ostream t(new UnixFdStreamBuf(1));
-  
-  t <<12<< "\n" << endl 
-    <<" dies ist ein test\n" << endl;
-  
-}
