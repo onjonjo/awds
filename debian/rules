@@ -52,6 +52,7 @@ build-stamp:  config.status
 clean:
 	dh_testdir
 	rm -f build-stamp 
+	rm -f config.log config.status configure ltmain.sh aclocal.m4 config.guess compile install-sh depcomp
 	# Add here commands to clean up after the build process.
 #	-$(MAKE) distclean
 ifneq "$(wildcard /usr/share/misc/config.sub)" ""
@@ -60,8 +61,9 @@ endif
 ifneq "$(wildcard /usr/share/misc/config.guess)" ""
 	cp -f /usr/share/misc/config.guess config.guess
 endif
-
-
+	find . \( -name '*.o' -o -name '.libs' -o -name .deps -o -name '*.la' -o -name '*.lo' \) > cleanlist.tmp
+	xargs rm -rf < cleanlist.tmp
+	rm cleanlist.tmp
 	dh_clean 
 
 install: build
