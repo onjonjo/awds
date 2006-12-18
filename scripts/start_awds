@@ -30,11 +30,13 @@ fi
 echo Starting AWDS on $DEVICE
 
 exec gea_start -i <<END
+shell.so
 rawbasic.so $DEVICE
 awdsrouting.so 
 #.libs/pinger.so
 $AESCCM
 tapiface2.so
 topowatch.so
+topolock.so
 END
 
