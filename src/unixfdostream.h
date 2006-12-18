@@ -54,7 +54,7 @@
 class UnixFdStreamBuf : public  std::basic_streambuf<char> {
   
   static const size_t bufSize = 256;
-  char buffer[bufSize];
+  char buffer[bufSize + 1]; // one additional character for  overflow ...
   
   const int fd;
   
