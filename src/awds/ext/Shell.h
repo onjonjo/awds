@@ -45,8 +45,8 @@ typedef int (shell_command_fn)(ShellClient &sc, void *data, int argc, char **arg
 struct ShellCommand {
 	shell_command_fn *command;
 	void *data;
-	char *desc;
-	char *help;
+	const char *desc;
+	const char *help;
 };
 
 class Shell {
@@ -54,7 +54,7 @@ public:
     Shell() {};
 
     virtual void add_command(const std::string name, shell_command_fn *command,
-   		void *data, char *descr, char *help) = 0;
+   		void *data, const char *descr, const char *help) = 0;
     virtual ShellCommand *get_command(std::string name) = 0;
 
     virtual ~Shell() {}

@@ -83,7 +83,7 @@ public:
 
     
     void add_command(const string name, shell_command_fn *command,
-   		void *data, char *descr, char *help);
+   		void *data, const char *descr, const char *help);
     ShellCommand *get_command(string name);
 
     
@@ -153,7 +153,7 @@ bool  TcpShell::createSocket() {
 }
 
 void TcpShell::add_command(const string name, shell_command_fn *command,
-		void *data, char *desc, char *help) {
+		void *data, const char *desc, const char *help) {
     commands[name].command = command;
     commands[name].data = data;
     commands[name].desc = desc;

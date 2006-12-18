@@ -54,13 +54,14 @@ public:
     Callback<std::string&> newDotTopology;
     Callback<std::string&> newXmlTopologyDelta;
     
-    
+    int addTopoCmd();
+        
     RTopology(NodeId id);
 
     virtual ~RTopology();
 
     void setLocked(bool t) { locked = t; };
-    bool getLocked(bool t) const { return locked; }
+    bool getLocked() const { return locked; }
     
     virtual bool hasLink(const NodeId& from, const NodeId&to) const;
     void feed(const TopoPacket& p, gea::AbsTime t);    

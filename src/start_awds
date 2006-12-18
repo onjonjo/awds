@@ -1,0 +1,42 @@
+#!/bin/sh
+
+CONF_FILE=/etc/awds.conf
+[ -e $CONF_FILE ] && source $CONF_FILE
+
+modprobe tun
+
+# use this for early detection of wrong configured stack:
+export LD_BIND_NOW=1
+export LD_LIBRARY_PATH=.libs
+
+cd $(dirname $0)
+
+if [ $NET_DEV = auto ]
+then
+AUTODEV=$(grep -E -v "Inte|face" /proc/net/wireless | tr ":" " " | ( read a b; echo $a ) )
+else
+AUTODEV=$NET_DEV
+fi
+
+# argv1 can override the setting
+DEVICE=${1:-$AUTODEV}
+
+AESCCM=''
+if [ x$USE_ENCRYPTION = xyes ]
+then 
+AESCCM="aesccm.so -k $KEY_FILE"
+fi
+
+echo Starting AWDS on $DEVICE
+
+exec gea_start -i <<END
+shell.so
+rawbasic.so $DEVICE
+awdsrouting.so 
+#.libs/pinger.so
+$AESCCM
+tapiface2.so
+topowatch.so
+topolock.so
+END
+

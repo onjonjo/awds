@@ -17,6 +17,7 @@ pkglib_LTLIBRARIES = \
 	topowatch.la \
 	shell.la \
 	topodump.la \
+	topolock.la \
 	aesccm.la  \
 	rawbasic.la
 
@@ -93,6 +94,9 @@ shell_la_LDFLAGS  = -module  -avoid-version -export-symbols-regex gea_main
 
 topodump_la_SOURCES = dumpTopo.cc
 topodump_la_LDFLAGS = -module  -avoid-version -export-symbols-regex gea_main
+
+topolock_la_SOURCES = TopoLock.cc
+topolock_la_LDFLAGS = -module  -avoid-version -export-symbols-regex gea_main
 
 
 

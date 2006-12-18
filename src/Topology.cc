@@ -6,9 +6,11 @@
 
 #include <gea/API.h>
 
+#include <gea/ObjRepository.h>
 #include <awds/Topology.h>
 #include <awds/TopoPacket.h>
 
+#include <awds/ext/Shell.h>
 
 using namespace std;
 using namespace gea;
@@ -27,6 +29,8 @@ RTopology::RTopology(NodeId id) :
     adjList[myNodeId].validity = t 
 	+ gea::Duration(double(5 * TOPO_INTERVAL) * 0.001);
     cleanup_nodes(&cleanup_blocker, t, this);
+    
+    addTopoCmd();
 }
 
 
@@ -518,6 +522,57 @@ gea::AbsTime RTopology::removeOldNodes(gea::AbsTime t) {
     // 	      << (nextTimeout - t) << endl;
   
     return nextTimeout;
+}
+
+
+
+static const char *topo_cmd_usage = 
+    "topo <cmd> \n"
+    " with <cmd> \n"
+    "    dump        print the current topology\n"
+    "    get_locked  print the lock status of the topology\n"
+    "    lock        lock the topology\n"
+    "    unlock      unlock the topology\n"
+    ;
+
+static int topo_command_fn(ShellClient &sc, void *data, int argc, char **argv) {
+    RTopology *topology = static_cast<RTopology *>(data);
+    
+    if ( (argc >= 2) && !strcmp(argv[1], "dump") ) {
+	*sc.sockout << topology->getAdjString() << endl;
+	
+	return 0;
+    } else   if ( (argc >= 2) && !strcmp(argv[1], "get_locked") ) {
+	*sc.sockout << (topology->getLocked() ? "true" : "false") << endl;
+	return 0;
+    } else if ( (argc >= 2) && !strcmp(argv[1], "lock") ) {
+	topology->setLocked(true);
+	*sc.sockout << "topology is now locked" << endl;
+	return 0;
+    } else if ( (argc >= 2) && !strcmp(argv[1], "unlock") ) {
+	topology->setLocked(false);
+	*sc.sockout << "topology is now unlocked" << endl;
+	return 0;
+    }
+    
+    *sc.sockout << topo_cmd_usage <<endl;
+    
+    return 0;
+}
+
+
+int RTopology::addTopoCmd() {
+    
+    ObjRepository& rep = ObjRepository::instance();
+    
+    Shell *shell = static_cast<Shell *>(rep.getObj("shell"));
+    
+    if (!shell) 
+	return -1;
+    
+    shell->add_command("topo", topo_command_fn, this, "functions for the routing topology", topo_cmd_usage);
+    
+    return 0;
 }
 
 
