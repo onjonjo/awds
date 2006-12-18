@@ -37,7 +37,7 @@ class TcpShellClient : public ShellClient {
     
 protected:
     friend class TcpShell;
-    void prompt();
+    void prompt(bool wait);
 
 public:
 
@@ -108,6 +108,7 @@ TcpShell::TcpShell()
     
     add_command("help", help, this, "print the help for a command", HELP);
     add_command("watch", watch, this, "repeat the execution of a program", NULL);
+    GEA.dbg() << "TcpShell listening..." << endl;
     GEA.waitFor(lHandle, AbsTime::now() + Duration(12.),
 		accept_connection, (void *)this);
     
@@ -178,7 +179,7 @@ int TcpShell::help(ShellClient &cl, void *data, int argc, char **argv) {
 	    }
 	    return 0;
 	} else {
-	    *cl.sockout << "Unknown command " << argv[1] << endl;
+	    *cl.sockout << "Unknown command '" << argv[1] << "'!" << endl;
 	    return 1;
 	}
     } else {
@@ -225,7 +226,7 @@ void TcpShell::accept_connection(gea::Handle *h, gea::AbsTime t, void *data) {
 	UnixFdHandle *fdHandle = new UnixFdHandle(client_fd, ShadowHandle::Read);
 	self->clients[client_fd] = TcpShellClient(self, client_fd, fdHandle, shellout, peer_addr);
 	//implicit:
-	self->clients[client_fd].prompt();
+	self->clients[client_fd].prompt(true);
     }
     
     GEA.waitFor(h, t + Duration(12.3), accept_connection, data);
@@ -285,7 +286,7 @@ void TcpShellClient::read_client_data(gea::Handle *h, gea::AbsTime t, void *data
 	    	assert(!"Shell connection died in progress");
 	    }
 	    
-	    //XXX:
+	    //XXX: cross layer
 	    self->shell->clients.erase(self->fd);
 	    return;
 	}
@@ -306,23 +307,25 @@ void TcpShellClient::read_client_data(gea::Handle *h, gea::AbsTime t, void *data
 	    memmove(self->cmd_buf, &self->cmd_buf[nlpos+1], self->cmd_buf_len - nlpos - 1);
 	    self->cmd_buf_len -= 1 + nlpos;
 	    assert(self->cmd_buf_len >= 0);
+	    if (self->state == CS_Idle) {
+		self->prompt(false);
+	    }
 	}
     } else {
 	// XXX: timeout handling
     }
     
     if (self->state == CS_Idle) {
-	// XXX: line mode?
-    	self->prompt();
+	GEA.waitFor(h, t + Duration(120.), read_client_data, data); 
     }
-    //GEA.waitFor(h, t + Duration(120.), read_client_data, data); 
 }
 
 
-void TcpShellClient::prompt() {
+void TcpShellClient::prompt(bool wait) {
 	*sockout << "# ";
 	sockout->flush();
-	GEA.waitFor(sockin, AbsTime::now() + Duration(120.), read_client_data, this);
+	if (wait)
+	    GEA.waitFor(sockin, AbsTime::now() + Duration(120.), read_client_data, this);
 }
 
 void TcpShellClient::block() {
@@ -333,23 +336,24 @@ void TcpShellClient::block() {
 void TcpShellClient::unblock() {
 	assert(state == CS_Blocked);
 	state = CS_Idle;
-	prompt();
+	prompt(true);
 }
 
 
-void ping_stop(gea::Handle *h, gea::AbsTime t, void *data) {
+void test_stop(gea::Handle *h, gea::AbsTime t, void *data) {
     ShellClient *sc = static_cast<ShellClient *>(data);
 
+    *sc->sockout << "Now he is dead." << endl;
     sc->unblock();
 }
 
-int ping(ShellClient &sc, void *data, int argc, char **argv) {
+int test(ShellClient &sc, void *data, int argc, char **argv) {
     if (argc > 1)
 	*sc.sockout << "I shot " << argv[1] << "!" << endl;
     else
 	*sc.sockout << "I shot the sherriff!" << endl;
     sc.block();
-    GEA.waitFor(sc.sockin, AbsTime::now() + Duration(3.), ping_stop, &sc);
+    GEA.waitFor(sc.sockin, AbsTime::now() + Duration(3.), test_stop, &sc);
     return 0;
 }
 
@@ -366,7 +370,7 @@ int gea_main(int argc, const char  * const *argv) {
     
 
     Shell *sh = new TcpShell();
-    sh->add_command("ping", ping, NULL, "test the connectivity of a node", NULL);
+    sh->add_command("test", test, NULL, "shell function example", "shell function example long help");
 
     rep.insertObj("shell", "Shell", (void*)sh);
   
