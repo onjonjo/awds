@@ -3,6 +3,7 @@
 #include <cassert>
 #include <limits>
 #include <iostream>
+#include <algorithm>
 
 #include <gea/API.h>
 
@@ -365,12 +366,12 @@ void RTopology::calcRoutes() {
 	    if (newDist < neigh.distance) {
 
 		// debugging stuff 
-		if ( find(todo.begin(), todo.end(), itr2) == todo.end() ) {
-		    GEA.dbg() << " new path to " <<  itr2->first 
-			      << " pref=(" << itr2->second.prevHop << ") "
-			      << " shorter than previous found" << std::endl;
-		    assert (!"ouch!" );
-		}
+	// 	if ( find(todo.begin(), todo.end(), itr2) == todo.end() ) {
+// 		    GEA.dbg() << " new path to " <<  itr2->first 
+// 			      << " pref=(" << itr2->second.prevHop << ") "
+// 			      << " shorter than previous found" << std::endl;
+// 		    assert (!"ouch!" );
+// 		}
 		// end of debugging stuff 
 		neigh.distance = newDist;
 		neigh.prevHop = nearest->first;
@@ -451,6 +452,25 @@ void RTopology::createRemoveMessages(const NodeId& node, const NDescr& nDescr ) 
     
 }
 
+
+struct doInvalidate {
+    gea::AbsTime t;
+    const NodeId& myNodeId;
+    
+    doInvalidate(gea::AbsTime t, const NodeId myId) : t(t), myNodeId(myId) {}
+    void operator ()( RTopology::AdjList::value_type& v)  const  {
+	if (v.first != myNodeId) {
+	    v.second.validity = t;
+	}
+    }
+};
+
+
+void RTopology::reset() {
+    this->dirty = true;
+    std::for_each(adjList.begin(), adjList.end(), doInvalidate(gea::AbsTime::now(), myNodeId) );
+    removeOldNodes(gea::AbsTime::now());
+} 
 
 gea::AbsTime RTopology::removeOldNodes(gea::AbsTime t) {
 

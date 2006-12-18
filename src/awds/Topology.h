@@ -62,6 +62,7 @@ public:
 
     void setLocked(bool t) { locked = t; };
     bool getLocked() const { return locked; }
+    virtual void reset();
     
     virtual bool hasLink(const NodeId& from, const NodeId&to) const;
     void feed(const TopoPacket& p, gea::AbsTime t);    

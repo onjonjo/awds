@@ -55,6 +55,7 @@ void TopoLock::topolock_recv(BasePacket *p, gea::AbsTime t, void *data) {
 	topology->setLocked(false);
 	break;
     case TopoLockCmd_Reset:
+	topology->reset();
 	topology->setLocked(false);
 	break;
 	
@@ -139,7 +140,6 @@ int awdsRouting_gea_main(int argc, const char  * const *argv)
     }
     
     new TopoLock(awdsRouting);
-    
     
     return 0;
 }
