@@ -1,8 +1,16 @@
+awds (3.2) unstable; urgency=low
+
+  * topology got reset command 
+  * added topolock module
+
+ -- Andre Herms <aherms@ivs.cs.uni-magdeburg.de>  Mon, 18 Dec 2006 19:07:06 +0100
+
 awds (3.1) unstable; urgency=low
 
   * remove debian revision numbers, this is now included in the main version
+  * added shell
 
- -- Andre Herms <aherms@ivs.cs.uni-magdeburg.de>  Mon, 18 Dec 2006 08:56:31 +0100
+ -- Andre Herms <aherms@ivs.cs.uni-magdeburg.de>  Mon, 18 Dec 2006 18:11:59 +0100
 
 awds (3.0-1) unstable; urgency=low
 
