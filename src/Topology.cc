@@ -131,12 +131,20 @@ void RTopology::feed(const TopoPacket& p, gea::AbsTime t) {
 	
     }
  
-    // read the name.
-    char buf[33];
-    strncpy(buf, addr, 32);
-    buf[32]='\0'; // add termination, evtl. its the second one. 
-    bool nameHasChanged = strcmp( itr->second.nodeName, buf) != 0;
-    strcpy(itr->second.nodeName, buf); 
+    bool nameHasChanged = false;
+    
+    
+    if (p.packet.buffer + p.packet.size > addr) {
+	char buf[33];
+	
+	unsigned  namelen = (unsigned)(unsigned char)(*addr++);
+	if (namelen > 32) namelen = 32;
+	
+	memcpy(buf, addr, namelen);
+	buf[namelen]='\0'; // add termination, evtl. its the second one. 
+	nameHasChanged = strcmp( itr->second.nodeName, buf) != 0;
+	strcpy(itr->second.nodeName, buf); 
+    }
     
     if (!newXmlTopologyDelta.empty() && nameHasChanged) {
 	ostringstream ns;
@@ -284,7 +292,9 @@ std::string RTopology::getXmlString() const {
     for (AdjList::const_iterator i = adjList.begin();
 	 i != adjList.end(); ++i) {
 	
-	os << "<node id=\"" << i->first << "\" />\n";
+	os << "<node id=\"" << i->first << "\" name=\"" 
+	   << getNameOfNode(i->first)
+	   << "\" />\n";
     }
     
     for (AdjList::const_iterator i = adjList.begin();

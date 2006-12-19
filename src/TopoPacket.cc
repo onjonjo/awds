@@ -62,11 +62,16 @@ void TopoPacket::setNeigh(AwdsRouting *awdsRouting, gea::AbsTime t) {
 	    }
     }	
     
-    strncpy(addr, awdsRouting->topology->nodeName, 32);
+    const char* nodeName = awdsRouting->topology->nodeName;
+    int len = strlen(nodeName);
+    if (len > 32) len = 32;
+    *(addr++) = (char)len;
+    memcpy(addr, nodeName, len);
+    
     packet.buffer[OffsetNumLinks] = (char)n;
     packet.size = 
 	OffsetLinks + (NodeId::size + 1) * (size_t)(n) 
-	+ 32 /* the station name */;
+	+ len+1 /* the station name */;
     
     //  assert(getNumLinks() == n);
 }   
