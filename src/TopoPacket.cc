@@ -2,6 +2,7 @@
 
 #include <algorithm>
 
+#include <awds/Topology.h>
 #include <awds/TopoPacket.h>
 #include <awds/routing.h>
 #include <awds/RateMonitor.h>
@@ -61,8 +62,11 @@ void TopoPacket::setNeigh(AwdsRouting *awdsRouting, gea::AbsTime t) {
 	    }
     }	
     
+    strncpy(addr, awdsRouting->topology->nodeName, 32);
     packet.buffer[OffsetNumLinks] = (char)n;
-    packet.size = OffsetLinks + (NodeId::size + 1) * (size_t)(n);
+    packet.size = 
+	OffsetLinks + (NodeId::size + 1) * (size_t)(n) 
+	+ 32 /* the station name */;
     
     //  assert(getNumLinks() == n);
 }   

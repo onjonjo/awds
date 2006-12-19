@@ -24,6 +24,9 @@ RTopology::RTopology(NodeId id) :
 {
     adjList.clear();
     adjList[myNodeId] = NDescr();
+
+    // zero string as default name.
+    nodeName[0] = '\0';
     
     // start regular cleanup of removed stations.
     gea::AbsTime t = gea::AbsTime::now();
@@ -54,7 +57,7 @@ RTopology::getNodeEntry(const NodeId& id, gea::AbsTime t ) {
 	if (!newXmlTopologyDelta.empty()) {
 	    ostringstream ns;
 	    ns << "<topodiff>\n";
-	    ns << "  <add_node id=\"" << id << "\" />\n";  
+	    ns << "  <add_node id=\"" << id << "\" name=\"" << getNameOfNode(id) <<"\" />\n";  
 	    ns << "</topodiff>";
 	    string s = ns.str();
 	    newXmlTopologyDelta(s);
@@ -63,6 +66,14 @@ RTopology::getNodeEntry(const NodeId& id, gea::AbsTime t ) {
     return itr;    
 }
 
+std::string RTopology::getNameOfNode(const NodeId& id) const {
+    AdjList::const_iterator itr = adjList.find(id);
+    const char *n = itr->second.nodeName;
+    if (itr == adjList.end() ) { // not found 
+	return std::string("");
+    }
+    return std::string(n);
+}
 
 void RTopology::feed(const TopoPacket& p, gea::AbsTime t) {
     
@@ -118,6 +129,21 @@ void RTopology::feed(const TopoPacket& p, gea::AbsTime t) {
 	if (itsValidity < newValidity)
 	    itsValidity = newValidity;
 	
+    }
+ 
+    // read the name.
+    char buf[33];
+    strncpy(buf, addr, 32);
+    buf[32]='\0'; // add termination, evtl. its the second one. 
+    bool nameHasChanged = strcmp( itr->second.nodeName, buf) != 0;
+    strcpy(itr->second.nodeName, buf); 
+    
+    if (!newXmlTopologyDelta.empty() && nameHasChanged) {
+	ostringstream ns;
+	ns << "<modify_node id=\"" 
+	   << src << "\" name=\"" 
+	   << getNameOfNode(src) << "\" />\n";
+	deltaN += ns.str();
     }
     
     if (!newXmlTopologyDelta.empty()) {

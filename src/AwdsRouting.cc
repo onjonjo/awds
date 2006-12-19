@@ -615,6 +615,12 @@ int awdsRouting_gea_main(int argc, const char  * const *argv)
 	//	rateMonitor->update();
     }
     
+    if ( (argc >= 3) && (!strcmp(argv[1], "--name") ) ) {
+	strncpy(awdsRouting->topology->nodeName, argv[2], 32);
+    }
+    
+
+    
     
     return 0;
 }

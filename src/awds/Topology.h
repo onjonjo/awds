@@ -15,11 +15,16 @@
 
 class TopoPacket;
 
+/** class that contains all topology information of the routing 
+ *
+ */
 class RTopology { 
 
     gea::Blocker cleanup_blocker;
     
 public:
+    
+    char nodeName[32];
     
     static void cleanup_nodes(gea::Handle *h, gea::AbsTime t, void *data); 
     
@@ -35,10 +40,14 @@ public:
 	
 	unsigned long distance;
 	
+	char nodeName[33];
+	
 	NDescr() : 
 	    nList(),
 	    qList()
-	{}
+	{
+	    nodeName[0]='\0';
+	}
     };
     
     typedef std::map<NodeId, NDescr> AdjList;
@@ -66,6 +75,8 @@ public:
     
     virtual bool hasLink(const NodeId& from, const NodeId&to) const;
     void feed(const TopoPacket& p, gea::AbsTime t);    
+
+    virtual std::string getNameOfNode(const NodeId& id) const;
     
     int getNumNodes() const {
 	return adjList.size();
