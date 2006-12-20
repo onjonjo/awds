@@ -67,12 +67,37 @@ RTopology::getNodeEntry(const NodeId& id, gea::AbsTime t ) {
 }
 
 std::string RTopology::getNameOfNode(const NodeId& id) const {
+    
+    string ret;
+    bool ambiguous = false;
+
     AdjList::const_iterator itr = adjList.find(id);
     const char *n = itr->second.nodeName;
-    if (itr == adjList.end() ) { // not found 
-	return std::string("");
+    
+    if ( itr == adjList.end() || strlen(n) == 0 ) { // not found 
+	ret = "";
+	ambiguous = true;
+    } else {
+	ret = n;
     }
-    return std::string(n);
+    
+
+    for (itr = adjList.begin(); itr != adjList.end(); ++itr) {
+	if ( 0 == strcmp(itr->second.nodeName, n ) && itr->first != id ) {
+	    ambiguous = true;
+	    break;
+	}
+    }
+    
+
+    if (ambiguous) {
+	ostringstream os;
+	os << ret << "[" << id << "]";
+	ret = os.str();
+    }
+    
+    return ret;
+    
 }
 
 void RTopology::feed(const TopoPacket& p, gea::AbsTime t) {
