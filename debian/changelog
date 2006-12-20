@@ -1,3 +1,9 @@
+awds (4.3) unstable; urgency=low
+
+  * added name service
+
+ -- Andre Herms <aherms@ivs.cs.uni-magdeburg.de>  Wed, 20 Dec 2006 15:43:08 +0100
+
 awds (3.2) unstable; urgency=low
 
   * topology got reset command 

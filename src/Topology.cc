@@ -173,7 +173,7 @@ void RTopology::feed(const TopoPacket& p, gea::AbsTime t) {
     
     if (!newXmlTopologyDelta.empty() && nameHasChanged) {
 	ostringstream ns;
-	ns << "<modify_node id=\"" 
+	ns << "  <modify_node id=\"" 
 	   << src << "\" name=\"" 
 	   << getNameOfNode(src) << "\" />\n";
 	deltaN += ns.str();
