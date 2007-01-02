@@ -31,6 +31,7 @@ echo Starting AWDS on $DEVICE
 
 exec gea_start -i <<END
 shell.so
+daemon.so --pidfile /var/run/awds.pid
 rawbasic.so $DEVICE
 awdsrouting.so --name $HOSTNAME
 #.libs/pinger.so

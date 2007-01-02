@@ -192,7 +192,7 @@ void RTopology::feed(const TopoPacket& p, gea::AbsTime t) {
 			ostringstream qs;
 			qs << "  <modify_edge from=\"" << src << "\" to=\"" 
 			   << nList[i] << "\"> <quality value=\""
-			   << (qList[i] * 100 / 0xff ) << "%\" /></modify_edge>\n";
+			   << ((0xff - qList[i]) * 100 / 0xff ) << "%\" /></modify_edge>\n";
 			deltaQ += qs.str();
 		    }
 		    break;
@@ -204,7 +204,7 @@ void RTopology::feed(const TopoPacket& p, gea::AbsTime t) {
 		ostringstream es;
 		es << "  <add_edge from=\"" << src << "\" to=\"" 
 		   << nList[i] << "\"> <quality value=\""
-		   << (qList[i] * 100 / 0xff) << "%\" /></add_edge>\n";
+		   << ( (0xff - qList[i]) * 100 / 0xff) << "%\" /></add_edge>\n";
 		deltaN += es.str();
 	    }
 	}
@@ -329,7 +329,7 @@ std::string RTopology::getXmlString() const {
 	for (size_t j = 0; j < i->second.nList.size(); ++j ) {
 	    os << "<edge from=\"" << i->first << "\" to=\""
 	       << (i->second.nList[j]) << "\" ><quality value=\""
-	       << (i->second.qList[j] * 100 / 0xff) << "%\" /></edge>\n";
+	       << ( (0xff - i->second.qList[j]) * 100 / 0xff) << "%\" /></edge>\n";
 	}
     }
     //    for_each(adjList.begin(), adjList.end(), printAdjX(os));
@@ -529,8 +529,9 @@ struct doInvalidate {
 
 void RTopology::reset() {
     this->dirty = true;
-    std::for_each(adjList.begin(), adjList.end(), doInvalidate(gea::AbsTime::now(), myNodeId) );
-    removeOldNodes(gea::AbsTime::now());
+    gea::AbsTime t = gea::AbsTime::now();
+    std::for_each(adjList.begin(), adjList.end(), doInvalidate(t, myNodeId) );
+    removeOldNodes(t);
 } 
 
 gea::AbsTime RTopology::removeOldNodes(gea::AbsTime t) {
@@ -605,34 +606,47 @@ gea::AbsTime RTopology::removeOldNodes(gea::AbsTime t) {
     return nextTimeout;
 }
 
+std::string RTopology::getNameList() const {
+    std::ostringstream os;
+    for (AdjList::const_iterator itr = adjList.begin();
+	 itr != adjList.end();
+	 ++itr) 
+	{
+	    os << itr->first << "\t'" << itr->second.nodeName << "'\n";
+	}
+    return os.str();
+}
 
 
-static const char *topo_cmd_usage = 
-    "topo <cmd> \n"
-    " with <cmd> \n"
-    "    dump        print the current topology\n"
-    "    get_locked  print the lock status of the topology\n"
-    "    lock        lock the topology\n"
-    "    unlock      unlock the topology\n"
-    ;
+static const char *topo_cmd_usage = "topo <cmd> \n"
+ " with <cmd> \n"
+ "    dump        print the current topology\n"
+ "    get_locked  print the lock status of the topology\n"
+ "    lock        lock the topology\n"
+ "    unlock      unlock the topology\n"
+ "    names       list the known names of all stations\n"
+ ;
 
 static int topo_command_fn(ShellClient &sc, void *data, int argc, char **argv) {
     RTopology *topology = static_cast<RTopology *>(data);
     
-    if ( (argc >= 2) && !strcmp(argv[1], "dump") ) {
+    if ( (argc == 2) && !strcmp(argv[1], "dump") ) {
 	*sc.sockout << topology->getAdjString() << endl;
 	
 	return 0;
-    } else   if ( (argc >= 2) && !strcmp(argv[1], "get_locked") ) {
+    } else   if ( (argc == 2) && !strcmp(argv[1], "get_locked") ) {
 	*sc.sockout << (topology->getLocked() ? "true" : "false") << endl;
 	return 0;
-    } else if ( (argc >= 2) && !strcmp(argv[1], "lock") ) {
+    } else if ( (argc == 2) && !strcmp(argv[1], "lock") ) {
 	topology->setLocked(true);
 	*sc.sockout << "topology is now locked" << endl;
 	return 0;
-    } else if ( (argc >= 2) && !strcmp(argv[1], "unlock") ) {
+    } else if ( (argc == 2) && !strcmp(argv[1], "unlock") ) {
 	topology->setLocked(false);
 	*sc.sockout << "topology is now unlocked" << endl;
+	return 0;
+    } else if ( (argc == 2) && !strcmp(argv[1], "names") ) {
+	*sc.sockout << topology->getNameList();
 	return 0;
     }
     

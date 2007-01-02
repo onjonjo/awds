@@ -1,0 +1,10 @@
+
+The debian packages of AWDS are maintained by  Andre Herms <aherms@ivs.cs.uni-magdeburg.de>.
+AWDS was developed and tested in the Debian world and therefore all versions are released as
+debian packages. 
+
+License:
+
+The source code and binaries are currently released under the LGPL. 
+You can find a copy of the license in /usr/share/common-licenses/LGPL-2.1 .
+

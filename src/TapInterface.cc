@@ -98,7 +98,6 @@ bool TapInterface::createDevice(const char *dev) {
     
     strncpy(devname, ifr.ifr_name, IFNAMSIZ);
     
-    
     return true;
 }
 

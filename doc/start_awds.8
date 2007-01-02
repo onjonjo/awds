@@ -1,0 +1,48 @@
+.TH START_AWDS 8 "17 December 2006" "awds" "AWDS Manual"
+.SH NAME
+start_awds \- start the AWDS routing daemon
+.SH SYNOPSIS
+
+.ad l
+.in +8
+.ti -8
+.B start_awds
+.RI "[ " DEVICE " ] "
+.sp
+
+.SH DESCRIPTION
+
+.B start_awds
+is used to start the AWDS wireless mesh routing daemon. The daemon creates a virtual network
+interface, usually called 
+.I awds0
+which can be used for reaching all station in the wireless mesh. All these devices are virtually connected
+like a switched Ethernet. Therefore, all protocols that can be used with a switched Ethernet can also 
+be used on top of AWDS, e.g. 
+.BR DHCP,
+,
+.BR arp(7)
+, 
+.BR ip(7)
+,
+.BR
+ipv6(7)
+, etc. Furthermore, the 
+.I awds0
+device can be bridged with other devices to create a connection to an existing wired infrastructure (see 
+.BR brctl (8)  
+for details). 
+
+
+.SH OPTIONS
+
+.BR "DEVICE"
+the network device to use. This overrides the settings from awds.conf
+
+
+.SH SEE ALSO
+.BR awds.conf (5)
+.br
+
+.SH AUTHOR
+Original Manpage  by Andre Herms <aherms@ivs.cs.uni-magdeburg.de>

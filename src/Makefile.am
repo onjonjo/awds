@@ -1,7 +1,7 @@
 	SUBDIRS =  crypto 
 
 
-module_flags = -module  -avoid-version -export-symbols-regex gea_main
+module_flags = -module  -avoid-version -export-symbols-regex gea_main 
 
 #AM_CPPFLAGS= @GEAINC@ -pedantic -Wno-long-long
 AM_CPPFLAGS=  -pedantic -Wno-long-long 
@@ -16,6 +16,7 @@ pkglib_LTLIBRARIES = \
 	tapiface2.la \
 	topowatch.la \
 	shell.la \
+	daemon.la \
 	topodump.la \
 	topolock.la \
 	aesccm.la  \
@@ -96,7 +97,7 @@ topodump_la_SOURCES = dumpTopo.cc
 topodump_la_LDFLAGS = -module  -avoid-version -export-symbols-regex gea_main
 
 topolock_la_SOURCES = TopoLock.cc
-topolock_la_LDFLAGS = -module  -avoid-version -export-symbols-regex gea_main
+topolock_la_LDFLAGS = $(module_flags)
 
 
 
@@ -133,6 +134,9 @@ aesccm_la_SOURCES = \
 aesccm_la_CPPFLAGS = -DMODULE_NAME=aesccm
 aesccm_la_LDFLAGS  = -module  -avoid-version -export-symbols-regex gea_main
 
+daemon_la_SOURCES = debug_cmd.cc
+daemon_la_CPPFLAGS = -DMODULE_NAME=daemon
+daemon_la_LDFLAGS  = -module  -avoid-version -export-symbols-regex gea_main
 
 
 awds_SOURCES = awds.cc

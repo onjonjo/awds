@@ -77,6 +77,7 @@ public:
     void feed(const TopoPacket& p, gea::AbsTime t);    
 
     virtual std::string getNameOfNode(const NodeId& id) const;
+    std::string getNameList() const;
     
     int getNumNodes() const {
 	return adjList.size();

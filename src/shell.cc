@@ -85,11 +85,8 @@ public:
     void add_command(const string name, shell_command_fn *command,
    		void *data, const char *descr, const char *help);
     ShellCommand *get_command(string name);
-
     
 };
-
-
 
 
 #define HELP \
@@ -103,7 +100,12 @@ public:
 
 TcpShell::TcpShell()
 {
-    createSocket();
+    bool can_start = createSocket();
+    if (!can_start) {
+	GEA.dbg() << "cannot create TCP socket on port " << PORT << endl;
+	return;
+    }
+    
     lHandle = new UnixFdHandle(l_socket, ShadowHandle::Read);
     
     add_command("help", help, this, "print the help for a command", HELP);
@@ -125,7 +127,7 @@ bool  TcpShell::createSocket() {
 	
     addr.sin_family = AF_INET;
     addr.sin_port = htons(PORT);
-    addr.sin_addr.s_addr = INADDR_ANY;
+    addr.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
     socklen = sizeof( struct sockaddr_in);
 	
     int one = 1;
@@ -173,7 +175,7 @@ int TcpShell::help(ShellClient &cl, void *data, int argc, char **argv) {
     if (argc > 1) {
 	ShellCommand *scmd = self->get_command(argv[1]);
 	if (scmd != NULL) {
-	    *cl.sockout << argv[1] << " - " << scmd->desc << endl;
+	    *cl.sockout << argv[1] << "\t- " << scmd->desc << endl;
 	    if (scmd->help) {
 		*cl.sockout << endl << scmd->help << endl;
 	    }
@@ -185,7 +187,7 @@ int TcpShell::help(ShellClient &cl, void *data, int argc, char **argv) {
     } else {
 	map<string, ShellCommand>::iterator cmd;
 	for (cmd = self->commands.begin(); cmd != self->commands.end(); cmd++) {
-	    *cl.sockout << cmd->first << " - " << cmd->second.desc << endl;
+	    *cl.sockout << cmd->first << "\t- " << cmd->second.desc << endl;
 	}
 	return 0;
     }
@@ -255,12 +257,12 @@ bool TcpShellClient::parse_command(char *buf, int len) {
 	    GEA.dbg() << "Illegal input from " << inet_ntoa(peer_addr.sin_addr) << ":" << ntohs(peer_addr.sin_port) << endl;
 	    return false;
     }
-    GEA.dbg() << "parse_command '" << buf << "' " << argc << " " << len << endl;
+    //    GEA.dbg() << "parse_command '" << buf << "' " << argc << " " << len << endl;
 
     char *strtrtr;
     argv[argc] = strtok_r(buf, CMD_IFS, &strtrtr);
     while ((argc < CMD_PARAM_MAX-1) && argv[argc] != NULL) {
-    	GEA.dbg() << "arg " << argc << ": " << argv[argc] << endl;
+    	//GEA.dbg() << "arg " << argc << ": " << argv[argc] << endl;
 	argc++;
 	argv[argc] = strtok_r(NULL, CMD_IFS, &strtrtr);
     }
@@ -357,9 +359,13 @@ int test(ShellClient &sc, void *data, int argc, char **argv) {
     return 0;
 }
 
-extern "C" 
-int gea_main(int argc, const char  * const *argv) {
-    
+extern "C"
+#ifdef PIC
+int gea_main(int argc, const char  * const * argv) 
+#else
+int awdsRouting_gea_main(int argc, const char  * const *argv) 
+#endif
+{    
 
     ObjRepository& rep = ObjRepository::instance();
     //RTopology *topology = (RTopology *)rep.getObj("topology");

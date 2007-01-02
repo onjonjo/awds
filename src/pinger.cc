@@ -138,10 +138,14 @@ void Pinger::ping_recv(BasePacket *p, gea::AbsTime t, void *data) {
 }
 
 
-
-extern "C" 
-int gea_main(int argc, const char  * const * argv) {
+extern "C"
+#ifdef PIC
+int gea_main(int argc, const char  * const * argv) 
+#else
+int awdsRouting_gea_main(int argc, const char  * const *argv) 
+#endif
     
+{    
     
     ObjRepository& rep = ObjRepository::instance();
     Routing *awdsRouting = (Routing *)rep.getObj("awdsRouting");

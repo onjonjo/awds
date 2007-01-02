@@ -1,3 +1,9 @@
+awds (5.0) unstable; urgency=low
+
+  * propagate hostname via name service
+
+ -- Andre Herms <aherms@ivs.cs.uni-magdeburg.de>  Wed, 20 Dec 2006 16:11:36 +0100
+
 awds (4.3) unstable; urgency=low
 
   * added name service

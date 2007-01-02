@@ -1,8 +1,3 @@
-//
-// sockstream.cc - various tests on socket streams, using C++ with homemade
-//                 networkbuf, C++ with gnu's stdio_filebuf, and C with
-//                 plain old fopen and friends.  Compiles on gcc 3.3.4.
-//
 // Copyright 2005, Chris Frey.  To God be the glory.
 // You are free to use, modify, redistribute, and sublicense this code,
 // as long as this copyright message is not removed from the source,
@@ -53,71 +48,87 @@
 
 class UnixFdStreamBuf : public  std::basic_streambuf<char> {
   
-  static const size_t bufSize = 256;
-  char buffer[bufSize + 1]; // one additional character for  overflow ...
+    static const size_t bufSize = 256;
+    char buffer[bufSize + 1]; // one additional character for  overflow ...
   
-  const int fd;
+    const int fd;
   
 public:
-  UnixFdStreamBuf(int fd) : std::basic_streambuf<char>(),
-			    fd(fd)
-  {
-    setp(buffer, buffer + bufSize);
-  };
+    UnixFdStreamBuf(int fd) : std::basic_streambuf<char>(),
+			      fd(fd)
+    {
+	setp(buffer, buffer + bufSize);
+    };
   
-  // write out any data in the out buffer, and write c as well if c!=eof()
-  virtual int_type overflow (int_type c) {
-    //		cout << "overflow called: " << c << endl;
-    assert( pbase() );
-    bool have_extra = c != traits_type::eof();
+    // write out any data in the out buffer, and write c as well if c!=eof()
+    virtual int_type overflow (int_type c) {
+	//		cout << "overflow called: " << c << endl;
+	assert( pbase() );
+	bool have_extra = c != traits_type::eof();
 
-    // pbase() is a pointer at the start of our buffer,
-    // and pptr() is a pointer to the next free spot,
-    // so we can check for data in buffer by comparing them
-    if( pptr() > pbase() || have_extra ) {
-      // we have something to write!
-      ssize_t count = pptr() - pbase();
-      if( have_extra ) {
-	// tack extra value onto the end of the buf
-	// (note constructor added a byte for us here,
-	// just in case)
-	*(pptr()) = traits_type::to_char_type(c);
-	count++;
-      }
+	// pbase() is a pointer at the start of our buffer,
+	// and pptr() is a pointer to the next free spot,
+	// so we can check for data in buffer by comparing them
+	if( pptr() > pbase() || have_extra ) {
+	    // we have something to write!
+	    ssize_t count = pptr() - pbase();
+	    if( have_extra ) {
+		// tack extra value onto the end of the buf
+		// (note constructor added a byte for us here,
+		// just in case)
+		*(pptr()) = traits_type::to_char_type(c);
+		count++;
+	    }
 
-      // loop and write all bytes, even if ::write() returns
-      // less than what we asked for
-      ssize_t written;
-      char_type *wp = pbase();
-      do {
-	written = ::write( this->fd, wp, count);
-	
-	if( written > 0 ) {
-	  count -= written;
-	  assert(count >= 0);
-	  wp += written;
+	    char_type *wp = pbase();
+	    
+	    if ( ! writeSomeBytes(wp, count) )
+		return traits_type::eof();
+	    
+	    // reset output buffer to empty state
+	    setp(buffer, buffer+bufSize);
 	}
-	else {
-	  // fixme... do we set badbit here?
-	  // failbit?
-	  return traits_type::eof();
-	}
-      } while(count);
-      // reset output buffer to empty state
-      setp(buffer, buffer+bufSize);
+	return traits_type::not_eof(c);
     }
-    return traits_type::not_eof(c);
-  }
 
   
-  virtual int sync() {
-    if( overflow(traits_type::eof()) == traits_type::eof() )
-      return -1;
-    return 0;
-  }
+    virtual int sync() {
+	if( overflow(traits_type::eof()) == traits_type::eof() )
+	    return -1;
+	return 0;
+    }
   
+protected:
+    
+    virtual bool writeSomeBytes(const char *data, int count) {
+	int ret;
+	
+	do {
+	    do {
+	    ret = ::write( this->fd, data, count);
+	    } while (ret == -1 && errno == EINTR);
+	    
+	    if( ret > 0 ) {
+		count -= ret;
+		assert(count >= 0);
+		data += ret;
+	    }
+	    else {
+		// fixme... do we set badbit here?
+		// failbit?
+		return false;
+	    }
+	} while(count);
 
+	return true;
+    }
 };
 
 
 
+/* This stuff is for emacs
+ * Local variables:
+ * mode:c++
+ * c-basic-offset: 4
+ * End:
+ */
