@@ -1,0 +1,18 @@
+#!/bin/sh
+
+CONF_FILE=/etc/awds.conf
+[ -e $CONF_FILE ] && source $CONF_FILE
+
+
+# use this for early detection of wrong configured stack:
+export LD_BIND_NOW=1
+export LD_LIBRARY_PATH=/usr/lib/awds
+ 
+cd $(dirname $0)
+
+ACTION=--kill
+test "$1" = "--test" && ACTION=-t
+
+exec gea_start daemon.so $ACTION --pidfile /var/run/awds.pid
+
+
