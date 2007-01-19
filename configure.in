@@ -1,5 +1,6 @@
 dnl init autoconf and automake
-AC_INIT([awds],[1.2])
+m4_include([version.m4])
+AC_INIT([awds], MAJOR_VERSION_NUMBER.MINOR_VERSION_NUMBER)
 AM_INIT_AUTOMAKE(1.7)
 
 dnl CPPFLAGS=' -Werror -Wall'

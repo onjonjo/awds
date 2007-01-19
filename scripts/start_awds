@@ -27,17 +27,32 @@ then
 AESCCM="aesccm.so -k $KEY_FILE"
 fi
 
-echo Starting AWDS on $DEVICE
+AWDS_SHELL=''
+[ "$USE_AWDS_SHELL" = yes ] && AWDS_SHELL='shell.so'
+
+AWDS_TOPO=''
+[ "$USE_TOPO_EXPORT" = yes ] && AWDS_TOPO='topowatch.so'
+
+
+if [ "$DEV_CHANGE_WIRELESS_SETTINGS" = yes ]
+then
+    /sbin/ifconfig $DEVICE down
+    /sbin/iwconfig $DEVICE mode ad-hoc channel $DEV_WIRELESS_CHANNEL essid $DEV_WIRELESS_ESSID
+    /sbin/ifconfig $DEVICE up
+fi
+
+
+# echo Starting AWDS on $DEVICE
 
 exec gea_start -i <<END
-shell.so
+$AWDS_SHELL
 daemon.so --pidfile /var/run/awds.pid
 rawbasic.so $DEVICE
 awdsrouting.so --name $HOSTNAME
 #.libs/pinger.so
 $AESCCM
 tapiface2.so
-topowatch.so
+$AWDS_TOPO
 topolock.so
 END
 

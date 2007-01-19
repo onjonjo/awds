@@ -10,16 +10,4 @@ endif
 aescrypt.mmx.o: gladman/aescrypt.mmx.asm
 	nasm -O2 -felf gladman/aescrypt.mmx.asm -o aescrypt.mmx.o
 
-EXTRA_PROGRAMS = crypto_test
-
-crypto_test_SOURCES = \
-	crypto_test.cc \
-	$(AES_IMPL) \
-	gladman/aes.h \
-	gladman/aeskey.c \
-	gladman/aesopt.h \
-	gladman/aestab.c \
-	gladman/ccm.c \
-	gladman/ccm.h 
-
 
