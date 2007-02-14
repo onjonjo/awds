@@ -1,0 +1,203 @@
+#! /usr/bin/ns
+
+# ns-2 script for simulating a AWDS network
+
+
+set awdspath ../src/.libs/
+
+set scriptname simple
+
+set tracefd  [open "|gzip > $scriptname.tr.gz" w]
+set namtrace [open "|gzip > $scriptname.nam.gz" w]
+
+#set tracefd  [open "/tmp/$scriptname.tr" w]
+#set namtrace [open "/tmp/$scriptname.nam" w]
+ 
+#set namtrace [open "|nam -" w]
+
+
+#set shadowing model parameters to values of Prism54 (Netgear WG511)
+source wlan.inc
+
+# overide settings here
+#Mac/802_11 set basicRate_ 3.1e6
+
+
+set val(rp)             DumbAgent                  ;# routing protocol
+set val(chan)           Channel/WirelessChannel    ;# Channel Type
+set val(prop)           Propagation/Shadowing      ;# radio-propagation model
+#set val(prop)           Propagation/TwoRayGround
+set val(netif)          Phy/WirelessPhy            ;# network interface type
+set val(mac)            Mac/802_11                 ;# MAC type
+set val(ifq)            Queue/DropTail/PriQueue    ;# interface queue type
+set val(ll)             LL                         ;# link layer type
+set val(ant)            Antenna/OmniAntenna        ;# antenna model
+set val(ifqlen)         10                         ;# max packet in ifq
+set val(nn)             30                        ;# number of mobilenodes
+set val(x)	        1000
+set val(y)	        100
+set val(stop_time)      5000.
+set val(max_speed)      0.0001
+set val(min_speed)      0.0001
+
+set val(min_stay)	10.
+set val(max_stay)	1000.
+
+set val(antgain_min)    20.
+set val(antgain_max)    30.
+
+
+set ping_src 2
+set ping_dest 3
+
+
+#set myrng_ [new RNG]
+
+proc UniformErr {} {
+    set err [new ErrorModel]
+    $err unit packet
+    $err set rate_ 0.0
+    #$err set rate_ 0.015
+    $err ranvar [new RandomVariable/Uniform]
+
+    $err drop-target [new Agent/Null]
+
+    return $err
+}
+
+
+$defaultRNG seed 1
+# set seed for positions
+if {$argc==2} {
+ $defaultRNG seed [lindex $argv 1]
+ puts "seed: $argv"
+}
+
+
+for {set i 1} {$i <= $val(nn) } {incr i} {
+    set posx($i) [$defaultRNG uniform 0 $val(x) ]
+    set posy($i) [$defaultRNG uniform 0 $val(y) ]
+}
+
+# initilise global seed 
+if {$argc==1} {
+    $defaultRNG seed [lindex $argv 0]
+    puts "seed: $argv"
+}
+
+Classifier/Port instproc no-slot foo {}
+
+remove-all-packet-headers
+foreach prot {
+    Common
+    Mac
+    Pushback
+    NV
+    IP
+    UDP
+    ARP
+    LL
+} {
+add-packet-header $prot
+}
+
+
+
+
+# Initialize Global Variables
+set ns_		[new Simulator]
+
+$ns_ trace-all $tracefd
+
+$ns_ namtrace-all-wireless $namtrace $val(x) $val(y)
+
+# set up topography object
+set topo       [new Topography]
+
+$topo load_flatgrid $val(x) $val(y)
+
+# Create GOD
+create-god $val(nn)
+
+# Create channel
+set chan_1_ [new $val(chan)]
+
+# Configure nodes
+$ns_ node-config -adhocRouting $val(rp) \
+		-llType $val(ll) \
+		-macType $val(mac) \
+		-ifqType $val(ifq) \
+		-ifqLen $val(ifqlen) \
+		-antType $val(ant) \
+		-propType $val(prop) \
+		-phyType $val(netif) \
+		-topoInstance $topo \
+		-agentTrace OFF \
+		-routerTrace OFF \
+		-macTrace OFF \
+		-movementTrace OFF \
+		-IncomingErrProc UniformErr \
+		-channel $chan_1_
+
+
+
+proc setup_node {id x y z color} {
+    global ns_ node_
+    set node_($id) [$ns_ node]
+    $node_($id) set X_ $x
+    $node_($id) set Y_ $y
+    $node_($id) set Z_ $z
+    $node_($id) color $color
+    $ns_ at 0 "$node_($id) setdest $x $y 0"
+    $ns_ at 0 "$node_($id) color $color"
+    $node_($id) random-motion 0
+    $ns_ initial_node_pos $node_($id) 20
+}
+
+
+for {set i 1} {$i <= $val(nn) } {incr i} {
+
+    set px_ $posx($i)
+    set py_ $posy($i)
+    
+    set pdest ""
+    if {$i == $ping_src} {
+	set pdest $ping_dest
+    }
+    
+    setup_node $i $px_ $py_ 0 "green"
+    $ns_ at 0 "$node_($i) start";
+    puts "position $i $px_ $py_" 
+    
+    $ns_ at [expr $i * 0.01] "$node_($i) gea_start $awdspath/udpbasic.so"
+    $ns_ at [expr $i * 0.01] "$node_($i) gea_start $awdspath/awdsrouting.so"
+    $ns_ at [expr $i * 0.01] "$node_($i) gea_start $awdspath/pinger.so $pdest"
+    
+}
+
+# set stop time, start simulation
+for {set i 1} {$i <= $val(nn) } {incr i} {
+    $ns_ at $val(stop_time) "$node_($i) reset";
+}
+
+$ns_ at $val(stop_time) "stop"
+$ns_ at [expr $val(stop_time) + 0.01] "puts \"NS EXITING...\" ; $ns_ halt"
+
+proc stop {} {
+    global ns_ tracefd
+    $ns_ flush-trace
+    close $tracefd
+    puts "Finished Simulation..."
+}
+
+puts "Starting Simulation..."
+$ns_ run
+
+
+
+
+# This stuff is for emacs
+# Local variables:
+# mode:tcl
+# tcl-basic-offset: 4
+# End:

@@ -3,6 +3,7 @@
 
 #include <awds/tapiface.h>
 
+namespace awds {
 class TapInterface2 : public TapInterface {
 
 public:
@@ -38,7 +39,7 @@ protected:
     MacTable macTable;
 
 };
-
+}
 #endif //TAPIFACE2_H__
 /* This stuff is for emacs
  * Local variables:

@@ -4,6 +4,8 @@
 #include <gea/API.h>
 #include <gea/Blocker.h>
 
+namespace awds {
+
 class CancelTimer {
 
     friend class CancelTimerManager;
@@ -89,6 +91,7 @@ public:
     
 };
 
+}
 
 #endif //CANCELTIMER_H__
 /* This stuff is for emacs

@@ -20,7 +20,7 @@
 
 using namespace std;
 
-AwdsRouting::AwdsRouting(basic *base) :
+awds::AwdsRouting::AwdsRouting(basic *base) :
     Routing(base->MyId),
     beaconSeq(0),
     beaconPeriod((double)(this->period) / 1000.),
@@ -65,7 +65,7 @@ AwdsRouting::AwdsRouting(basic *base) :
     
 }
 
-AwdsRouting::~AwdsRouting() {
+awds::AwdsRouting::~AwdsRouting() {
     for (int i = 0; i < numNeigh; ++i)
 	neighbors[i].lastBeacon->unref();
     
@@ -74,7 +74,7 @@ AwdsRouting::~AwdsRouting() {
     delete floodHistory;
 }
 
-void AwdsRouting::recv_beacon(BasePacket *p, gea::AbsTime t) {
+void awds::AwdsRouting::recv_beacon(BasePacket *p, gea::AbsTime t) {
     
     
     Beacon beacon(*p);
@@ -99,7 +99,7 @@ void AwdsRouting::recv_beacon(BasePacket *p, gea::AbsTime t) {
 
 
 
-void AwdsRouting::trigger_topo(gea::Handle *h, gea::AbsTime t, void *data) {
+void awds::AwdsRouting::trigger_topo(gea::Handle *h, gea::AbsTime t, void *data) {
     
     AwdsRouting *self = static_cast<AwdsRouting*>(data);
 
@@ -145,7 +145,7 @@ void AwdsRouting::trigger_topo(gea::Handle *h, gea::AbsTime t, void *data) {
 }
 
 
-void AwdsRouting::recv_packet(gea::Handle *h, gea::AbsTime t, void *data) {
+void awds::AwdsRouting::recv_packet(gea::Handle *h, gea::AbsTime t, void *data) {
 
     AwdsRouting *self = static_cast<AwdsRouting*>(data);
     
@@ -189,7 +189,7 @@ void AwdsRouting::recv_packet(gea::Handle *h, gea::AbsTime t, void *data) {
     ///GEA.dbg() << "BBBB" <<std::endl;
 }
 
-void AwdsRouting::send_beacon(gea::Handle *h, gea::AbsTime t, void *data) {
+void awds::AwdsRouting::send_beacon(gea::Handle *h, gea::AbsTime t, void *data) {
     
     AwdsRouting *self = static_cast<AwdsRouting*>(data);
     self->calcMpr();
@@ -215,7 +215,7 @@ void AwdsRouting::send_beacon(gea::Handle *h, gea::AbsTime t, void *data) {
 
 
 
-bool AwdsRouting::refreshNeigh(BasePacket *p, gea::AbsTime t) {
+bool awds::AwdsRouting::refreshNeigh(BasePacket *p, gea::AbsTime t) {
 
     
 	
@@ -282,11 +282,11 @@ static void cpStat2Dyn(AwdsRouting::Hop2List::value_type& r) {
     r.second.dyn = r.second.stat;
 }
 
-void AwdsRouting::stat2dyn() {
+void awds::AwdsRouting::stat2dyn() {
     for_each(hop2list.begin(), hop2list.end(), cpStat2Dyn);
 }
 
-void AwdsRouting::assert_stat() {
+void awds::AwdsRouting::assert_stat() {
     
     
 }
@@ -294,7 +294,7 @@ void AwdsRouting::assert_stat() {
 
 
 
-void AwdsRouting::removeOldNeigh(gea::AbsTime t) {
+void awds::AwdsRouting::removeOldNeigh(gea::AbsTime t) {
 
     
     size_t newnum = 0;
@@ -319,7 +319,7 @@ void AwdsRouting::removeOldNeigh(gea::AbsTime t) {
 
 
 
-void AwdsRouting::calcMpr() {
+void awds::AwdsRouting::calcMpr() {
 
     stat2dyn();
 
@@ -334,7 +334,7 @@ void AwdsRouting::calcMpr() {
 
 
 
-void AwdsRouting::sendBroadcast(BasePacket *p, gea::AbsTime t) {
+void awds::AwdsRouting::sendBroadcast(BasePacket *p, gea::AbsTime t) {
     
     // increase TTL by one, because it will be decreased by recv_flood in the next
     // step 
@@ -343,7 +343,7 @@ void AwdsRouting::sendBroadcast(BasePacket *p, gea::AbsTime t) {
     
 }
 
-void AwdsRouting::sendUnicast(BasePacket *p, gea::AbsTime t) {
+void awds::AwdsRouting::sendUnicast(BasePacket *p, gea::AbsTime t) {
     
     UnicastPacket uniP(*p);
     uniP.setNextHop(myNodeId);
@@ -352,18 +352,18 @@ void AwdsRouting::sendUnicast(BasePacket *p, gea::AbsTime t) {
 }
 
 
-void AwdsRouting::registerUnicastProtocol(int num, recv_callback cb, void* data) {
+void awds::AwdsRouting::registerUnicastProtocol(int num, recv_callback cb, void* data) {
 	unicastRegister[num] = RegisterEntry(cb, data);
     }
     
-void AwdsRouting::registerBroadcastProtocol(int num, recv_callback cb, void* data) {
+void awds::AwdsRouting::registerBroadcastProtocol(int num, recv_callback cb, void* data) {
     broadcastRegister[num] = RegisterEntry(cb, data);
 }
     
 
 
 
-void AwdsRouting::recv_flood(BasePacket *p, gea::AbsTime t) {
+void awds::AwdsRouting::recv_flood(BasePacket *p, gea::AbsTime t) {
         
     Flood flood(*p);
 
@@ -455,7 +455,7 @@ void AwdsRouting::recv_flood(BasePacket *p, gea::AbsTime t) {
 
 
 
-void AwdsRouting::repeat_flood(gea::Handle *h, gea::AbsTime t, void *data) {
+void awds::AwdsRouting::repeat_flood(gea::Handle *h, gea::AbsTime t, void *data) {
     
     BasePacket *p = (BasePacket *)data;
     
@@ -469,7 +469,7 @@ void AwdsRouting::repeat_flood(gea::Handle *h, gea::AbsTime t, void *data) {
 }
 
 
-BasePacket *AwdsRouting::newFloodPacket(int floodType) {
+BasePacket *awds::AwdsRouting::newFloodPacket(int floodType) {
 	
     BasePacket * p = new BasePacket();
     Flood flood(*p);
@@ -485,7 +485,7 @@ BasePacket *AwdsRouting::newFloodPacket(int floodType) {
 
 
 
-BasePacket *AwdsRouting::newUnicastPacket(int type) {
+BasePacket *awds::AwdsRouting::newUnicastPacket(int type) {
     
     BasePacket *p = new BasePacket();
     
@@ -501,7 +501,7 @@ BasePacket *AwdsRouting::newUnicastPacket(int type) {
 
 
 
-void AwdsRouting::recv_unicast(BasePacket *p, gea::AbsTime t) {
+void awds::AwdsRouting::recv_unicast(BasePacket *p, gea::AbsTime t) {
     
     UnicastPacket ucPacket(*p);
     
@@ -550,7 +550,7 @@ void AwdsRouting::recv_unicast(BasePacket *p, gea::AbsTime t) {
 
 
 
-void AwdsRouting::send_unicast(gea::Handle *h, gea::AbsTime t, void *data) {
+void awds::AwdsRouting::send_unicast(gea::Handle *h, gea::AbsTime t, void *data) {
     
     std::pair<BasePacket *,AwdsRouting *>* xdata = ( std::pair<BasePacket *,AwdsRouting *>* )data;
     BasePacket *p = xdata->first;
@@ -570,7 +570,7 @@ void AwdsRouting::send_unicast(gea::Handle *h, gea::AbsTime t, void *data) {
 }
 
 
-bool AwdsRouting::isReachable(const NodeId& id) const {
+bool awds::AwdsRouting::isReachable(const NodeId& id) const {
     bool ret;
     NodeId nH;
     topology->getNextHop(id, nH, ret);
@@ -578,7 +578,7 @@ bool AwdsRouting::isReachable(const NodeId& id) const {
 }
 
 
-size_t AwdsRouting::getMTU() {
+size_t awds::AwdsRouting::getMTU() {
     
     size_t max = UnicastPacket::UnicastPacketEnd;
     if (Flood::FloodHeaderEnd > max)
@@ -594,7 +594,7 @@ int awdsRouting_gea_main(int argc, const char  * const *argv)
 #endif
 
 {
-
+    
     ObjRepository& rep = ObjRepository::instance();
     basic *base = (basic *)rep.getObj("basic");
     if (!base) {
@@ -604,10 +604,15 @@ int awdsRouting_gea_main(int argc, const char  * const *argv)
     
     AwdsRouting* awdsRouting = new AwdsRouting(base);
     
-    rep.insertObj("awdsRouting", "AwdsRouting", awdsRouting);
-    rep.insertObj("topology","Topology", awdsRouting->topology);
+    REP_INSERT_OBJ(awds::AwdsRouting *, awdsRouting, awdsRouting);
+    REP_INSERT_OBJ(awds::Routing *,     routing,     awdsRouting);
+    REP_INSERT_OBJ(awds::RTopology *,   topology,    awdsRouting->topology);
     
-    RateMonitor *rateMonitor = (RateMonitor *)rep.getObj("rateMonitor");
+    //    rep.insertObj("awdsRouting", "AwdsRouting", awdsRouting);
+    // rep.insertObj("topology","Topology", awdsRouting->topology);
+    
+    // RateMonitor *rateMonitor = (RateMonitor *)rep.getObj("rateMonitor");
+    REP_MAP_OBJ(awds::RateMonitor *, rateMonitor);
     if (rateMonitor) {
 	awdsRouting->madwifiRateMonitor = rateMonitor;
 	GEA.dbg() << "adding transmission duration metrics of rate module" << endl;
@@ -618,10 +623,7 @@ int awdsRouting_gea_main(int argc, const char  * const *argv)
     if ( (argc >= 3) && (!strcmp(argv[1], "--name") ) ) {
 	strncpy(awdsRouting->topology->nodeName, argv[2], 32);
     }
-    
-
-    
-    
+        
     return 0;
 }
 

@@ -3,7 +3,7 @@
 
 using namespace std;
 
-bool FloodHistory::contains(const NodeId& id, u_int16_t seq) const {
+bool awds::FloodHistory::contains(const NodeId& id, u_int16_t seq) const {
 	
     size_t p = end;
 	
@@ -23,7 +23,7 @@ bool FloodHistory::contains(const NodeId& id, u_int16_t seq) const {
 }
 
 
-void FloodHistory::printHistoryOfNode(const NodeId& id)  {
+void awds::FloodHistory::printHistoryOfNode(const NodeId& id)  {
     std::ostream& os = GEA.dbg(); 
     os << "hist of " << id << ":";
 	

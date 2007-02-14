@@ -11,9 +11,13 @@
 #include <awds/BasePacket.h>
 
 
+namespace awds {
+
 /**
  * class for accessing fields of a beacon packet.
  */
+
+
 
 class Beacon : public SrcPacket {
     
@@ -69,7 +73,7 @@ private:
     bool hasNeighBinsearch(int a, int b, const NodeId& id);
 
 };
-
+}
 
 #endif //BEACON_H__
 /* This stuff is for emacs

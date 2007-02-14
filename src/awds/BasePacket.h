@@ -1,62 +1,85 @@
 #ifndef _BASEPACKET_H__
 #define _BASEPACKET_H__
 
+#include <cassert>
+
 #include <gea/Handle.h>
 #include <awds/NodeId.h>
 #include <gea/UdpHandle.h>
 
-enum PacketType {
-    PacketTypeBeacon = 12,
-    PacketTypeFlood,
-    PacketTypeUnicast
-};
+namespace awds {
 
-class BasePacket {
-    
-public:
-    
-    static const int MaxSize = 0x1000;
-    char buffer[MaxSize];
-    size_t size;
-    int refcount; 
-    
-    
-    NodeId dest;
+    enum PacketType {
+	PacketTypeBeacon,
+	PacketTypeFlood,
+	PacketTypeUnicast
+    };
 
-    BasePacket() : size(0), refcount(1) {
+    class BasePacket {
+    
+    public:
+    
+	static const int MaxSize = 0x1000;
+	char buffer[MaxSize];
+	size_t size;
+	int refcount; 
+    
+    
+	NodeId dest;
 
-    }
+	BasePacket() : size(0), refcount(1) {
 
-    int send(gea::Handle* h) { 
+	}
+
+	int send(gea::Handle* h) { 
 	
-	return h->write(buffer, size);
+	    return h->write(buffer, size);
 	
-    }
-    int receive(gea::Handle* h) { return (size = h->read(buffer, MaxSize)) ; }
+	}
+	int receive(gea::Handle* h) { return (size = h->read(buffer, MaxSize)) ; }
     
-    int ref()   { return ++refcount; }
-    int unref() { 
-	int ret; 
-	--refcount; 
-	ret = refcount;
-	if (refcount == 0) 
-	    delete this;
-	return ret;
-    }
+	int ref()   { return ++refcount; }
+	int unref() { 
+	    int ret; 
+	    --refcount; 
+	    ret = refcount;
+	    if (refcount == 0) 
+		delete this;
+	    return ret;
+	}
     
-    PacketType getType() {
-	return static_cast<PacketType>(buffer[0]);
-    }
-    
-    void setType(PacketType pt) {
-	buffer[0] = static_cast<char>(pt);
-    }
+	PacketType getType() const {
+	    return static_cast<PacketType>(buffer[0] & 0x03);
+	}
+	
+	void setType(PacketType pt) {
+	    buffer[0] = (buffer[0] & ~0x03) |static_cast<char>(pt);
+	}
 
-    void setDest(const NodeId& dest) {
-	this->dest = dest;
-    }
-};
+	void setDest(const NodeId& dest) {
+	    this->dest = dest;
+	}
 
+	void setControlBit(int bit, bool v = true) {
+	    assert(bit >= 2 && bit <= 7);
+	    buffer[0] = (buffer[0] & ~('\1' << bit)) | (!!v << bit);
+	}
+	
+	bool getControlBit(int bit) const {
+	    assert(bit >= 2 && bit <= 7);
+	    return !!(buffer[0] & ('\1' << bit));
+	}
+	
+	void setTraceFlag(bool v = true) {
+	    setControlBit(7,v);
+	}
+	
+	bool getTraceFlag() const {
+	    return getControlBit(7);
+	}
+	
+    };
+}
 
 
 

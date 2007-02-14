@@ -12,7 +12,7 @@
 
 /** class for accessing fields of a Topology packet.
  */
-
+namespace awds {
 class TopoPacket : public Flood {
     
 public:
@@ -60,7 +60,7 @@ public:
 };
 
 
-
+}
 
 #endif //TOPOPACKET_H__
 /* This stuff is for emacs

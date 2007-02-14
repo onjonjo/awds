@@ -3,8 +3,11 @@
 
 #include <awds/AbstractId.h>
 
-typedef AbstractID<6> NodeId; 
+namespace awds {
+    
+    typedef AbstractID<6> NodeId; 
 
+}
 
 #endif //NODEID_H__
 /* This stuff is for emacs

@@ -12,7 +12,7 @@
 #include <awds/settings.h>
 #include <awds/Callback.h>
 
-
+namespace awds {
 class TopoPacket;
 
 /** class that contains all topology information of the routing 
@@ -116,7 +116,7 @@ public:
     virtual std::string getXmlString() const;
 };
 
-
+}
 
 #endif //TOPOLOGY_H__
 /* This stuff is for emacs

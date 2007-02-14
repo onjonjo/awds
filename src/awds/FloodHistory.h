@@ -6,6 +6,7 @@
 
 #include <awds/NodeId.h>
 
+namespace awds{
 class FloodHistory {
     
 public: 
@@ -47,7 +48,7 @@ public:
 
 
 };
-
+}
 
 #endif //FLOODHISTOY_H__
 /* This stuff is for emacs

@@ -4,6 +4,7 @@
 
 #include <awds/SrcPacket.h>
 
+namespace awds {
 class UnicastPacket : public SrcPacket {
 
 public:
@@ -63,6 +64,7 @@ public:
     
 
 };
+}
 
 #endif //UNICASTPACKET_H__
 /* This stuff is for emacs

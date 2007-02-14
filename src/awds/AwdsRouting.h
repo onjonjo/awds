@@ -20,7 +20,12 @@
 #include <awds/settings.h>
 #include <awds/RateMonitor.h>
 
-class AwdsRouting : public Routing { 
+
+
+
+namespace awds {
+
+    class AwdsRouting : public Routing { 
     
 public:
 
@@ -140,8 +145,9 @@ public:
 
 };
 
+}
 
-
+using namespace awds;
 
 #endif //INTERF_H__
 /* This stuff is for emacs

@@ -6,7 +6,7 @@
 
 
 
-
+namespace awds {
 class Flood : public SrcPacket {
     
 
@@ -60,7 +60,7 @@ public:
     
 
 };
-
+}
 
 
 

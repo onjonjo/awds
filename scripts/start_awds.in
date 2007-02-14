@@ -1,7 +1,7 @@
 #!/bin/sh
 
-CONF_DIR=/etc
-MODULES_DIR=/usr/lib/awds 
+CONF_DIR=@AWDS_CONF_DIR@
+MODULES_DIR=@AWDS_MOD_DIR@ 
 
 CONF_FILE=$CONF_DIR/awds.conf
 [ -e $CONF_FILE ] && source $CONF_FILE
@@ -42,6 +42,11 @@ then
     /sbin/ifconfig $DEVICE down
     /sbin/iwconfig $DEVICE mode ad-hoc channel $DEV_WIRELESS_CHANNEL essid $DEV_WIRELESS_ESSID
     /sbin/ifconfig $DEVICE up
+
+    # madwifi bug workaround:
+    # set uapsd option to zero, if available
+    /sbin/iwpriv $DEVICE | grep -q uapsd && /sbin/iwpriv $DEVICE uapsd 0
+
 fi
 
 AWDS_EXTENSIONS=''

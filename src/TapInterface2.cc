@@ -2,6 +2,8 @@
 
 #include <awds/tapiface2.h>
 
+using namespace awds;
+
 bool   TapInterface2::getNodeForMacAddress(const char* mac, NodeId& id, gea::AbsTime t) {
     NodeId m;
     m.fromArray(mac);

@@ -5,6 +5,7 @@
 #include <string>
 #include <gea/posix/UnixFdHandle.h>
 
+namespace awds {
 /** 
  * this module provides an interactive command shell
  * for parameter manipulation and status query.
@@ -59,5 +60,7 @@ public:
 
     virtual ~Shell() {}
 };
+
+}
 
 #endif /* _SHELL_H__ */

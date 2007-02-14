@@ -28,7 +28,7 @@
 #include <cstddef>
 #include <awds/NodeId.h>
 
-
+namespace awds {
 class CryptoUnit {
 
 public:
@@ -52,7 +52,7 @@ public:
     virtual ~CryptoUnit() {}
     
 };
-
+}
 
 #endif //CRYPTOUNIT_H__
 /* This stuff is for emacs

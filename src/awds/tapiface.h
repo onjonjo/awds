@@ -25,7 +25,7 @@
 #define ADDR_TRNSLTR 0x04
 #define PROTO_NR     0x62
 
-
+namespace awds {
 class TapInterface {
 
 public:
@@ -66,7 +66,7 @@ public:
     
     
 };
-
+}
 
 
 #endif //TAPIFACE_H__

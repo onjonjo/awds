@@ -34,7 +34,7 @@ shell.so
 daemon.so --pidfile /var/run/awds.pid
 rawbasic.so $DEVICE
 awdsrouting.so --name $HOSTNAME
-#.libs/pinger.so
+.libs/pinger.so
 $AESCCM
 tapiface2.so
 topowatch.so

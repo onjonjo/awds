@@ -36,6 +36,7 @@ config.status: configure
 	CFLAGS="$(CFLAGS)" ./configure --host=$(DEB_HOST_GNU_TYPE) --build=$(DEB_BUILD_GNU_TYPE) \
 		--prefix=/usr --mandir=\$${prefix}/share/man \
 		--infodir=\$${prefix}/share/info \
+		--sysconfdir=/etc \
 		--with-gea=/usr  \
 		--enable-mmx --disable-debug
 
@@ -76,8 +77,8 @@ install: build
 	mkdir $(CURDIR)/debian/tmp
 	mkdir $(CURDIR)/debian/tmp/etc
 	$(MAKE) install DESTDIR=$(CURDIR)/debian/tmp
-	cp src/key.txt $(CURDIR)/debian/tmp/etc/awds.key
-	cp scripts/awds.conf $(CURDIR)/debian/tmp/etc/awds.conf
+#	cp src/key.txt $(CURDIR)/debian/tmp/etc/awds.key
+#	cp scripts/awds.conf $(CURDIR)/debian/tmp/etc/awds.conf
 
 
 

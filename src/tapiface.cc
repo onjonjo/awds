@@ -1,5 +1,6 @@
 #include <awds/tapiface.h>
 
+using namespace awds;
 
 extern "C" 
 int gea_main(int argc, const char  * const *argv) {

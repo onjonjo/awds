@@ -13,6 +13,7 @@
 
 using namespace std;
 using namespace gea;
+using namespace awds;
 
 AesCcmCryptoUnit::AesCcmCryptoUnit() {
     lastIv = 0LL;

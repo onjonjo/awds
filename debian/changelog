@@ -1,3 +1,16 @@
+awds (5.6) unstable; urgency=low
+
+  * added awds namespace 
+  * added pinger module
+
+ -- Andre Herms <aherms@ivs.cs.uni-magdeburg.de>  Mon, 12 Feb 2007 15:31:54 +0100
+
+awds (5.5) unstable; urgency=low
+
+  * add /etc/awds.d directory support for extensions  
+
+ -- Andre Herms <aherms@ivs.cs.uni-magdeburg.de>  Thu,  1 Feb 2007 08:37:54 +0100
+
 awds (5.4) unstable; urgency=low
 
   * improved start_awds script

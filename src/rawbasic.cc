@@ -21,6 +21,8 @@
 #define ETHERTYPE_AWDS 0x8333
 
 
+using namespace awds;
+
 class RawBasic;
 
 

@@ -7,6 +7,7 @@
 #include <awds/Topology.h>
 
 using namespace std;
+using namespace awds;
 
 
 

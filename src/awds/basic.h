@@ -9,6 +9,7 @@ namespace gea {
     
 }
 
+namespace awds {
 
 struct basic {
     
@@ -23,6 +24,7 @@ struct basic {
     virtual ~basic() = 0;
 };
 
+}
 
 #endif //BASIC_H__
 /* This stuff is for emacs

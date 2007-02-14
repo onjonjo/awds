@@ -21,6 +21,7 @@
 
 using namespace gea;
 using namespace std;
+using namespace awds;
 
 class TcpShell;
 
@@ -194,15 +195,17 @@ int TcpShell::help(ShellClient &cl, void *data, int argc, char **argv) {
 }
 
 int TcpShell::watch(ShellClient &cl, void *data, int argc, char **argv) {
-    TcpShell *self = static_cast<TcpShell*>(data);
+    //    TcpShell *self = static_cast<TcpShell*>(data);
+    return 0;
     if (argc > 1) {
         while (cl.state == ShellClient::CS_Idle) {
-	   cl.exec(argc-1, &argv[1]);
+	    cl.exec(argc-1, &argv[1]);
 	}
     } else {
     	*cl.sockout << "watch [command [args]]" << endl;
 	return 1;
     }
+    return 0;
 }
 
 void TcpShell::accept_connection(gea::Handle *h, gea::AbsTime t, void *data) {

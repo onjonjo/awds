@@ -1,6 +1,8 @@
 
 #include <crypto/CryptoUnit.h>
 #include <awds/tapiface.h>
+
+using namespace awds;
  
 TapInterface::TapInterface(Routing *routing) :
     routing(routing)

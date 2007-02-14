@@ -20,25 +20,31 @@
 
 //using namespace std;
 
+using namespace awds;
+
 class OutputRedirector : public UnixFdStreamBuf {
     
 public:    
     typedef std::set<std::ostream *> OutputSet;
     OutputSet outputSet;
+    std::ofstream  * logfile;
+    
     
     char  *history;
     int   histSize;
     int   bytesInHistory;
     int   histEnd;
+
     
     OutputRedirector() : UnixFdStreamBuf(-1) {
 	histSize = 64*1024;
 	history = new char[histSize];
 	bytesInHistory = histEnd = 0;
+	logfile = 0;
     }
     
     void dumpHistory(std::ostream *os, int s = -1) {
-	int count;
+	
 	if (s == -1) s = histSize;
 	
 	if (s > bytesInHistory) s = bytesInHistory; // we cannot dump more bytes than are in the buffer. 
@@ -135,22 +141,38 @@ static int debug_command_fn(ShellClient &sc, void *data, int argc, char **argv) 
     
     if (argc == 2 && !strcmp(argv[1], "hist")) {
 	self->dumpHistory(sc.sockout);
+	return 0;
     } else if ( argc == 2 && !strcmp(argv[1], "watch") ) {
 	self->outputSet.insert(sc.sockout); 
 	GEA.waitFor(sc.sockin, gea::AbsTime::now() + 900000. , std_input, new xpair_t(&sc, self) );
 	sc.block();
+	return 0;
+    } else if ( argc == 3 && !strcmp(argv[1], "logfile") ) {
+	
+	if (self->logfile) {
+	    self->logfile->close();
+	    delete self->logfile;
+	    self->outputSet.erase(self->logfile);
+	}
+	const char *filename = argv[2];
+	if ( 0 != strcmp(filename, "off") ) {
+	    self->logfile = new std::ofstream(filename);
+	    self->outputSet.insert(self->logfile);
+	}
     } else if ( argc == 1 ) {
 	self->dumpHistory(sc.sockout);
 	self->outputSet.insert(sc.sockout); 
 	GEA.waitFor(sc.sockin, gea::AbsTime::now() + 900000. , std_input, new xpair_t(&sc, self) );
 	sc.block();
+	return 0;
     }
+    return -1;
 }
 
 static int quit_command_fn(ShellClient &sc, void *data, int argc, char **argv) {
     if (argc == 2  && !strcmp(argv[1], "now!") )
 	_exit(0);
-    
+    return 0;
 	
 }
 
@@ -195,7 +217,7 @@ void parse_options(int argc, const char *const *argv) {
     }
     
     bool isRunning;
-    int lockfd;
+    int lockfd = 0;
     if (pidfilename) {
 	int ret;
 	
@@ -260,10 +282,12 @@ int awdsRouting_gea_main(int argc, const char  * const *argv)
 {    
     static const char *short_help = "show debug outputs";
     static const char *long_help = 
-	"debug [watch|hist]\n\n"
-	"  hist              - print previous debug outputs\n"
-	"  watch             - monitor the debug outputs\n"
-	"  without parameter - first the debug history is printed and than monitored\n";
+	"debug [watch|hist|logfile]\n\n"
+	"  hist               - print previous debug outputs\n"
+	"  watch              - monitor the debug outputs\n"
+	"  logfile <filename> - write debug output to file \n"
+	"                       writing is stopped, if <filename> is off\n"
+	"  without parameter  - first the debug history is printed and than monitored\n";
     
     OutputRedirector *output_redirector = new OutputRedirector();
 

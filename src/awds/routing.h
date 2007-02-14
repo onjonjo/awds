@@ -5,6 +5,7 @@
 #include <awds/NodeId.h>
 
 
+namespace awds {
 class BasePacket;
 class CryptoUnit;
 
@@ -51,7 +52,7 @@ public:
     virtual size_t getMTU() = 0;
     
 };
-
+}
 
 #endif //ROUTING_H__
 /* This stuff is for emacs

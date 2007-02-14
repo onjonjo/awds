@@ -15,7 +15,7 @@
 #include <awds/settings.h>
 
 
-
+namespace awds {
 struct NodeDescr {
 
 
@@ -104,7 +104,7 @@ struct NodeDescr {
 	return n;
     }
 };
-
+}
 
 #endif //NODEDESCR_H__
 /* This stuff is for emacs

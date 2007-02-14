@@ -2,6 +2,7 @@
 #include <awds/tapiface2.h>
 #include <gea/ObjRepository.h>
 
+using namespace awds;
 
 extern "C" 
 #ifdef PIC

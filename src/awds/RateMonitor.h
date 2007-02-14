@@ -3,6 +3,8 @@
 
 #include <awds/NodeId.h>
 
+namespace awds {
+
 /** abstact base class for rate-base routing metrics */
 class RateMonitor {
 public:
@@ -12,6 +14,7 @@ public:
     virtual ~RateMonitor() {}
 };
 
+}
 
 #endif //RATEMONITOR_H__
 /* This stuff is for emacs

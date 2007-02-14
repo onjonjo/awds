@@ -15,6 +15,7 @@
 
 using namespace gea;
 using namespace std;
+using namespace awds;
 
 /** 
  * this module provides a way of observing changes in the local topology.

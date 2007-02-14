@@ -12,6 +12,8 @@
 
 #include <awds/basic.h>
 
+using namespace awds;
+
 #define PORT 3334
 
 struct UdpBasic : public basic {
@@ -99,10 +101,10 @@ int gea_main(int argc, const char  * const *argv) {
     
     basic->init(MyId);
     
-    ObjRepository& rep = ObjRepository::instance(); 
+    //    ObjRepository& rep = ObjRepository::instance(); 
     
-    rep.insertObj("basic", "basic", (void*)basic);
-
+    //    rep.insertObj("awds::basic", "basic", basic);
+    REP_INSERT_OBJ(awds::basic *, basic, basic);
 
     //     char str[123];
     //     id2str(str, MyId);

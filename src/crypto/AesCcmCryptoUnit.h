@@ -7,10 +7,12 @@
 #include <awds/NodeId.h>
 #include <sys/types.h>
 
+namespace awds {
+
 /** 
  * this is a 128 bit aes ccm implementation of the crypto unit
  */
-class AesCcmCryptoUnit : public CryptoUnit {
+class AesCcmCryptoUnit : public awds::CryptoUnit {
     
     static const size_t IV_len = 1;
     
@@ -57,7 +59,7 @@ protected:
 };
 
 
-
+}
 
 #endif //AESCCMCRYPTOUNIT_H__
 /* This stuff is for emacs

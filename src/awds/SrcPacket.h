@@ -10,6 +10,7 @@
 #include <awds/NodeId.h>
 #include <awds/toArray.h>
 
+namespace awds {
 class SrcPacket {
 
 public:
@@ -50,6 +51,7 @@ public:
     
     
 };
+}
 
 #endif //SRCPACKET_H__
 
