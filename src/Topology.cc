@@ -260,11 +260,11 @@ struct printAdjX {
 	    
 	    unsigned  q = (unsigned)(v.second.qList[i]) * 255U / 0xff; 
 	    char colorstring[13];
-	    sprintf(colorstring, "%2x00%2x", q, 255 - q);
+	    sprintf(colorstring, "%02x00%02x", q, 255 - q);
 	    os << " n" << v.first <<" -> n" << (v.second.nList[i]) << "[color=\"#" 
 	       << colorstring << "\"]; ";
 	}
-    }
+	    }
 };
 
 
