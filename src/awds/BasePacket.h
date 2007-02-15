@@ -60,23 +60,6 @@ namespace awds {
 	    this->dest = dest;
 	}
 
-	void setControlBit(int bit, bool v = true) {
-	    assert(bit >= 2 && bit <= 7);
-	    buffer[0] = (buffer[0] & ~('\1' << bit)) | (!!v << bit);
-	}
-	
-	bool getControlBit(int bit) const {
-	    assert(bit >= 2 && bit <= 7);
-	    return !!(buffer[0] & ('\1' << bit));
-	}
-	
-	void setTraceFlag(bool v = true) {
-	    setControlBit(7,v);
-	}
-	
-	bool getTraceFlag() const {
-	    return getControlBit(7);
-	}
 	
     };
 }

@@ -1,0 +1,18 @@
+#!/bin/sh
+
+CONF_FILE=/etc/awds.conf
+[ -e $CONF_FILE ] && source $CONF_FILE
+
+modprobe tun
+
+# use this for early detection of wrong configured stack:
+export LD_BIND_NOW=1
+export LD_LIBRARY_PATH=.libs
+
+cd $(dirname $0)
+
+ACTION=--kill
+ACTION=-t
+exec gea_start daemon.so $ACTION --pidfile /var/run/awds.pid
+
+

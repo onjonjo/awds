@@ -11,6 +11,7 @@
 #include <awds/routing.h>
 #include <awds/ext/Shell.h>
 #include <awds/Topology.h>
+#include <awds/toArray.h>
 
 using namespace awds;
 using namespace gea;
@@ -29,6 +30,7 @@ struct Pinger {
     NodeId dest;
     unsigned ttl;
     int numRepeat;
+    bool doTracePath;
     
     // stats.
     double minRTT, maxRTT, sumRTT;
@@ -143,8 +145,15 @@ int Pinger::parse_opts(int argc, const char* const *argv) {
     this->pingSize = 200;
     this->ttl=64;
     this->numRepeat = -1;
-	
+    this->doTracePath = false;
+    
     for (int i=1; i<argc; ++i) {
+	
+	if (!strcmp(argv[i], "-p")) {
+	    this->doTracePath = true;
+	    continue;
+	} 
+	
 	if (!strcmp(argv[i],"-s")) {
 	    ++i;
 	    if (i == argc) // no following argument!
@@ -152,7 +161,10 @@ int Pinger::parse_opts(int argc, const char* const *argv) {
 	    pingSize = strtol(argv[i], &end_ptr, 0);
 	    if (*end_ptr || argv[i] == end_ptr) // invalid conversation
 		return -1;
-	} else if (!strcmp(argv[i],"-i")) {
+	    continue;
+	} 
+	
+	if (!strcmp(argv[i],"-i")) {
 	    ++i;
 	    if (i == argc) // no following argument!
 		return -1;
@@ -160,15 +172,21 @@ int Pinger::parse_opts(int argc, const char* const *argv) {
 	    if (*end_ptr || argv[i] == end_ptr) // invalid conversation
 		return -1;
 	    this->period = interval;
-	} else if (!strcmp(argv[i],"-t")) {
+	    continue;
+	} 
+	
+	if (!strcmp(argv[i],"-t")) {
 	    ++i;
 	    if (i == argc) // no following argument!
 		return -1;
 	    ttl = strtol(argv[i], &end_ptr,0 );
 	    if (*end_ptr || argv[i] == end_ptr) // invalid conversation
 		return -1;
-	    this->period = interval;
-	} else {
+	    continue;
+	} 
+	
+	// must be the destination name...
+	{
 	    if (destName) // destination was already given.
 		return -1;
 	    destName = argv[i];
@@ -206,6 +224,10 @@ static gea::Duration durationFromArray(const char *buf) {
     return gea::Duration( (double)d  / (double)0x1000000000ULL );
 }
 
+static const size_t PingTraceNum  = UnicastPacket::UnicastPacketEnd;
+static const size_t PingDirection = PingTraceNum + 2;
+static const size_t PingTimeStamp = PingDirection + 1;
+static const size_t PingHeaderEnd = PingTimeStamp + 8;
 
 void Pinger::next_ping(gea::Handle *h, gea::AbsTime t, void *data) {
     
@@ -227,11 +249,12 @@ void Pinger::next_ping(gea::Handle *h, gea::AbsTime t, void *data) {
    
     uniP.setUcDest(self->dest);
     uniP.setTTL(self->ttl);
-    self->pingSize = max(self->pingSize,  UnicastPacket::UnicastPacketEnd + 13);
+    self->pingSize = max(self->pingSize,  PingHeaderEnd);
 	
     p->size = self->pingSize;
-    p->buffer[UnicastPacket::UnicastPacketEnd] = 'i';
-    toArray( t - self->myT0, &p->buffer[UnicastPacket::UnicastPacketEnd + 1] );
+    p->buffer[PingDirection] = 'i';
+    toArray( t - self->myT0, &p->buffer[PingTimeStamp] );
+    toArray<u_int16_t>(PingHeaderEnd, p->buffer + PingTraceNum);
     
     self->dbg() << "sending ping to " << self->dest 
 	       << std::endl;
@@ -251,8 +274,8 @@ void Pinger::next_ping(gea::Handle *h, gea::AbsTime t, void *data) {
 void Pinger::print_stats(std::ostream& out) {
     out << "--- " << dest << " ping statistics ---" << endl
 	<< numTransmitted << "  packets transmitted, " << numReceived << " received, " 
-	<< ( double(numTransmitted - numReceived) / numTransmitted) << "% packet loss" << endl
-	<< "rtt min/avg/max = " << minRTT << "/" << ( 100. * sumRTT / numReceived) << "/" << maxRTT
+	<< ( 100. * double(numTransmitted - numReceived) / numTransmitted) << "% packet loss" << endl
+	<< "rtt min/avg/max = " << minRTT << "/" << (sumRTT / numReceived) << "/" << maxRTT
 	<< endl;
 }
 
@@ -263,7 +286,7 @@ void Pinger::ping_recv(BasePacket *p, gea::AbsTime t, void *data) {
     
     UnicastPacket uniP(*p);
     
-    if ( p->buffer[UnicastPacket::UnicastPacketEnd] == 'i' ) {
+    if ( p->buffer[PingDirection] == 'i' ) {
 	
 	GEA.dbg() << "received ping from " << uniP.getSrc() 
 		  << " ttl=" << uniP.getTTL()
@@ -271,12 +294,12 @@ void Pinger::ping_recv(BasePacket *p, gea::AbsTime t, void *data) {
 	
 	uniP.setUcDest(uniP.getSrc());
 	uniP.setSrc(self->awdsRouting->myNodeId);
-	p->buffer[UnicastPacket::UnicastPacketEnd] = 'o';
+	p->buffer[PingDirection] = 'o';
 	p->ref();
 	self->awdsRouting->sendUnicast(p, t);
 	p->unref();
     } else {
-	Duration timestamp = durationFromArray( &p->buffer[UnicastPacket::UnicastPacketEnd + 1]);
+	Duration timestamp = durationFromArray( &p->buffer[PingTimeStamp]);
 	double deltaT= (double)(t - ( self->myT0 + timestamp ) );
 	self->dbg() << "received pong from " << uniP.getSrc() 
 		    << " dur=" <<  deltaT<< " sec."

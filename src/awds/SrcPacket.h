@@ -11,46 +11,64 @@
 #include <awds/toArray.h>
 
 namespace awds {
-class SrcPacket {
 
-public:
-    static const size_t OffsetSrc      = 1;
-    static const size_t OffsetSeq      = OffsetSrc + NodeId::size;
-    static const size_t SrcPacketEnd   = OffsetSeq + 2;
-    
-    BasePacket& packet; 
-    
-    SrcPacket(BasePacket& packet) :packet(packet) {
+    class SrcPacket {
 
-    }
+    public:
+	static const size_t OffsetSrc      = 1;
+	static const size_t OffsetSeq      = OffsetSrc + NodeId::size;
+	static const size_t SrcPacketEnd   = OffsetSeq + 2;
+    
+	BasePacket& packet; 
+    
+	SrcPacket(BasePacket& packet) :packet(packet) {
 
-    void setSrc(const NodeId& id) {
-	id.toArray(&packet.buffer[OffsetSrc]);	
+	}
 
-    }
-    
-    void getSrc(NodeId& id) const {
-	id.fromArray(&packet.buffer[OffsetSrc]);
+	void setSrc(const NodeId& id) {
+	    id.toArray(&packet.buffer[OffsetSrc]);	
 
-    }
+	}
     
-    NodeId getSrc() const {
-	NodeId ret;
-	getSrc(ret);
-	return ret;
-    }
+	void getSrc(NodeId& id) const {
+	    id.fromArray(&packet.buffer[OffsetSrc]);
+
+	}
     
-    void setSeq(u_int16_t num) {
-	toArray<u_int16_t>(num,&packet.buffer[OffsetSeq]);
-    }
+	NodeId getSrc() const {
+	    NodeId ret;
+	    getSrc(ret);
+	    return ret;
+	}
     
-    u_int16_t getSeq() const {
-	return fromArray<u_int16_t>(&packet.buffer[OffsetSeq]);
-    }
+	void setSeq(u_int16_t num) {
+	    toArray<u_int16_t>(num,&packet.buffer[OffsetSeq]);
+	}
     
+	u_int16_t getSeq() const {
+	    return fromArray<u_int16_t>(&packet.buffer[OffsetSeq]);
+	}
     
-    
-};
+	void setControlBit(int bit, bool v = true) {
+	    assert(bit >= 2 && bit <= 7);
+	    packet.buffer[0] = (packet.buffer[0] & ~('\1' << bit)) | (!!v << bit);
+	}
+	
+	bool getControlBit(int bit) const {
+	    assert(bit >= 2 && bit <= 7);
+	    return !!(packet.buffer[0] & ('\1' << bit));
+	}
+	
+	void setTraceFlag(bool v = true) {
+	    setControlBit(7,v);
+	}
+	
+	bool getTraceFlag() const {
+	    return getControlBit(7);
+	}
+
+	
+    };
 }
 
 #endif //SRCPACKET_H__

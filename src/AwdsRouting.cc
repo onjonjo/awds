@@ -12,6 +12,7 @@
 #include <awds/beacon.h>
 #include <awds/TopoPacket.h>
 #include <awds/UnicastPacket.h>
+#include <awds/TraceUcPacket.h>
 #include <awds/Topology.h>
 #include <awds/FloodHistory.h>
 #include <awds/sqrt_int.h>
@@ -512,6 +513,12 @@ void awds::AwdsRouting::recv_unicast(BasePacket *p, gea::AbsTime t) {
     if (ucPacket.getNextHop() != myNodeId)
 	return;
     
+    if (ucPacket.getTraceFlag() ) {
+	// append own ID in the packet.
+	TraceUcPacket traceP(*p);
+	traceP.appendNode(myNodeId);
+    }
+    
     NodeId dest = ucPacket.getUcDest();
     
     if (dest == myNodeId) {
@@ -520,7 +527,7 @@ void awds::AwdsRouting::recv_unicast(BasePacket *p, gea::AbsTime t) {
 	ProtocolRegister::iterator itr = unicastRegister.find(ucPacket.getUcPacketType());
 	if (itr != unicastRegister.end()) {
 	    itr->second.first(p,t,itr->second.second);
-	    	}
+	}
 	
 	return;
     }
