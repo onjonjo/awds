@@ -1,0 +1,4 @@
+
+ACTION=="add", SUBSYSTEM=="net", RUN+="/etc/init.d/awds hotplug"
+ACTION=="remove", SUBSYSTEM=="net", RUN+="/etc/init.d/awds hotplug"
+

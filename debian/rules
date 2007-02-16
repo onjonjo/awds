@@ -102,6 +102,7 @@ binary-arch: build install
 #	dh_installpam
 #	dh_installmime
 	dh_installinit
+	dh_installudev
 #	dh_installcron
 #	dh_installinfo
 	dh_installman doc/start_awds.8
