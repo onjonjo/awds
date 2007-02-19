@@ -491,7 +491,7 @@ BasePacket *awds::AwdsRouting::newUnicastPacket(int type) {
     BasePacket *p = new BasePacket();
     
     UnicastPacket uniP(*p);
-    
+    uniP.setTraceFlag(false);
     uniP.setSrc(myNodeId);
     uniP.setNextHop(myNodeId);
     uniP.setTTL(32);

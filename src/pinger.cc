@@ -7,7 +7,7 @@
 #include <gea/API.h>
 
 #include <awds/packettypes.h>
-#include <awds/UnicastPacket.h>
+#include <awds/TraceUcPacket.h>
 #include <awds/routing.h>
 #include <awds/ext/Shell.h>
 #include <awds/Topology.h>
@@ -245,7 +245,7 @@ void Pinger::next_ping(gea::Handle *h, gea::AbsTime t, void *data) {
     BasePacket *p = self->awdsRouting->newUnicastPacket(PACKET_TYPE_UC_PING);
     p->setDest(self->dest);
     
-    UnicastPacket uniP(*p);
+    TraceUcPacket uniP(*p);
    
     uniP.setUcDest(self->dest);
     uniP.setTTL(self->ttl);
@@ -254,8 +254,12 @@ void Pinger::next_ping(gea::Handle *h, gea::AbsTime t, void *data) {
     p->size = self->pingSize;
     p->buffer[PingDirection] = 'i';
     toArray( t - self->myT0, &p->buffer[PingTimeStamp] );
-    toArray<u_int16_t>(PingHeaderEnd, p->buffer + PingTraceNum);
     
+    if (self->doTracePath) {
+	uniP.setTracePointer(PingHeaderEnd);
+	uniP.setTraceFlag(1);
+    }    
+
     self->dbg() << "sending ping to " << self->dest 
 	       << std::endl;
     
@@ -284,7 +288,7 @@ void Pinger::ping_recv(BasePacket *p, gea::AbsTime t, void *data) {
     
     Pinger *self = static_cast<Pinger *>(data);
     
-    UnicastPacket uniP(*p);
+    TraceUcPacket uniP(*p);
     
     if ( p->buffer[PingDirection] == 'i' ) {
 	
@@ -301,10 +305,31 @@ void Pinger::ping_recv(BasePacket *p, gea::AbsTime t, void *data) {
     } else {
 	Duration timestamp = durationFromArray( &p->buffer[PingTimeStamp]);
 	double deltaT= (double)(t - ( self->myT0 + timestamp ) );
-	self->dbg() << "received pong from " << uniP.getSrc() 
-		    << " dur=" <<  deltaT<< " sec."
-		    << " ttl=" << uniP.getTTL()
-		    << std::endl;
+	ostream& out = self->dbg();
+	
+	out << "received pong from " << uniP.getSrc() 
+	    << " dur=" <<  deltaT<< " sec."
+	    << " ttl=" << uniP.getTTL();
+	    
+
+	if (uniP.getTraceFlag()) {
+
+	    const size_t tPtr = uniP.getTracePointer();
+
+	    out << "\tpath[" << ( (tPtr - PingHeaderEnd) / NodeId::size ) <<"]";
+	    for ( size_t nPtr = PingHeaderEnd;
+		  nPtr < tPtr;
+		  nPtr += NodeId::size) {
+		
+		NodeId node;
+		node.fromArray(p->buffer + nPtr);
+		out << " " << node;
+	    }
+		
+	    
+	}
+	out << endl;
+	
 	self->minRTT = min(self->minRTT, deltaT);
 	self->maxRTT = max(self->maxRTT, deltaT);
 	self->sumRTT += deltaT;

@@ -162,7 +162,7 @@ for {set i 1} {$i <= $val(nn) } {incr i} {
     
     set pdest ""
     if {$i == $ping_src} {
-	set pdest "-p $ping_dest"
+	set pdest "-p -s 600 $ping_dest"
     }
     
     setup_node $i $px_ $py_ 0 "green"

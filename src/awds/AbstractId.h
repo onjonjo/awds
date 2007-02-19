@@ -42,12 +42,14 @@ public:
 	return *this;
     }
     
-    void fromArray(const char *data) {
+    AbstractID<Size>& fromArray(const char *data) {
 	memcpy(this->id, data, size );
+	return *this;
     }
     
-    void toArray( char *data) const {
+    AbstractID<Size>& toArray( char *data) const {
 	memcpy(data, this->id, size );
+	return *this;
     }
 
  

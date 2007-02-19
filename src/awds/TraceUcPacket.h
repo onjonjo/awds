@@ -4,7 +4,7 @@
 #include <awds/UnicastPacket.h>
 
 namespace awds {
-
+    
     class TraceUcPacket : public UnicastPacket {
 	
     public: 
@@ -26,15 +26,23 @@ namespace awds {
 	bool appendNode(const NodeId& id) {
 	    size_t offset = getTracePointer();
 
-	    if (offset + NodeId::size > packet.size) // space left for this node?
+	    if (offset + NodeId::size >= packet.size) // space left for this node?
 		return false;
+
 	    id.toArray(packet.buffer + offset);
 	    setTracePointer(offset + NodeId::size);
+	    GEA.dbg() << "appending " << id 
+		      << " tp=" << (offset + NodeId::size)
+				      << std::endl;
 	    return true;
 	}
 	
+	
+	
     };
 }
+
+
 
 #endif //TRACEUCPACKET_H__
 /* This stuff is for emacs
