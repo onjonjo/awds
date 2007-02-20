@@ -1,3 +1,11 @@
+awds (6.0) unstable; urgency=low
+
+  * packet headers have changes. This version is not compatible with 5.x anymore. 
+  * added feature to trace paths while pinging a node
+  * added udev rules to start awds when inserting a wireless card.
+
+ -- Andre Herms <aherms@ivs.cs.uni-magdeburg.de>  Mon, 19 Feb 2007 18:22:02 +0100
+
 awds (5.6) unstable; urgency=low
 
   * added awds namespace 
