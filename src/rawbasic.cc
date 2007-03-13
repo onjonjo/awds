@@ -101,7 +101,7 @@ public:
 	//	GEA.dbg() << "device " << devicename << " has index " << req.ifr_ifindex << std::endl;
 	
 	addr.sll_family = AF_PACKET;
-	addr.sll_protocol = htons(ETH_P_ALL);
+	addr.sll_protocol = htons(ETHERTYPE_AWDS);
 	addr.sll_ifindex = ifindex = req.ifr_ifindex;
 	
 	
