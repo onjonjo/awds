@@ -59,13 +59,17 @@ then
 fi
 
 
+name="$HOSTNAME"
+[ -z "$name" -a -x /bin/hostname ] && name=$(/bin/hostname)
+[ -z "$name" -a -f /proc/sys/kernel/hostname ] && name=$(cat /proc/sys/kernel/hostname)
+
 # echo Starting AWDS on $DEVICE
 
 exec gea_start -i <<END
 $AWDS_SHELL
 daemon.so --pidfile /var/run/awds.pid
 rawbasic.so $DEVICE
-awdsrouting.so --name $HOSTNAME
+awdsrouting.so --name $name
 pinger.so
 $AESCCM
 tapiface2.so
