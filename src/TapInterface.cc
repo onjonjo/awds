@@ -14,7 +14,9 @@ void TapInterface::init(const char *dev)
     //struct ifreq ifr;
     //int fd_, err;
     	
-    createDevice(dev);
+    if (createDevice(dev) != true) {
+    	_exit(1);
+    }
 	
     setIfaceHwAddress(routing->myNodeId);
     setIfaceMTU(routing->getMTU());
@@ -78,6 +80,7 @@ bool TapInterface::createDevice(const char *dev) {
 
     if( (fd = open("/dev/net/tun", O_RDWR)) < 0 ) {
 	if( (fd = open("/dev/tun", O_RDWR)) < 0 ) {
+	    perror("open(\"/dev/tun\")");
 	    return false;
 	}
     }
@@ -94,7 +97,7 @@ bool TapInterface::createDevice(const char *dev) {
 	strncpy(ifr.ifr_name, dev, IFNAMSIZ);
     
     if ((err = ioctl(fd, TUNSETIFF, (void *)&ifr)) < 0) {
-	// -- perror("ioctl(TUNSETIFF)");
+	perror("ioctl(TUNSETIFF)");
 	close(fd);
 	return false;
     }
