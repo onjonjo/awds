@@ -1,0 +1,8 @@
+
+
+The following exit codes are used:
+
+0 - everything is fine.
+1 - abnormal termination.
+2 - daemon is already running.
+

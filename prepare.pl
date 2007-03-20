@@ -71,7 +71,7 @@ for $a (@autoconf) {
 
 if ($use_aclocal && $use_automake && $use_autoconf) {
 
-  $lt_call  = "libtoolize --ltdl -c -f";
+  $lt_call  = "libtoolize -c -f";
   print "running $lt_call\n";
   system($lt_call);
 

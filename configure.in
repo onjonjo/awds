@@ -27,6 +27,13 @@ if test "$enableval" = "no" ; then
 fi)
 
 dnl check for GEA library
+
+
+dnl default values:
+GEAINC="-I/usr/include"	
+GEALIB="-L/usr/lib -lgea-posix"
+GEALIBDIR="/usr/lib"
+
 AC_MSG_CHECKING(for GEA)
 AC_ARG_WITH(gea,
 [  --with-gea=DIR	  use GEA in DIR],
