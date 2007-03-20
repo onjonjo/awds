@@ -39,14 +39,14 @@ AWDS_TOPO=''
 
 if [ "$DEV_CHANGE_WIRELESS_SETTINGS" = yes ]
 then
-    /sbin/ifconfig $DEVICE down
-    /sbin/iwconfig $DEVICE mode ad-hoc channel $DEV_WIRELESS_CHANNEL essid $DEV_WIRELESS_ESSID
-    /sbin/ifconfig $DEVICE mtu 2000
-    /sbin/ifconfig $DEVICE up
+    ifconfig $DEVICE down
+    iwconfig $DEVICE mode ad-hoc channel $DEV_WIRELESS_CHANNEL essid $DEV_WIRELESS_ESSID
+    ifconfig $DEVICE mtu 2000
+    ifconfig $DEVICE up
     
     # madwifi bug workaround:
     # set uapsd option to zero, if available
-    /sbin/iwpriv $DEVICE 2>&1 | grep -q uapsd && /sbin/iwpriv $DEVICE uapsd 0
+    iwpriv $DEVICE 2>&1 | grep -q uapsd && iwpriv $DEVICE uapsd 0
 fi
 
 AWDS_EXTENSIONS=''
