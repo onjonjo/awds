@@ -77,8 +77,9 @@ bool TapInterface::createDevice(const char *dev) {
     int  err;
 
     if( (fd = open("/dev/net/tun", O_RDWR)) < 0 ) {
-	//perror("open(\"/dev/net/tun\")");
-	return false;
+	if( (fd = open("/dev/tun", O_RDWR)) < 0 ) {
+	    return false;
+	}
     }
 
     memset(&ifr, 0, sizeof(ifr));
