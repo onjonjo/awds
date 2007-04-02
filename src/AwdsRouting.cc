@@ -231,11 +231,11 @@ bool awds::AwdsRouting::refreshNeigh(BasePacket *p, gea::AbsTime t) {
     if ( (idx < 0) && (numNeigh == MaxNeighbors)) // cannot add more neighbors
 	return false;
 
-    assert(numNeigh <= MaxNeighbors);
+    assert(numNeigh < MaxNeighbors);  
     //	GEA.dbg() << "index is " << idx << std::endl;	
     bool is_new = idx < 0;
     if (  is_new ) {
-	idx = -idx - 1; 
+	idx = -idx - 1;   // position to insert, calculated by findNeigh, negative because src was not found
 	//  new neigbour to be inserted
 	// -> shift all successors.
 	memmove(&neighbors[ idx + 1 ], &neighbors[idx],
@@ -296,7 +296,6 @@ void awds::AwdsRouting::assert_stat() {
 
 
 void awds::AwdsRouting::removeOldNeigh(gea::AbsTime t) {
-
     
     size_t newnum = 0;
     for (size_t i = 0; i < (size_t)numNeigh; ++i) {
