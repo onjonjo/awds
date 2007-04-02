@@ -110,7 +110,7 @@ TcpShell::TcpShell()
     lHandle = new UnixFdHandle(l_socket, ShadowHandle::Read);
     
     add_command("help", help, this, "print the help for a command", HELP);
-    add_command("watch", watch, this, "repeat the execution of a program", NULL);
+    //    add_command("watch", watch, this, "repeat the execution of a program", NULL);
     GEA.dbg() << "TcpShell listening..." << endl;
     GEA.waitFor(lHandle, AbsTime::now() + Duration(12.),
 		accept_connection, (void *)this);
@@ -379,7 +379,7 @@ int awdsRouting_gea_main(int argc, const char  * const *argv)
     
 
     Shell *sh = new TcpShell();
-    sh->add_command("test", test, NULL, "shell function example", "shell function example long help");
+    //    sh->add_command("test", test, NULL, "shell function example", "shell function example long help");
 
     rep.insertObj("shell", "Shell", (void*)sh);
   

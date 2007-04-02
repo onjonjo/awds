@@ -14,4 +14,10 @@ EXTRA_DIST = \
 	debian/compat\
 	debian/control\
 	debian/copyright\
-	debian/rules
+	debian/rules\
+	doc/awds.rules \
+	doc/exit_policy.txt \
+	doc/README.Debian \
+	doc/start_awds.8
+
+man8_MANS = doc/start_awds.8
