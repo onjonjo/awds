@@ -124,7 +124,7 @@ public:
 		b = m;
 	    	    
 	}
-	return -a - 1;
+	return -a - 1;  // not found, return position to keep sorted array, negative to indicate not found
 	    
     }
 
