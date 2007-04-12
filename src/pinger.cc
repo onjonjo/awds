@@ -8,7 +8,7 @@
 
 #include <awds/packettypes.h>
 #include <awds/TraceUcPacket.h>
-#include <awds/routing.h>
+#include <awds/AwdsRouting.h>
 #include <awds/ext/Shell.h>
 #include <awds/Topology.h>
 #include <awds/toArray.h>
@@ -39,7 +39,7 @@ struct Pinger {
     
 
 
-    Routing *awdsRouting;
+    awds::AwdsRouting *awdsRouting;
     gea::Blocker blocker;
     ostream *out;
     ShellClient *shellClient;
@@ -49,7 +49,7 @@ struct Pinger {
 
     gea::AbsTime myT0;
     
-    Pinger( Routing *awdsRouting):
+    Pinger( awds::AwdsRouting *awdsRouting):
 	awdsRouting(awdsRouting),
 	period(2.)
     {
@@ -63,6 +63,9 @@ struct Pinger {
     
     static void next_ping(gea::Handle *h, gea::AbsTime t, void *data);
     static void ping_recv(BasePacket *p, gea::AbsTime t, void *data);
+    
+    //    int x_getNodeByName(awds::NodeId& ret, const awds::RTopology::AdjList& l, const char* name);
+    
     
     ostream& dbg() {
 	if (out)
@@ -87,52 +90,6 @@ void Pinger::resetStats() {
 }
 
 
-
-int getNodeByName(awds::NodeId& ret, const awds::RTopology::AdjList& l, const char* name) {
-    
-    GEA.dbg() << "looking in " << l.size() << endl;
-    // try to find topology entry.
-    for (awds::RTopology::AdjList::const_iterator itr = l.begin();
-	 itr != l.end();
-	 ++itr) {
-	if (!strncmp( name, itr->second.nodeName, 32)) {
-	    // found it;
-	    ret = itr->first;
-	    return 0;
-	}
-    }
-    GEA.dbg() << "not found " << endl;
-    
-    // try to convert 12 hex-digit syntax
-    if (strlen(name) == 12) {
-	char mac[6];
-	const char *p= name;
-	bool parse_success = true;
-	
-	for (int i = 0; i < 6; ++i) {
-	    unsigned v;
-	    int ret = sscanf(p, "%2X", &v);
-	    if (ret != 1) {
-		parse_success = false;
-		break;
-	    }
-	    mac[i] = (char)(unsigned char)v;
-	}
-	if (parse_success) {
-	    ret.fromArray(mac);
-	    return 0;
-	}
-    }
-	
-    // try nummerical conversation.
-    char * endptr;
-    unsigned long int v = strtoul(name, &endptr, 0);
-    if (*endptr || endptr == name)  // parse error!
-	return -1;
-    
-    ret = NodeId(v);
-    return 0;
-}
 
 int Pinger::parse_opts(int argc, const char* const *argv) {
 	
@@ -197,10 +154,10 @@ int Pinger::parse_opts(int argc, const char* const *argv) {
     if (!destName) 
 	return -1;
 	
-    REP_MAP_OBJ(RTopology *, topology);
+    //    REP_MAP_OBJ(RTopology *, topology);
     dbg() << " dest is " << destName << endl;
-    return getNodeByName(this->dest, topology->adjList, destName);
-	
+    return awdsRouting->topology->getNodeByName(this->dest, destName);
+    
 } // end parse_opts
 
 
@@ -413,7 +370,7 @@ int pinger_gea_main(int argc, const char  * const *argv)
     
 {    
     Pinger *pinger;
-    REP_MAP_OBJ(awds::Routing *, routing);
+    REP_MAP_OBJ(awds::AwdsRouting *, routing);
     
     if (!routing) {
 	GEA.dbg() << "cannot find object 'routing' in repository" << std::endl; 

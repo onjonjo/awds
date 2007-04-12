@@ -13,12 +13,13 @@
 #include <awds/Callback.h>
 
 namespace awds {
-class TopoPacket;
-
-/** class that contains all topology information of the routing 
- *
- */
-class RTopology { 
+    
+    class TopoPacket;
+    
+    /** class that contains all topology information of the routing 
+     *
+     */
+    class RTopology { 
 
     gea::Blocker cleanup_blocker;
     
@@ -56,7 +57,7 @@ public:
 
     bool   dirty; 
     bool   locked;
-
+	
     const NodeId myNodeId;
 
 
@@ -77,6 +78,7 @@ public:
     void feed(const TopoPacket& p, gea::AbsTime t);    
 
     virtual std::string getNameOfNode(const NodeId& id) const;
+	virtual bool getNodeByName(NodeId& id, const char *name) const;
     std::string getNameList() const;
     
     int getNumNodes() const {
@@ -89,7 +91,6 @@ public:
 
     AdjList::iterator getNodeEntry(const NodeId& id, gea::AbsTime t);
     
-
     
     // -------------------------------------------------------
     //     dykstra stuff...

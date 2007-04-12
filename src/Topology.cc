@@ -606,6 +606,55 @@ gea::AbsTime RTopology::removeOldNodes(gea::AbsTime t) {
     return nextTimeout;
 }
 
+
+bool awds::RTopology::getNodeByName(awds::NodeId& id, const char *name) const {
+    //GEA.dbg() << "looking in " << l.size() << endl;
+    // try to find topology entry.
+    for (AdjList::const_iterator itr = adjList.begin();
+	 itr != adjList.end();
+	 ++itr) {
+	
+	if (!strncmp( name, itr->second.nodeName, 32)) {
+	    // found it;
+	    id = itr->first;
+	    return 0;
+	}
+    }
+    //    GEA.dbg() << "not found " << endl;
+    
+    // try to convert 12 hex-digit syntax
+    if (strlen(name) == 12) {
+	char mac[6];
+	const char *p= name;
+	bool parse_success = true;
+	
+	for (int i = 0; i < 6; ++i) {
+	    unsigned v;
+	    int ret = sscanf(p, "%2X", &v);
+	    if (ret != 1) {
+		parse_success = false;
+		break;
+	    }
+	    mac[i] = (char)(unsigned char)v;
+	}
+	if (parse_success) {
+	    id.fromArray(mac);
+	    return 0;
+	}
+    }
+	
+    // try nummerical conversation.
+    char * endptr;
+    unsigned long int v = strtoul(name, &endptr, 0);
+    if (*endptr || endptr == name)  // parse error!
+	return -1;
+    
+    id = awds::NodeId(v);
+    return 0;
+    
+}
+
+
 std::string RTopology::getNameList() const {
     std::ostringstream os;
     for (AdjList::const_iterator itr = adjList.begin();
