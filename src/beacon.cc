@@ -7,6 +7,9 @@
 #include <awds/AwdsRouting.h>
 #include <awds/toArray.h>
 
+#include <iostream>
+using namespace std;
+
 
 gea::Duration Beacon::getPeriod() const {
     u_int16_t period = fromArray<u_int16_t>(&packet.buffer[OffsetPeriod]);
@@ -139,12 +142,15 @@ void Beacon::add2Hop(AwdsRouting *awdsRouting) {
 void Beacon::remove2Hop(AwdsRouting *awdsRouting) {
     char *addr =  &(packet.buffer[OffsetLNeigh]);
     int n = getNumNoMpr() + getNumMpr();
-    
+
+    //    cout << "Source: " << getSrc() << endl;
     for (int i=0; i < n; ++i) {
 	NodeId n2hop;
 	n2hop.fromArray(addr);
 	addr += NodeId::size;
-	
+
+
+	// cout << "Node: " << n2hop << endl;
 	AwdsRouting::Hop2List::iterator itr = awdsRouting->hop2list.find(n2hop);
 	assert (itr != awdsRouting->hop2list.end()); 
 	

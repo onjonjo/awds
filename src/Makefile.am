@@ -20,7 +20,10 @@ pkglib_LTLIBRARIES = \
 	topodump.la \
 	topolock.la \
 	aesccm.la  \
-	rawbasic.la
+	rawbasic.la \
+	etxmetric.la \
+	rttmetric.la \
+	signaler.la
 
 #	tapiface_crypto.la \
 #
@@ -98,7 +101,14 @@ topodump_la_LDFLAGS = -module  -avoid-version -export-symbols-regex gea_main
 topolock_la_SOURCES = TopoLock.cc
 topolock_la_LDFLAGS = $(module_flags)
 
+etxmetric_la_SOURCES = Metric.h EtxMetric.h EtxMetric.cc
+etxmetric_la_LDFLAGS = $(module_flags)
 
+rttmetric_la_SOURCES = Metric.h UCMetricPacket.h UCMetricPacket.cc ExtMetric.h ExtMetric.cc UCastMetric.h UCastMetric.cc RTTMetric.h RTTMetric.cc
+rttmetric_la_LDFLAGS = $(module_flags)
+
+signaler_la_SOURCES = signaler.cc
+signaler_la_LDFLAGS = $(module_flags)
 
 EXTRA_PROGRAMS =  awds 
 

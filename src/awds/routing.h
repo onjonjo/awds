@@ -6,8 +6,8 @@
 
 
 namespace awds {
-class BasePacket;
-class CryptoUnit;
+    class BasePacket;
+    class CryptoUnit;
 
 
 class Routing {
@@ -45,6 +45,7 @@ public:
     
     virtual void sendBroadcast(BasePacket *p, gea::AbsTime t) = 0;
     virtual void sendUnicast(BasePacket *p, gea::AbsTime t) = 0;
+    virtual void sendUnicastVia(BasePacket *p, gea::AbsTime t,NodeId nextHop) = 0;
 
     virtual void registerUnicastProtocol(int num, recv_callback cb, void* data) = 0; 
     virtual void registerBroadcastProtocol(int num, recv_callback cb, void* data) = 0;

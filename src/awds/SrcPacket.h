@@ -32,9 +32,8 @@ namespace awds {
     
 	void getSrc(NodeId& id) const {
 	    id.fromArray(&packet.buffer[OffsetSrc]);
-
 	}
-    
+	    
 	NodeId getSrc() const {
 	    NodeId ret;
 	    getSrc(ret);

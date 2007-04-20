@@ -14,6 +14,8 @@
 #include <awds/beacon.h>
 #include <awds/settings.h>
 
+#include <iostream>
+
 
 namespace awds {
 struct NodeDescr {
@@ -61,11 +63,13 @@ struct NodeDescr {
      *  \return true, if neighbor link has good bidirectional connectivity.
      */
     bool isBidiGood(gea::AbsTime t, const NodeId& myId) {
-	if (!lastBeacon)
+	if (!lastBeacon) {
 	    return false;
+	}
 	Beacon beacon(*lastBeacon);
-	if (!beacon.hasNeigh(myId))
+	if (!beacon.hasNeigh(myId)) {
 	    return false;
+	}
 	return isGood(t);
     }
     
@@ -94,7 +98,7 @@ struct NodeDescr {
 	** The loop will execute once for each bit of x set, this is in average
 	** twice as fast as the shift/test method.
 	*/
-        if (x) {
+	if (x) {
 	    do {
 		++n;
 	    } while (0 != (x = x&(x-1)));

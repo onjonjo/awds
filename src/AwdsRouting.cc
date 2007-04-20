@@ -48,7 +48,7 @@ awds::AwdsRouting::AwdsRouting(basic *base) :
     this->udpSend = base->sendHandle;
     this->udpRecv = base->recvHandle;
     
-    this->topology = new RTopology(base->MyId);
+    this->topology = new RTopology(base->MyId,this);
     this->floodHistory = new FloodHistory();
     
     assert(topology->myNodeId == myNodeId);
@@ -113,10 +113,9 @@ void awds::AwdsRouting::trigger_topo(gea::Handle *h, gea::AbsTime t, void *data)
     
     topo.setNeigh(self, t);
     long n = self->topology->getNumNodes();
-    
     //    long newPeriod = ((n*n)/ isqrt(n) ) * 200; 
     long newPeriod = (200 * n * n * 4)/ isqrt(n * 16); 
-
+    
     if ( newPeriod > 2 * self->topoPeriod) { // force slow increase of period
 	
 	newPeriod = 2 * self->topoPeriod;
@@ -125,17 +124,17 @@ void awds::AwdsRouting::trigger_topo(gea::Handle *h, gea::AbsTime t, void *data)
     self->topoPeriod =  newPeriod;
     topo.setValidity( 3 * self->topoPeriod);
     
-
+    
     // sign the packet
     if (self->cryptoUnit) {
 	const CryptoUnit::MemoryBlock noSign[] = { {p->buffer + Flood::OffsetLastHop, NodeId::size + 1},
-					     {0,0}};
+						   {0,0}};
 	self->cryptoUnit->sign(p->buffer, p->size, noSign);
 	p->size += 32;
 	//	GEA.dbg() << "topo packet siye = " << p->size << endl;
 	//assert ( self->cryptoUnit->verifySignature(self->myNodeId, p->buffer, p->size, noSign) );
     }
-
+    
     self->sendBroadcast(p,t);
     p->unref();
     
@@ -147,7 +146,6 @@ void awds::AwdsRouting::trigger_topo(gea::Handle *h, gea::AbsTime t, void *data)
 
 
 void awds::AwdsRouting::recv_packet(gea::Handle *h, gea::AbsTime t, void *data) {
-
     AwdsRouting *self = static_cast<AwdsRouting*>(data);
     
     if (h->status == gea::Handle::Ready) {
@@ -192,6 +190,8 @@ void awds::AwdsRouting::recv_packet(gea::Handle *h, gea::AbsTime t, void *data) 
 
 void awds::AwdsRouting::send_beacon(gea::Handle *h, gea::AbsTime t, void *data) {
     
+
+	
     AwdsRouting *self = static_cast<AwdsRouting*>(data);
     self->calcMpr();
     BasePacket p;
@@ -211,21 +211,19 @@ void awds::AwdsRouting::send_beacon(gea::Handle *h, gea::AbsTime t, void *data) 
     if (p.send(h) < 0)
 	GEA.dbg() << " cannot send"<< std::endl;
     
-    
 }
 
 
 
 bool awds::AwdsRouting::refreshNeigh(BasePacket *p, gea::AbsTime t) {
-
     
 	
     assert(p->getType() == PacketTypeBeacon);
 		
     Beacon beacon(*p);
     
-    NodeId src = beacon.getSrc();
-    
+    NodeId src = beacon.getSrc();    
+
     int idx  = findNeigh( src );
     
     if ( (idx < 0) && (numNeigh == MaxNeighbors)) // cannot add more neighbors
@@ -346,9 +344,30 @@ void awds::AwdsRouting::sendBroadcast(BasePacket *p, gea::AbsTime t) {
 void awds::AwdsRouting::sendUnicast(BasePacket *p, gea::AbsTime t) {
     
     UnicastPacket uniP(*p);
+    uniP.incTTL();
     uniP.setNextHop(myNodeId);
     recv_unicast(p, t);
+}
+
+void awds::AwdsRouting::sendUnicastVia(BasePacket *p,gea::AbsTime t,NodeId nextHop) {
+    UnicastPacket ucPacket(*p);
     
+    if (ucPacket.getTTL() == 0)
+	return ;
+    
+    if (ucPacket.getTraceFlag() ) {
+	// append own ID in the packet.
+	TraceUcPacket traceP(*p);
+	traceP.appendNode(myNodeId);
+    }
+    
+    ucPacket.setNextHop(nextHop);
+    p->setDest(nextHop);
+    p->ref();
+    GEA.waitFor(this->udpSend, 
+		t + gea::Duration(12.2),
+		send_unicast,
+		new std::pair<BasePacket *,AwdsRouting *>(p,this) );
 }
 
 
@@ -364,12 +383,12 @@ void awds::AwdsRouting::registerBroadcastProtocol(int num, recv_callback cb, voi
 
 
 void awds::AwdsRouting::recv_flood(BasePacket *p, gea::AbsTime t) {
-        
     Flood flood(*p);
 
     NodeId    srcId  = flood.getSrc();
     u_int16_t srcSeq = flood.getSeq();
-    
+
+
     if (floodHistory->contains(srcId, srcSeq)) {
 	//	GEA.dbg() << "received duplicate" << std::endl;
 	return;
@@ -410,8 +429,6 @@ void awds::AwdsRouting::recv_flood(BasePacket *p, gea::AbsTime t) {
 	if (validPacket)
 	    topology->feed(topoPacket, t);
 
-	//GEA.dbg() << "got topo from " << srcId << std::endl;
-	
 	// 	if (myNodeId == NodeId(2)) {
 	// 	    this->topology->print();
 	// 	}
@@ -502,7 +519,6 @@ BasePacket *awds::AwdsRouting::newUnicastPacket(int type) {
 
 
 void awds::AwdsRouting::recv_unicast(BasePacket *p, gea::AbsTime t) {
-    
     UnicastPacket ucPacket(*p);
     
     ucPacket.decrTTL();
@@ -521,8 +537,6 @@ void awds::AwdsRouting::recv_unicast(BasePacket *p, gea::AbsTime t) {
     NodeId dest = ucPacket.getUcDest();
     
     if (dest == myNodeId) {
-	//	GEA.dbg() << "received Packet from " << ucPacket.getSrc() << std::endl;
-	
 	ProtocolRegister::iterator itr = unicastRegister.find(ucPacket.getUcPacketType());
 	if (itr != unicastRegister.end()) {
 	    itr->second.first(p,t,itr->second.second);

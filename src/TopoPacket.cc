@@ -7,6 +7,10 @@
 #include <awds/routing.h>
 #include <awds/RateMonitor.h>
 
+#include <awds/Metric.h>
+
+#include <iostream>
+
 using namespace std;
 
 void TopoPacket::setNeigh(AwdsRouting *awdsRouting, gea::AbsTime t) {
@@ -15,12 +19,13 @@ void TopoPacket::setNeigh(AwdsRouting *awdsRouting, gea::AbsTime t) {
 	    
     char *addr =  &(packet.buffer[OffsetLinks]);
 
-    RateMonitor *rm = awdsRouting->madwifiRateMonitor;
+    /*    
+	  RateMonitor *rm = awdsRouting->madwifiRateMonitor;
     
-    if ( (awdsRouting->metrics == Routing::TransmitDurationMetrics) && (rm != 0) )
-	rm->update();
-    
+	  if ( (awdsRouting->metrics == Routing::TransmitDurationMetrics) && (rm != 0) )
+	  rm->update();*/
 
+    awdsRouting->topology->metric->update();
     for (int i = 0; i < awdsRouting->numNeigh; ++i) {
 	    
 	if ( awdsRouting->neighbors[i].isBidiGood(t, awdsRouting->myNodeId) )
@@ -29,39 +34,41 @@ void TopoPacket::setNeigh(AwdsRouting *awdsRouting, gea::AbsTime t) {
 		nId.toArray(addr); 
 		++n;
 		addr += NodeId::size;
-		int metric;
+		// the installed metric decides which quality values will be send
+		RTopology::link_quality_t quality = awdsRouting->topology->metric->get_quality(awdsRouting->neighbors[i]);
 		
-		switch (awdsRouting->metrics) {
-		
+		/*		switch (awdsRouting->metrics) {
+		  
 		case Routing::PacketLossMetrics:
-		    metric = 0xff - (awdsRouting->neighbors[i].quality() - 1) * (0x100 / 32);    
-		    break;
+		metric = 0xff - (awdsRouting->neighbors[i].quality() - 1) * (0x100 / 32);    
+		break;
 		
 		case Routing::EtxMetrics: 
-		    metric = 0xff - (awdsRouting->neighbors[i].quality() - 1) * (0x100 / 32);
-		    break;
+		metric = 0xff - (awdsRouting->neighbors[i].quality() - 1) * (0x100 / 32);
+		break;
 		
 		case Routing::TransmitDurationMetrics:
-		    {
-			assert(rm);
-			rm->update();
-			metric = rm->getTT(nId) / 256;
-		    }
-		    break;
+		{
+		assert(rm);
+		rm->update();
+		metric = rm->getTT(nId) / 256;
+		}
+		break;
 		case Routing::HopCountMetrics:
-		    metric = 0xff;
-		    break;
+		metric = 0xff;
+		break;
 		}
 		
-		// clamp ranges
+		// clamp ranges dass machen wir dann auch in der metric
 		metric = max( min(metric, 0xff), 1);
-		*addr = (char)metric;
-		assert(*addr);
-		addr += 1;
+		*/
+		
+		*(reinterpret_cast<RTopology::link_quality_t*>(addr)) = quality;
+		assert(*(reinterpret_cast<RTopology::link_quality_t*>(addr)));
+		addr += sizeof(RTopology::link_quality_t);
 
 	    }
     }	
-    
     const char* nodeName = awdsRouting->topology->nodeName;
     int len = strlen(nodeName);
     if (len > 32) len = 32;
@@ -70,7 +77,7 @@ void TopoPacket::setNeigh(AwdsRouting *awdsRouting, gea::AbsTime t) {
     
     packet.buffer[OffsetNumLinks] = (char)n;
     packet.size = 
-	OffsetLinks + (NodeId::size + 1) * (size_t)(n) 
+	OffsetLinks + (NodeId::size + 1) * (size_t)(n*sizeof(RTopology::link_quality_t)) 
 	+ len+1 /* the station name */;
     
     //  assert(getNumLinks() == n);

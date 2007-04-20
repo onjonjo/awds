@@ -32,6 +32,10 @@ public:
 	packet.buffer[OffsetTTL]--;
     }
     
+    void incTTL() {
+	packet.buffer[OffsetTTL]++;
+    }
+
     NodeId getUcDest() const {
 	NodeId ret;
 	ret.fromArray(&packet.buffer[OffsetUcDest]);
