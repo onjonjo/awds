@@ -92,10 +92,28 @@ public:
 	d = num;
     }
     
-    const AbstractID<6>& operator =(const AbstractID<6>& a) {
+    inline const AbstractID<6>& operator =(const AbstractID<6>& a) {
 	d = a.d;
 	return *this;
     }
+#if defined(__GNUC__) && defined(__i386)
+
+#include <byteswap.h>
+    inline void fromArray(const char *data) {
+	unsigned short s = bswap_16(*(unsigned short *)data);
+	d = (unsigned long long)s * 0x100000000ULL;
+	unsigned long  l = bswap_32( *(unsigned long *)(data + 2) );
+	d |= l;
+    }
+    
+    inline void toArray( char *data) const {
+	*reinterpret_cast<unsigned short *>(data) = 
+	    bswap_16( static_cast<unsigned short>(d / 0x100000000ULL) );
+	*reinterpret_cast<unsigned long *>(data +2) =
+	    bswap_32( static_cast<unsigned long>(d) );
+    }
+    
+#else 
     
     void fromArray(const char *data) {
 	d = 0;
@@ -112,13 +130,14 @@ public:
 	    dd /= 0x0100ULL;
 	}
     }
-
+#endif 
+    
     operator unsigned long() const {
 	return (unsigned long)d;
     }
- 
+    
     /** use the lexicographic operators for comparision: */
-#define LEXI_BOOL_OP(op) bool operator op (const AbstractID<6>& a) const { return d op a.d;  }
+#define LEXI_BOOL_OP(op) inline bool operator op (const AbstractID<6>& a) const { return d op a.d;  }
     
     LEXI_BOOL_OP(==);
     LEXI_BOOL_OP(!=);

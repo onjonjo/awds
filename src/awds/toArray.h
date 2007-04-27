@@ -20,7 +20,7 @@ void toArray(T d, char *array) {
 }
 
 template <typename T> 
-T fromArray( char *array) {
+T fromArray( const char *array) {
     T d = 0;
     for (size_t i = 0; i < sizeof(T); ++i) {
 	d <<= 8;
@@ -29,8 +29,23 @@ T fromArray( char *array) {
     return d;
 }
 
+/* define optimized version for i386 platform */
+#if defined(__GNUC__) && defined(__i386)
+
+#include <byteswap.h>
+
+template <>
+static unsigned short fromArray<unsigned short>(const char *array) {
+    return bswap_16( *(unsigned short *)array );
+}
+
+template <>
+static unsigned long fromArray<unsigned long>(const char *array) {
+    return bswap_32( *(unsigned long *)array );
+}
 
 
+#endif
 
 
 

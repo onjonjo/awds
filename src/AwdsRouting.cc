@@ -290,7 +290,13 @@ void awds::AwdsRouting::assert_stat() {
     
 }
 
+std::string awds::AwdsRouting::getNameOfNode(const awds::NodeId& id) const {
+    return topology->getNameOfNode(id);
+}
 
+bool awds::AwdsRouting::getNodeByName(awds::NodeId& id, const char *name) const {
+    return topology->getNodeByName(id, name);
+}
 
 
 void awds::AwdsRouting::removeOldNeigh(gea::AbsTime t) {
@@ -589,6 +595,65 @@ void awds::AwdsRouting::send_unicast(gea::Handle *h, gea::AbsTime t, void *data)
     delete xdata;
 }
 
+int awds::AwdsRouting::foreachNode(NodeFunctor f, void *data) const {
+    int ret = 0;
+    int ret2;
+    RTopology::AdjList::const_iterator itr;
+    
+    for (itr = topology->adjList.begin();
+	 itr != topology->adjList.end();
+	 ++itr) 
+	{
+	
+	    ret++;
+	    ret2 =  f(data, itr->first);
+	    if (ret2)
+		return ret2;
+	}
+    
+    return ret;
+}
+
+int awds::AwdsRouting::foreachEdge(EdgeFunctor f, void *data) const {
+    int ret;
+    int ret2;
+    RTopology::AdjList::const_iterator  itr1;
+    RTopology::LinkList::const_iterator itr2;
+    
+    for (itr1 = topology->adjList.begin();
+	 itr1 != topology->adjList.end();
+	 ++itr1) 
+	{
+	    const RTopology::LinkList& llist = itr1->second.linklist;
+	    ret++;
+	    
+	    for (itr2 = llist.begin();
+		 itr2 != llist.end();
+		 ++itr2) 
+		{
+		    ret2 =  f(data, itr1->first, itr2->neighbor);
+		    
+		    if (ret2)
+			return ret2;
+		}
+	}
+        
+    return ret;
+    
+}
+
+
+void awds::AwdsRouting::addNodeObserver(struct NodesObserver *observer) {
+    observer->next = topology->nodeObservers;
+    topology->nodeObservers = observer;
+    //    GEA.dbg() << "adding node observer " << (void*)topology->nodeObservers << endl;
+}
+
+void awds::AwdsRouting::addLinkObserver(struct LinksObserver *observer) {
+    observer->next = topology->linkObserver;
+    topology->linkObserver  = observer;
+}
+
 
 bool awds::AwdsRouting::isReachable(const NodeId& id) const {
     bool ret;
@@ -619,7 +684,7 @@ int awdsRouting_gea_main(int argc, const char  * const *argv)
     basic *base = (basic *)rep.getObj("basic");
     if (!base) {
 	GEA.dbg() << "cannot find object 'basic' in repository" << endl; 
-	return -1;
+	
     }
     
     AwdsRouting* awdsRouting = new AwdsRouting(base);

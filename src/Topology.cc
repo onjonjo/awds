@@ -131,6 +131,8 @@ RTopology::RTopology(NodeId id,Routing *routing) :
     locked(false),
     myNodeId(id)
 {
+    nodeObservers = 0;
+    linkObserver = 0;
     adjList.clear();
     adjList[myNodeId] = NDescr();
 
@@ -149,7 +151,7 @@ RTopology::RTopology(NodeId id,Routing *routing) :
 
 
 RTopology::~RTopology() {
-    std::cout << __PRETTY_FUNCTION__ << std::endl;
+    //    std::cout << __PRETTY_FUNCTION__ << std::endl;
     delete metric;
 } 
 
@@ -164,6 +166,8 @@ RTopology::getNodeEntry(const NodeId& id, gea::AbsTime t ) {
     
     assert(itr != adjList.end());
     if (ret.second) { // new entry
+	sendNodesChanged();
+	sendNodeAdded(id);
 	if (!newXmlTopologyDelta.empty()) {
 	    ostringstream ns;
 	    ns << "<topodiff>\n";
@@ -230,7 +234,7 @@ void RTopology::feed(const TopoPacket& p, gea::AbsTime t) {
 
     LinkList &linklist = itr->second.linklist;
     LinkList old_linklist;
-    if (!newXmlTopologyDelta.empty()) {
+    if (!newXmlTopologyDelta.empty() || linkObserver) {
 	old_linklist = linklist;
     }
 
@@ -267,7 +271,6 @@ void RTopology::feed(const TopoPacket& p, gea::AbsTime t) {
 	    //	unsigned char q = (unsigned char)(*addr);
 	assert(q);
 	
-	//	addr += 1;            // skip the quality entry
 	addr += sizeof(link_quality_t);
 
 	AdjList::iterator nItr = getNodeEntry(node, t);
@@ -297,7 +300,6 @@ void RTopology::feed(const TopoPacket& p, gea::AbsTime t) {
  
     bool nameHasChanged = false;
     
-    
     if (p.packet.buffer + p.packet.size > addr) {
 	char buf[33];
 	
@@ -318,12 +320,11 @@ void RTopology::feed(const TopoPacket& p, gea::AbsTime t) {
 	deltaN += ns.str();
     }
     
-    if (!newXmlTopologyDelta.empty()) {
+    if (!newXmlTopologyDelta.empty() || linkObserver) {
 	
 	//	for (unsigned i = 0; i < nList.size(); ++i) {
 	for (unsigned i = 0; i < linklist.size(); ++i) {
-	    
-	    
+	    	    
 	    bool found = false;
 	    for (unsigned j = 0; j < old_linklist.size(); ++j) {
 		if (linklist[i] == old_linklist[j]) {
@@ -346,6 +347,7 @@ void RTopology::feed(const TopoPacket& p, gea::AbsTime t) {
 		   << linklist[i].neighbor << "\"> <quality value=\""
 		   << linklist[i].get_percentage() << "%\" /></add_edge>\n";
 		deltaN += es.str();
+		this->sendLinkAdded(src, linklist[i].neighbor);
 	    }
 	}
 
@@ -361,6 +363,7 @@ void RTopology::feed(const TopoPacket& p, gea::AbsTime t) {
 		ns << "  <remove_edge from=\"" << src 
 		   << "\" to=\"" << old_linklist[i].neighbor << "\"/>\n";
 		deltaN += ns.str();
+		this->sendLinkRemoved(src, old_linklist[i].neighbor);
 	    }
 	}
 	
@@ -369,6 +372,7 @@ void RTopology::feed(const TopoPacket& p, gea::AbsTime t) {
 	    deltaS << "<topodiff>\n" << deltaN << deltaQ << "</topodiff>\n";
 	    string xmlDelta = deltaS.str();
 	    newXmlTopologyDelta(xmlDelta);
+	    this->sendLinksChanged();
 	}
     }
     
@@ -381,7 +385,6 @@ void RTopology::feed(const TopoPacket& p, gea::AbsTime t) {
 	std::string s = getDotString();
 	newDotTopology( s );
     }
-	
     
 }
 
@@ -691,35 +694,36 @@ gea::AbsTime RTopology::removeOldNodes(gea::AbsTime t) {
     if (locked) return nextTimeout;
     
     while( itr != adjList.end() ) {
-
+	NodeId currentNodeId = itr->first;
 	gea::AbsTime validity = itr->second.validity;
 	
 	
 	if (validity <= t) {
-
-	    if (itr->first == myNodeId) {
+	    
+	    if (currentNodeId == myNodeId) {
 		GEA.dbg() << "failure! removing my one node from topology" 
 			  << " age is " << ( t - validity )
 			  << endl;
 	    }
 	  
 	    GEA.dbg() << "removing node "
-		      << itr->first << endl;
+		      << currentNodeId << endl;
 	    
 	   
 
 	    AdjList::iterator itr2 = itr;
 	    itr2++;
 	    
-	    if (!newXmlTopologyDelta.empty()) {
+	    if (!newXmlTopologyDelta.empty() || linkObserver ) {
 		const LinkList& linklist = itr->second.linklist;
 		for (LinkList::const_iterator iN = linklist.begin();
 		     iN != linklist.end();
 		     ++iN) {
-		    edge_s << "  <remove_edge from=\"" << itr->first
+		    edge_s << "  <remove_edge from=\"" << currentNodeId
 			   << "\" to=\"" << iN->neighbor << "\" />\n";
+		    sendLinkRemoved(currentNodeId, iN->neighbor);
 		}
-		node_s << "  <remove_node id=\"" << itr->first << "\" />\n";
+		node_s << "  <remove_node id=\"" << currentNodeId << "\" />\n";
 	    }
 	    // createRemoveMessages(itr->first, itr->second);
 	    oneRemoved = true;
@@ -733,6 +737,8 @@ gea::AbsTime RTopology::removeOldNodes(gea::AbsTime t) {
 	    adjList.erase(itr);
 	    itr = itr2;
 	    
+	    sendNodeRemoved(currentNodeId);
+	
 	} else {
 	    itr++;
 	    
@@ -748,6 +754,8 @@ gea::AbsTime RTopology::removeOldNodes(gea::AbsTime t) {
 	
 	s += edge_s.str() + node_s.str();
 	newXmlTopologyDelta(s);
+	sendNodesChanged();
+	sendLinksChanged();
     }
     //   GEA.dbg() << " next cleanup in "
     // 	      << (nextTimeout - t) << endl;
@@ -766,7 +774,7 @@ bool awds::RTopology::getNodeByName(awds::NodeId& id, const char *name) const {
 	if (!strncmp( name, itr->second.nodeName, 32)) {
 	    // found it;
 	    id = itr->first;
-	    return 0;
+	    return true;
 	}
     }
     //    GEA.dbg() << "not found " << endl;
@@ -788,7 +796,7 @@ bool awds::RTopology::getNodeByName(awds::NodeId& id, const char *name) const {
 	}
 	if (parse_success) {
 	    id.fromArray(mac);
-	    return 0;
+	    return true;
 	}
     }
 	
@@ -796,10 +804,10 @@ bool awds::RTopology::getNodeByName(awds::NodeId& id, const char *name) const {
     char * endptr;
     unsigned long int v = strtoul(name, &endptr, 0);
     if (*endptr || endptr == name)  // parse error!
-	return -1;
+	return false;
     
     id = awds::NodeId(v);
-    return 0;
+    return true;
     
 }
 
@@ -813,6 +821,59 @@ std::string RTopology::getNameList() const {
 	    os << itr->first << "\t'" << itr->second.nodeName << "'\n";
 	}
     return os.str();
+}
+
+
+
+
+void RTopology::sendNodesChanged() const {
+    struct awds::Routing::NodesObserver *nodeObserver = this->nodeObservers;
+    //    GEA.dbg() << "signaling topochange to " << (void*)nodeObserver << endl;
+    while(nodeObserver) {
+	//GEA.dbg() << "signaling topochange to " << (void*)nodeObserver << endl;
+	nodeObserver->nodesChanged();
+	nodeObserver = nodeObserver->next;
+    }
+}
+
+void RTopology::sendNodeAdded(const NodeId& id) const {
+    struct awds::Routing::NodesObserver *nodeObserver = this->nodeObservers;
+    while(nodeObserver) {
+	nodeObserver->nodeAdded(id);
+	nodeObserver = nodeObserver->next;
+    }
+}
+
+void RTopology::sendNodeRemoved(const NodeId& id) const {
+    struct awds::Routing::NodesObserver *nodeObserver = this->nodeObservers;
+    while(nodeObserver) {
+	nodeObserver->nodeRemoved(id);
+	nodeObserver = nodeObserver->next;
+    }
+}
+
+void RTopology::sendLinksChanged() const {
+    struct awds::Routing::LinksObserver *lobserver = this->linkObserver;
+    while(lobserver) {
+	lobserver->linksChanged();
+	lobserver = lobserver->next;
+    }
+}
+
+void RTopology::sendLinkAdded(const NodeId& from, const NodeId& to) const {
+    struct awds::Routing::LinksObserver *lobserver = this->linkObserver;
+    while(lobserver) {
+	lobserver->linkAdded(from, to);
+	lobserver = lobserver->next;
+    }
+}
+
+void RTopology::sendLinkRemoved(const NodeId& from, const NodeId& to) const {
+    struct awds::Routing::LinksObserver *lobserver = this->linkObserver;
+    while(lobserver) {
+	lobserver->linkRemoved(from, to);
+	lobserver = lobserver->next;
+    }
 }
 
 

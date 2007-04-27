@@ -8,7 +8,7 @@
 
 #include <awds/packettypes.h>
 #include <awds/TraceUcPacket.h>
-#include <awds/AwdsRouting.h>
+#include <awds/routing.h>
 #include <awds/ext/Shell.h>
 #include <awds/Topology.h>
 #include <awds/toArray.h>
@@ -39,7 +39,7 @@ struct Pinger {
     
 
 
-    awds::AwdsRouting *awdsRouting;
+    awds::Routing *awdsRouting;
     gea::Blocker blocker;
     ostream *out;
     ShellClient *shellClient;
@@ -49,7 +49,7 @@ struct Pinger {
 
     gea::AbsTime myT0;
     
-    Pinger( awds::AwdsRouting *awdsRouting):
+    Pinger( awds::Routing *awdsRouting):
 	awdsRouting(awdsRouting),
 	period(2.)
     {
@@ -156,7 +156,7 @@ int Pinger::parse_opts(int argc, const char* const *argv) {
 	
     //    REP_MAP_OBJ(RTopology *, topology);
     dbg() << " dest is " << destName << endl;
-    return awdsRouting->topology->getNodeByName(this->dest, destName);
+    return awdsRouting->getNodeByName(this->dest, destName);
     
 } // end parse_opts
 
@@ -370,7 +370,7 @@ int pinger_gea_main(int argc, const char  * const *argv)
     
 {    
     Pinger *pinger;
-    REP_MAP_OBJ(awds::AwdsRouting *, routing);
+    REP_MAP_OBJ(awds::Routing *, routing);
     
     if (!routing) {
 	GEA.dbg() << "cannot find object 'routing' in repository" << std::endl; 

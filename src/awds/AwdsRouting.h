@@ -25,12 +25,73 @@
 
 namespace awds {
 
-
-
     class AwdsRouting : public Routing { 
     
     public:
 
+	basic * base;
+    
+	static const int UdpPort = 4921;
+	static const int period = BEACON_INTERVAL; /* beacon period in milliseconds */
+	int topoPeriod; /* topo period in milliseconds */
+    
+	gea::Handle *udpSend;
+	gea::Handle *udpRecv;
+	gea::Blocker    blocker;
+	class RTopology * topology;
+	class FloodHistory *floodHistory;
+
+	class RateMonitor *madwifiRateMonitor;
+
+
+	AwdsRouting(basic *base);
+	virtual ~AwdsRouting();
+ 
+	virtual size_t getMTU();
+    
+   
+	static void send_beacon(gea::Handle *h, gea::AbsTime t, void *data); 
+	static void recv_packet(gea::Handle *h, gea::AbsTime t, void *data); 
+    
+	static void trigger_topo(gea::Handle *h, gea::AbsTime t, void *data); 
+  
+
+	static void repeat_flood(gea::Handle *h, gea::AbsTime t, void *data); 
+	static void send_unicast(gea::Handle *h, gea::AbsTime t, void *data);
+
+	/** convert a node id to a unique name
+	 *  This method implements the abstact version in awds::Routing
+	 *  \param   id which node is looked up
+	 *  \returns a unique string for identifying the node.
+	 */
+	virtual std::string getNameOfNode(const awds::NodeId& id) const;
+	
+	/** convert a node name to an internal node id
+	 *  This method implements the abstact version in awds::Routing
+	 *  \param   id a reference to a node id, where the return value is stored.
+	 *  \param   name the name to look for.
+	 *  \returns 0 on success, -1 otherwise.
+	 */
+	virtual bool getNodeByName(awds::NodeId& id, const char *name) const;
+	
+
+	virtual int foreachNode(NodeFunctor, void *data) const;
+	virtual int foreachEdge(EdgeFunctor, void *data) const;
+    
+
+	virtual void addNodeObserver(struct awds::Routing::NodesObserver *observer);
+	virtual void addLinkObserver(struct LinksObserver *observer);
+  
+	
+    
+	void recv_beacon(BasePacket *p, gea::AbsTime t); 
+	void recv_flood(BasePacket *p, gea::AbsTime t); 
+	void recv_unicast(BasePacket *p, gea::AbsTime t);
+
+	virtual bool isReachable(const NodeId& id) const;
+    
+	virtual BasePacket *newFloodPacket(int floodType); 
+	virtual BasePacket *newUnicastPacket(int type);
     
 	virtual void sendBroadcast(BasePacket *p, gea::AbsTime t);
 	virtual void sendUnicast(BasePacket *p, gea::AbsTime t);
@@ -69,48 +130,7 @@ namespace awds {
 	u_int16_t floodSeq;
 	u_int16_t unicastSeq;
 	
-	basic * base;
 	
-	static const int UdpPort = 4921;
-	static const int period = BEACON_INTERVAL; /* beacon period in milliseconds */
-	int topoPeriod; /* topo period in milliseconds */
-	
-	gea::Handle *udpSend;
-	gea::Handle *udpRecv;
-	gea::Blocker    blocker;
-	class RTopology * topology;
-	class FloodHistory *floodHistory;
-	
-	class RateMonitor *madwifiRateMonitor;
-	
-	
-	AwdsRouting(basic *base);
-	virtual ~AwdsRouting();
-	
-	virtual size_t getMTU();
-	
-	
-	static void send_beacon(gea::Handle *h, gea::AbsTime t, void *data); 
-	static void recv_packet(gea::Handle *h, gea::AbsTime t, void *data); 
-	
-	static void trigger_topo(gea::Handle *h, gea::AbsTime t, void *data); 
-	
-	
-	static void repeat_flood(gea::Handle *h, gea::AbsTime t, void *data); 
-	static void send_unicast(gea::Handle *h, gea::AbsTime t, void *data);
-	
-	
-	
-	
-	
-	void recv_beacon(BasePacket *p, gea::AbsTime t); 
-	void recv_flood(BasePacket *p, gea::AbsTime t); 
-	void recv_unicast(BasePacket *p, gea::AbsTime t);
-	
-	virtual bool isReachable(const NodeId& id) const;
-	
-	virtual BasePacket *newFloodPacket(int floodType); 
-	virtual BasePacket *newUnicastPacket(int type);
 	
 	int findNeigh(const NodeId& id) const {
 	    

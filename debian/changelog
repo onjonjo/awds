@@ -1,3 +1,9 @@
+awds (6.2) unstable; urgency=low
+
+  * addded name resolution to routing API
+
+ -- Andre Herms <aherms@ivs.cs.uni-magdeburg.de>  Thu, 12 Apr 2007 18:12:00 +0200
+
 awds (6.1) unstable; urgency=low
 
   * removed broken watch and test shell commands
