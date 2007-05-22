@@ -1,6 +1,6 @@
 SUBDIRS =  crypto 
 
-
+LIBADD = -lgea
 module_flags = -module  -avoid-version -export-symbols-regex gea_main 
 
 #AM_CPPFLAGS= @GEAINC@ -pedantic -Wno-long-long
@@ -61,7 +61,7 @@ awdsrouting_la_SOURCES =  \
 
 awdsrouting_la_CPPFLAGS = -DMODULE_NAME=interf
 awdsrouting_la_LDFLAGS = -module  -avoid-version -export-symbols-regex gea_main 
-
+awdsrouting_la_LIBADD = -lgea
 
 
 udpbasic_la_SOURCES = udpBasic.cc awds/basic.h basic.cc

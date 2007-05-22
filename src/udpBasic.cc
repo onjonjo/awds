@@ -23,13 +23,12 @@ struct UdpBasic : public basic {
         MyId = myId;
 	BroadcastId = NodeId(0xFFFFFFFFUL);
 	sendHandle =  new gea::UdpHandle( gea::UdpHandle::Write,
-					  gea::UdpAddress(PORT /*port*/,
-							  gea::UdpAddress::IP_BROADCAST
-							  /*ip*/ ));
+					  gea::UdpAddress(gea::UdpAddress::IPADDR_BROADCAST,
+							  PORT /*port*/) );
 	
 	recvHandle = new gea::UdpHandle(gea::UdpHandle::Read,
-					gea::UdpAddress(PORT /*port*/,
-							gea::UdpAddress::IP_ANY /*ip*/ ));
+					gea::UdpAddress(gea::UdpAddress::IPADDR_ANY,
+							PORT /*port*/));
 
     }
 
@@ -66,8 +65,8 @@ void UdpBasic::setSendDest(const NodeId& id) {
     
     if (id == BroadcastId) {
 	
-	((gea::UdpHandle *)sendHandle)->setDest(gea::UdpAddress(PORT, 
-								gea::UdpAddress::IP_BROADCAST));
+	((gea::UdpHandle *)sendHandle)->setDest(gea::UdpAddress(gea::UdpAddress::IPADDR_BROADCAST,
+								PORT ) );
 	
     } else {
 
