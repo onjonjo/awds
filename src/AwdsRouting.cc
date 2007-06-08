@@ -4,6 +4,7 @@
 
 #include <gea/API.h>
 #include <gea/ObjRepository.h>
+#include <gea/gea_main.h>
 
 #include <awds/AwdsRouting.h> 
 
@@ -671,13 +672,7 @@ size_t awds::AwdsRouting::getMTU() {
     return 2000U - max;
 }
 
-extern "C"
-#ifdef PIC
-int gea_main(int argc, const char  * const * argv) 
-#else
-int awdsRouting_gea_main(int argc, const char  * const *argv) 
-#endif
-
+GEA_MAIN(argc, argv)
 {
     
     ObjRepository& rep = ObjRepository::instance();

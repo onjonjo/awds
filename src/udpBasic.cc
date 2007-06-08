@@ -6,6 +6,7 @@
 
 #include <cstring>
 
+#include <gea/gea_main.h>
 #include <gea/ObjRepository.h>
 #include <gea/UdpHandle.h>
 #include <gea/API.h>
@@ -44,22 +45,6 @@ struct UdpBasic : public basic {
     
 };
 
-// static unsigned long id2IPv4(const NodeId& id) {
-//     char buf[16];
-//     id.toArray(buf);
-    
-//     unsigned long ret = 0;
-//     for (unsigned i= (int)NodeId::size - 4; i < NodeId::size  ; ++i) {
-// 	ret <<= 8;
-// 	ret |= (unsigned long)(unsigned char)(buf[i]);
-//     }
-//     return ret;
-// }
-
-// static void id2str(char *buf, const NodeId& id) {
-//     unsigned long num = ntohl(id2IPv4(id));
-//     sprintf(buf, "%lu", num);
-// }
 
 void UdpBasic::setSendDest(const NodeId& id) {
     
@@ -83,9 +68,8 @@ void UdpBasic::getRecvSrc(NodeId& id) {
     
 }
 
-
-extern "C" 
-int gea_main(int argc, const char  * const *argv) {
+GEA_MAIN(argc,argv)
+{
 
     
     NodeId MyId;
@@ -100,21 +84,10 @@ int gea_main(int argc, const char  * const *argv) {
     
     basic->init(MyId);
     
-    //    ObjRepository& rep = ObjRepository::instance(); 
-    
-    //    rep.insertObj("awds::basic", "basic", basic);
     REP_INSERT_OBJ(awds::basic *, basic, basic);
 
-    //     char str[123];
-    //     id2str(str, MyId);
-    //     GEA.dbg() << "test " << MyId << ": [" <<str << "] " 
-    // 	      << gea::UdpHandle::getIP() << " vs " << id2IPv4(MyId) << std::endl;
-    
-    
     GEA.dbg() << "running UDP basic on " << MyId << std::endl;
     
-    //basic->setSendDest(MyId);
-    //    basic->sendHandle->write(str,2);
     return 0;
 }
 

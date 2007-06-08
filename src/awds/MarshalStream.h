@@ -7,6 +7,8 @@
 #include <awds/NodeId.h>
 
 #include <stdint.h>
+#include <utility>
+#include <cstring>
 
 #include <cassert>
 
@@ -68,6 +70,15 @@ struct ReadMarshalStream {
 	size += gea::Duration::size;
 	return *this;
     }
+    
+
+
+    ReadMarshalStream& operator >> (std::pair<void *, unsigned> v) {
+	memcpy( v.first, start+size, v.second);
+	size += v.second;
+	return *this;
+    }
+    
     
 };
 
@@ -135,6 +146,12 @@ public:
     inline WriteMarshalStream& operator <<(const gea::Duration& t) {
 	t.toArray( (void *)(start + size) );
 	size += gea::Duration::size;
+	return *this;
+    }
+
+    inline WriteMarshalStream& operator <<(std::pair<const void *, unsigned> v) {
+	memcpy(start+size, v.first, v.second);
+	size += v.second;
 	return *this;
     }
     

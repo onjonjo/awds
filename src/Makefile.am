@@ -59,7 +59,7 @@ awdsrouting_la_SOURCES =  \
 	awds/sqrt_int.h sqrt_int.c 
 
 
-awdsrouting_la_CPPFLAGS = -DMODULE_NAME=interf
+awdsrouting_la_CPPFLAGS = -DMODULE_NAME=interf -fvisibility=hidden
 awdsrouting_la_LDFLAGS = -module  -avoid-version -export-symbols-regex gea_main 
 awdsrouting_la_LIBADD = -lgea
 

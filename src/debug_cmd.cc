@@ -12,6 +12,7 @@
 #include <fstream>
 #include <set>
 
+#include <gea/gea_main.h>
 #include <gea/ObjRepository.h>
 #include <gea/API.h>
 #include <awds/ext/Shell.h>
@@ -272,13 +273,7 @@ void parse_options(int argc, const char *const *argv) {
     
 }
 
-extern "C"
-#ifdef PIC
-int gea_main(int argc, const char  * const * argv) 
-#else
-int awdsRouting_gea_main(int argc, const char  * const *argv) 
-#endif
-    
+GEA_MAIN(argc, argv)    
 {    
     static const char *short_help = "show debug outputs";
     static const char *long_help = 
