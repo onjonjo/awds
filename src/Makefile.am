@@ -67,12 +67,12 @@ awdsrouting_la_LIBADD = -lgea
 udpbasic_la_SOURCES = udpBasic.cc awds/basic.h basic.cc
 udpbasic_la_CPPFLAGS = -DMODULE_NAME=udpbasic
 udpbasic_la_LDFLAGS = -module  -avoid-version -export-symbols-regex gea_main 
-
+udpbasic_la_LIBADD = -lgea
 
 rawbasic_la_SOURCES = rawbasic.cc basic.cc awds/basic.h awds/NodeId.h
 rawbasic_la_CPPFLAGS = -DMODULE_NAME=rawbasic
 rawbasic_la_LDFLAGS = -module  -avoid-version -export-symbols-regex gea_main
-
+rawbasic_la_LIBADD = -lgea -lgea-posix
 
 pinger_la_SOURCES = pinger.cc
 pinger_la_LDFLAGS = -module  -avoid-version -export-symbols-regex gea_main
@@ -80,20 +80,22 @@ pinger_la_LDFLAGS = -module  -avoid-version -export-symbols-regex gea_main
 
 tapiface_la_SOURCES = TapInterface.cc tapiface.cc awds/tapiface.h
 tapiface_la_LDFLAGS = -module  -avoid-version -export-symbols-regex gea_main
-
+tapiface_la_LIBADD = -lgea -lgea-posix
 
 tapiface2_la_SOURCES = TapInterface.cc TapInterface2.cc awds/tapiface.h tapiface2.cc  awds/tapiface2.h
 tapiface2_la_CPPFLAGS = -DMODULE_NAME=tapiface2
 tapiface2_la_LDFLAGS = -module  -avoid-version -export-symbols-regex gea_main
-
+tapiface2_la_LIBADD = -lgea -lgea-posix
 
 topowatch_la_SOURCES  = topowatch.cc
 topowatch_la_CPPFLAGS = -DMODULE_NAME=topowatch
 topowatch_la_LDFLAGS  = -module  -avoid-version -export-symbols-regex gea_main
+topowatch_la_LIBADD = -lgea -lgea-posix
 
 shell_la_SOURCES  = shell.cc unixfdostream.h 
 shell_la_CPPFLAGS = -DMODULE_NAME=shell
 shell_la_LDFLAGS  = -module  -avoid-version -export-symbols-regex gea_main
+shell_la_LIBADD = -lgea -lgea-posix
 
 topodump_la_SOURCES = dumpTopo.cc
 topodump_la_LDFLAGS = -module  -avoid-version -export-symbols-regex gea_main
