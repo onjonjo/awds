@@ -18,7 +18,7 @@
     //}
 
 DEFINE_MOD( rawbasic );
-DEFINE_MOD( interf );
+DEFINE_MOD( awdsrouting );
 DEFINE_MOD( tapiface2 );
 DEFINE_MOD( topowatch );
 DEFINE_MOD( aesccm );
@@ -49,7 +49,7 @@ int main(int argc, char **argv) {
     rawbasic_gea_main(2, rawbasic_args  );
     
     static const char *  interf_args[1] = {"interf_internal"};
-    interf_gea_main(1, interf_args  );
+    awdsrouting_gea_main(1, interf_args  );
     
     static const char *  tapiface2_args[1] = {"tapiface2_internal"};
     tapiface2_gea_main(1, tapiface2_args  );
@@ -57,7 +57,8 @@ int main(int argc, char **argv) {
 
 
     signal(SIGHUP, ende);
-    gea::geaAPI().shadow->run();
+    
+    static_cast<gea::ShadowEventHandler *>( gea::geaAPI().subEventHandler )->run();
     return 0;
 }
 
