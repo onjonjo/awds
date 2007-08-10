@@ -1,21 +1,33 @@
 
-#include <iostream>
-#include <gea/API.h>
 
+#include <gea/gea_main.h>
+#include <gea/API.h>
 #include <gea/ObjRepository.h>
 
 #include <awds/Topology.h>
 #include <string>
 #include <fstream>
+#include <iostream>
 
 using namespace std;
 using namespace awds;
 
-
-
-extern "C" 
-int gea_main(int argc, const char  * const * argv) {
+struct topostream {
     
+    ofstream file;
+    
+    static bool xmlTopoDiff(void *d,  string& s) {
+	struct topostream *self = static_cast<struct topostream *>(d);
+	if (self->file.is_open()) 	    
+	    self->file << s;
+	
+	return true;
+    }
+    
+};
+
+
+GEA_MAIN(argc, argv) {
   
   ObjRepository& rep = ObjRepository::instance();
   RTopology *topology = (RTopology *)rep.getObj("topology");
@@ -25,20 +37,23 @@ int gea_main(int argc, const char  * const * argv) {
   }
   bool append(false);
   string file,type;
-  for (int i(1);i<argc;++i) {
+  for (int i = 1; i<argc; ++i) {
       string o(argv[i]);
       string p;
       if (argc > i+1) {
 	  p = argv[i+1];
       }
       if (o == "--file") {	  
-	  file = p;
+	  file = p; 
+	  i++;
       }
       if (o == "--append") {
 	  append = true;
+	  i++;
       }
       if (o == "--type") {
 	  type = p;
+	  i++;
       }
   }
 
@@ -46,13 +61,25 @@ int gea_main(int argc, const char  * const * argv) {
 
   if (type == "dot") {
       result = topology->getDotString();
+  } else if (type == "adj") {
+      result = topology->getAdjString();
   } else {
-      if (type == "adj") {
-	  result = topology->getAdjString();
-      } else {
-	  result = topology->getXmlString();
-      }
+      result = topology->getXmlString();
   }
+  
+  if (type == "stream") {
+      if (file == "") {
+	  GEA.dbg() << "usage: " << argv[0] << " --type stream --file <filename>" << endl;
+	  return -1;
+      }
+      struct topostream *stream = new topostream;
+      stream->file.open( file.c_str() );
+      stream->file << "<?xml version=\"1.0\"?>\n<graph>\n";
+      stream->file << result;
+      topology->newXmlTopologyDelta.add( &topostream::xmlTopoDiff, (void *)stream);
+      return 0;
+  }
+  
   
   if (file.length()) {
       ofstream f;
