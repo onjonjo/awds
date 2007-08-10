@@ -170,9 +170,9 @@ RTopology::getNodeEntry(const NodeId& id, gea::AbsTime t ) {
 	sendNodeAdded(id);
 	if (!newXmlTopologyDelta.empty()) {
 	    ostringstream ns;
-	    ns << "<topodiff>\n";
-	    ns << "  <add_node id=\"" << id << "\" name=\"" << getNameOfNode(id) <<"\" />\n";  
-	    ns << "</topodiff>";
+	    ns << "<topodiff timestamp=\"" << (GEA.lastEventTime - gea::AbsTime::t0())<<"\" />" 
+	       << "  <add_node id=\"" << id << "\" name=\"" << getNameOfNode(id) <<"\" />\n"
+	       << "</topodiff>";
 	    string s = ns.str();
 	    newXmlTopologyDelta(s);
 	} 
@@ -369,7 +369,8 @@ void RTopology::feed(const TopoPacket& p, gea::AbsTime t) {
 	
 	if (deltaN.size() + deltaQ.size() != 0) {
 	    ostringstream deltaS;
-	    deltaS << "<topodiff>\n" << deltaN << deltaQ << "</topodiff>\n";
+	    deltaS << "<topodiff timestamp=\"" << (GEA.lastEventTime - gea::AbsTime::t0()) << "\" >\n" 
+		   << deltaN << deltaQ << "</topodiff>\n";
 	    string xmlDelta = deltaS.str();
 	    newXmlTopologyDelta(xmlDelta);
 	    this->sendLinksChanged();
@@ -457,7 +458,7 @@ std::string RTopology::getXmlString() const {
     
     std::ostringstream os;
     
-    os << "<topology>\n";
+    os << "<topology timestamp=\"" << (GEA.lastEventTime - gea::AbsTime::t0()) << "\" >\n";
     for (AdjList::const_iterator i = adjList.begin();
 	 i != adjList.end(); ++i) {
 	
@@ -641,7 +642,7 @@ void RTopology::createRemoveMessages(const NodeId& node, const NDescr& nDescr ) 
     if (!newXmlTopologyDelta.empty()) {
 	ostringstream ns;
 	
-	ns << "<topodiff>\n";
+	ns << "<topodiff timestamp=\"" << (GEA.lastEventTime - gea::AbsTime::t0()) << "\" >\n";
 
 	const LinkList &linklist = nDescr.linklist;
 	LinkList::const_iterator i;
@@ -685,6 +686,7 @@ gea::AbsTime RTopology::removeOldNodes(gea::AbsTime t) {
     ostringstream node_s;
     bool oneRemoved = false;
 
+    edge_s << "<topodiff timestamp=\"" << (GEA.lastEventTime - gea::AbsTime::t0()) << "\" >\n";
     
     AdjList::iterator itr = adjList.begin();
 
@@ -749,7 +751,7 @@ gea::AbsTime RTopology::removeOldNodes(gea::AbsTime t) {
     }
     if (!newXmlTopologyDelta.empty() && oneRemoved) {
 
-	string s = "<topodiff>\n";
+	string s = "";
 	node_s <<  "</topodiff>\n";
 	
 	s += edge_s.str() + node_s.str();
