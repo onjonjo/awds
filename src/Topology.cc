@@ -170,9 +170,9 @@ RTopology::getNodeEntry(const NodeId& id, gea::AbsTime t ) {
 	sendNodeAdded(id);
 	if (!newXmlTopologyDelta.empty()) {
 	    ostringstream ns;
-	    ns << "<topodiff timestamp=\"" << (GEA.lastEventTime - gea::AbsTime::t0())<<"\" />" 
+	    ns << "<topodiff timestamp=\"" << (GEA.lastEventTime - gea::AbsTime::t0())<<"\" />\n" 
 	       << "  <add_node id=\"" << id << "\" name=\"" << getNameOfNode(id) <<"\" />\n"
-	       << "</topodiff>";
+	       << "</topodiff>\n";
 	    string s = ns.str();
 	    newXmlTopologyDelta(s);
 	} 
