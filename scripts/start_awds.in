@@ -36,6 +36,10 @@ AWDS_SHELL=''
 AWDS_TOPO=''
 [ "$USE_TOPO_EXPORT" = yes ] && AWDS_TOPO='topowatch.so'
 
+AWDS_DAEMON=''
+PIDFILE=${PIDFILE:-/var/run/awds.pid}
+[ "$DAEMONIZE" = yes ] && AWDS_DAEMON="daemon.so --pidfile $PIDFILE"
+
 
 if [ "$DEV_CHANGE_WIRELESS_SETTINGS" = yes ]
 then
@@ -67,7 +71,7 @@ name="$HOSTNAME"
 
 exec gea_start -i <<END
 $AWDS_SHELL
-daemon.so --pidfile /var/run/awds.pid
+$AWDS_DAEMON
 rawbasic.so $DEVICE
 awdsrouting.so --name $name
 pinger.so

@@ -154,25 +154,28 @@ void awds::AwdsRouting::recv_packet(gea::Handle *h, gea::AbsTime t, void *data) 
 	// okay, we received some packet
 	
 	BasePacket *p = new BasePacket(); 
-	p->receive(h); 
+	size_t size = p->receive(h); 
 	
-	SrcPacket srcP(*p);
-	
-	if (srcP.getSrc() != self->myNodeId) {
-	    
-	 
-	    if (p->getType() == PacketTypeBeacon) {
+	/* check if actually received (>0) and its big enough */
+	if (size >= SrcPacket::SrcPacketEnd) {
+		SrcPacket srcP(*p);
 		
-		self->recv_beacon(p,t);
-	
-	    } else if (p->getType() == PacketTypeFlood) {
-	    
-		self->recv_flood(p, t);
-	    
-	    } else if (p->getType() == PacketTypeUnicast ) {
-		self->recv_unicast(p,t);
-	    }
+		if (srcP.getSrc() != self->myNodeId) {
+		    
+		 
+		    if (p->getType() == PacketTypeBeacon) {
+			
+			self->recv_beacon(p,t);
+		
+		    } else if (p->getType() == PacketTypeFlood) {
+		    
+			self->recv_flood(p, t);
+		    
+		    } else if (p->getType() == PacketTypeUnicast ) {
+			self->recv_unicast(p,t);
+		    }
 
+		}
 	}
 	p->unref();
     } else {
@@ -447,7 +450,7 @@ void awds::AwdsRouting::recv_flood(BasePacket *p, gea::AbsTime t) {
 	    itr->second.first(p,t,itr->second.second);
 	    
 	} else {
-	    GEA.dbg() << "unknown Flood Type" << flood.getFloodType() << std::endl;
+	    GEA.dbg() << "unknown Flood Type " << flood.getFloodType() << std::endl;
 	}
     }
     
@@ -463,6 +466,8 @@ void awds::AwdsRouting::recv_flood(BasePacket *p, gea::AbsTime t) {
 	}
     }
     
+    // XXX why do we have LastHop at all???
+    flood.setLastHop(myNodeId);
     flood.decrTTL();
     if (flood.getTTL() == 0) 
 	return;
