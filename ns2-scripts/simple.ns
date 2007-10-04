@@ -2,6 +2,7 @@
 
 # ns-2 script for simulating a AWDS network
 
+set d $env(D)
 
 set awdspath ../src/.libs/
 
@@ -33,10 +34,10 @@ set val(ifq)            Queue/DropTail/PriQueue    ;# interface queue type
 set val(ll)             LL                         ;# link layer type
 set val(ant)            Antenna/OmniAntenna        ;# antenna model
 set val(ifqlen)         10                         ;# max packet in ifq
-set val(nn)             30                        ;# number of mobilenodes
+set val(nn)             2                        ;# number of mobilenodes
 set val(x)	        1000
 set val(y)	        100
-set val(stop_time)      5000.
+set val(stop_time)      1000.
 set val(max_speed)      0.0001
 set val(min_speed)      0.0001
 
@@ -137,37 +138,37 @@ $ns_ node-config -adhocRouting $val(rp) \
 
 
 proc setup_node {id x y z color} {
-    global ns_ node_
+    global ns_ node_ awdspath
     set node_($id) [$ns_ node]
     $node_($id) set X_ $x
     $node_($id) set Y_ $y
     $node_($id) set Z_ $z
     $node_($id) color $color
-    $ns_ at 0 "$node_($id) setdest $x $y 0"
+#    $ns_ at 0 "$node_($id) setdest $x $y 0"
     $ns_ at 0 "$node_($id) color $color"
     $node_($id) random-motion 0
     $ns_ initial_node_pos $node_($id) 20
+    $ns_ at 0.1 "$node_($id) gea_start $awdspath/udpbasic.so"
+    $ns_ at 0.2 "$node_($id) gea_start $awdspath/awdsrouting.so"
+    $ns_ at 0.3 "$node_($id) gea_start $awdspath/rttmetric.so --interval 1 --history --alpha 0.1"
 }
 
+puts "SRTT $d"
 
-for {set i 1} {$i <= $val(nn) } {incr i} {
+setup_node 1 0.0 0.0 0.0 "green"
+setup_node 2 $d 0.0 0.0 "green"
+#setup_node 3 410.0 100.0 10.0 "green"
 
-    set px_ $posx($i)
-    set py_ $posy($i)
-
-    setup_node $i $px_ $py_ 0 "green"
-    $ns_ at 0 "$node_($i) start";
-    puts "position $i $px_ $py_" 
-    
-    $ns_ at [expr $i * 0.01] "$node_($i) gea_start $awdspath/udpbasic.so"
-    $ns_ at [expr $i * 0.01] "$node_($i) gea_start $awdspath/awdsrouting.so"
-    
-}
+$ns_ at $val(stop_time)-3 "$node_(1) gea_start $awdspath/signaler.so --rtt-values"
+$ns_ at $val(stop_time)-2 "$node_(2) gea_start $awdspath/signaler.so --rtt-values"
+#$ns_ at $val(stop_time)-1 "$node_(3) gea_start $awdspath/signaler.so --rtt-values --stop"
 
 # set stop time, start simulation
 for {set i 1} {$i <= $val(nn) } {incr i} {
     $ns_ at $val(stop_time) "$node_($i) reset";
 }
+
+$ns_ at $val(stop_time) "$node_(1) gea_start $awdspath/topodump.so --file dump.txt --type xml"
 
 $ns_ at $val(stop_time) "stop"
 $ns_ at [expr $val(stop_time) + 0.01] "puts \"NS EXITING...\" ; $ns_ halt"

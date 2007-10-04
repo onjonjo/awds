@@ -22,6 +22,7 @@ struct NodeDescr {
 
 
     static const int LostTrigger = 8;
+    static bool verbose;
    
     NodeId id;                    /// ID of the node
     BasePacket *lastBeacon;       /// pointer to the last received beacon 
@@ -41,15 +42,18 @@ struct NodeDescr {
 							* (double)LostTrigger) );
 	if ( !active && !lastBeacon2old && last12received) { 
 	    active = true;
-	    GEA.dbg() << "neighbor " 
-		      << Beacon(*lastBeacon).getSrc() << " became active" << std::endl; 
+	    if (verbose) {
+		GEA.dbg() << "neighbor " 
+			  << Beacon(*lastBeacon).getSrc() << " became active" << std::endl; 
+	    }
 	} else if (  active && ( last4lost || lastBeacon2old ) )  {
 	    active = false;
-	    
-	    GEA.dbg() << "neighbor " 
-		      << Beacon(*lastBeacon).getSrc() << " became inactive " 
-		      << ( last4lost ? "(last 4 beacon lost)" : "(last beacon too old)")
-		      << std::endl; 
+	    if (verbose) {
+		GEA.dbg() << "neighbor " 
+			  << Beacon(*lastBeacon).getSrc() << " became inactive " 
+			  << ( last4lost ? "(last 4 beacon lost)" : "(last beacon too old)")
+			  << std::endl; 
+	    }
 	} 
     }
     
@@ -109,6 +113,7 @@ struct NodeDescr {
     }
 };
 }
+
 
 #endif //NODEDESCR_H__
 /* This stuff is for emacs

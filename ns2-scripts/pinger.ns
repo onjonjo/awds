@@ -171,6 +171,7 @@ for {set i 1} {$i <= $val(nn) } {incr i} {
     
     $ns_ at [expr $i * 0.01] "$node_($i) gea_start $awdspath/udpbasic.so"
     $ns_ at [expr $i * 0.01] "$node_($i) gea_start $awdspath/awdsrouting.so"
+    $ns_ at [expr $i * 0.01] "$node_($i) gea_start $awdspath/etxmetric.so"
     $ns_ at [expr $i * 0.01] "$node_($i) gea_start $awdspath/pinger.so $pdest"
     
 }
@@ -179,6 +180,10 @@ for {set i 1} {$i <= $val(nn) } {incr i} {
 for {set i 1} {$i <= $val(nn) } {incr i} {
     $ns_ at $val(stop_time) "$node_($i) reset";
 }
+
+$ns_ at 1000 "$node_(3) gea_start $awdspath/topodump.so --file dump.txt --type xml"
+
+
 
 $ns_ at $val(stop_time) "stop"
 $ns_ at [expr $val(stop_time) + 0.01] "puts \"NS EXITING...\" ; $ns_ halt"

@@ -18,15 +18,17 @@ namespace awds {
 
   class UCMetricPacket : public UnicastPacket {
   public:
-    enum Type {req,resp};
+    enum Type {req,resp,first,second};
     static const size_t OffsetSeq = UnicastPacket::UnicastPacketEnd;
     static const size_t OffsetType = OffsetSeq+sizeof(unsigned int);
     static const size_t OffsetOriginator = OffsetType+sizeof(Type);
     static const size_t OffsetTime1 = OffsetOriginator+sizeof(NodeId);
     static const size_t OffsetTime2 = OffsetTime1+sizeof(gea::AbsTime);
-    static const size_t MetricHeaderEnd = OffsetTime2+sizeof(gea::AbsTime);
+    static const size_t OffsetDuration = OffsetTime2+sizeof(gea::AbsTime);
+    static const size_t MetricHeaderEnd = OffsetDuration+sizeof(gea::Duration);
     UCMetricPacket(BasePacket &p);
     UCMetricPacket(BasePacket &p,Type t,unsigned int ttl,unsigned int seq,gea::AbsTime time);
+    UCMetricPacket(BasePacket &p,Type t,unsigned int ttl,unsigned int seq,gea::Duration duration);
 
     void setSeq(unsigned int s) {
       *((unsigned int*)&packet.buffer[OffsetSeq]) = s;
@@ -55,7 +57,14 @@ namespace awds {
     gea::AbsTime getTime1() {
       return *((gea::AbsTime*)&packet.buffer[OffsetTime1]);
     }
-    
+
+    void setDuration(gea::Duration d) {
+      *((gea::Duration*)&packet.buffer[OffsetDuration]) = d;
+    }
+
+    gea::Duration getDuration() {
+      return *((gea::Duration*)&packet.buffer[OffsetDuration]);
+    }
   };
 
 }

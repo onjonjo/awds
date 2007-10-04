@@ -34,6 +34,7 @@ bool awds::operator==(std::pair<NodeId,RTopology::NDescr> const &a,NodeId const 
 }
 
 bool awds::control_topology(RTopology::AdjList &adjList) {
+    return true;
     RTopology::AdjList::iterator it(adjList.begin());
     while (it != adjList.end()) {
 	RTopology::LinkList::iterator n(it->second.linklist.begin());
@@ -125,6 +126,7 @@ RTopology::LinkList::insert(RTopology::LinkQuality const &lq,
 }
 
 RTopology::RTopology(NodeId id,Routing *routing) : 
+    verbose(false),
     metric(new Metric(routing)),
     adjList(),
     dirty(true),
@@ -708,8 +710,10 @@ gea::AbsTime RTopology::removeOldNodes(gea::AbsTime t) {
 			  << endl;
 	    }
 	  
-	    GEA.dbg() << "removing node "
-		      << currentNodeId << endl;
+	    if (verbose) {
+		GEA.dbg() << "removing node "
+			  << currentNodeId << endl;
+	    }
 	    
 	   
 

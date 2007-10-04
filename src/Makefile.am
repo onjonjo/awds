@@ -23,7 +23,11 @@ pkglib_LTLIBRARIES = \
 	rawbasic.la \
 	etxmetric.la \
 	rttmetric.la \
-	signaler.la
+	signaler.la \
+	gea2mad.la \
+	ttmetric.la \
+	pktpair.la \
+	traffic.la
 
 #	tapiface_crypto.la \
 #
@@ -111,6 +115,20 @@ rttmetric_la_LDFLAGS = $(module_flags)
 
 signaler_la_SOURCES = signaler.cc
 signaler_la_LDFLAGS = $(module_flags)
+
+gea2mad_la_SOURCES = gea2mad.cc
+gea2mad_la_CPPFLAGS = -I/scratch/wienoebs/awds/ns2-gea/ns-2 -I/usr/include/tcl8.4
+gea2mad_la_LDFLAGS = $(module_flags)
+
+ttmetric_la_SOURCES = Metric.h UCMetricPacket.h UCMetricPacket.cc ExtMetric.h ExtMetric.cc UCastMetric.h UCastMetric.cc TTMetric.h TTMetric.cc
+ttmetric_la_LDFLAGS = $(module_flags)
+
+pktpair_la_SOURCES = Metric.h UCMetricPacket.h UCMetricPacket.cc ExtMetric.h ExtMetric.cc UCastMetric.h UCastMetric.cc PktPair.h PktPair.cc
+pktpair_la_LDFLAGS = $(module_flags)
+
+traffic_la_SOURCES = Traffic.h Traffic.cc
+traffic_la_LDFLAGS = $(module_flags)
+
 
 EXTRA_PROGRAMS =  awds 
 

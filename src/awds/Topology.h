@@ -34,6 +34,7 @@ namespace awds {
 	gea::Blocker cleanup_blocker;
 
     public:
+	bool verbose;
 	Metric *metric;
 
     

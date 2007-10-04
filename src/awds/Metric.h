@@ -40,12 +40,15 @@ namespace awds {
       virtual ~Metric() {}
 
       virtual void addNode(NodeId &nodeId) {}
-      virtual void begin_update() {}
+      virtual void begin_update() {}  
+      // begin_update() is called before the incoming topopaket is parsed, so that the metric can  reset its node data, see end_update() too
       virtual void end_update() {}
+      // end_update() is called right after the topopaket has been parsed, so still reseted nodes can be deleted, so begin_update() too
 
       virtual int update() {
 	return 8;
       }
+      // update() is called right before a topopacket ist filled with data (see get_quality(NodeDescr&)) so the mertic can prepare for (for TTMetric in rl it is to parse a file)
       
       RTopology::link_quality_t get_quality(NodeDescr &ndescr) {
 	// this method is called by the Topopacket to get the sendable qualityvalues of the Link to ndescr

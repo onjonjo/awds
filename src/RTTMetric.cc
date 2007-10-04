@@ -6,6 +6,7 @@
 #include <sstream>
 
 awds::RTTMetric::RTTMetric(awds::Routing *r):UCastMetric(r),history(0),interval(0.5),debug(false),alpha(1),packetSize(800) {  
+  srand(time(0));
 }
 
 awds::RTTMetric::~RTTMetric() {
@@ -133,7 +134,7 @@ awds::RTTMetric::end_update() {
     RTTData::iterator backup(it);
     if (!it->second.in_use) {
       ++backup;
-      std::cout << "removing: " << (unsigned int) it->first << std::endl;
+      //std::cout << "removing: " << (unsigned int) it->first << std::endl;
       rttData.erase(it);
       it = backup;
     } else {
@@ -145,7 +146,7 @@ awds::RTTMetric::end_update() {
 unsigned long 
 awds::RTTMetric::my_calculate(awds::RTopology::link_quality_t forward,
 			      awds::RTopology::link_quality_t backward) {
-  return forward;
+  return forward+backward;
 }
 
 void awds::RTTMetric::go_measure() {
@@ -170,7 +171,7 @@ void awds::RTTMetric::go_measure() {
     it->second.lastsend = t;
   }
   GEA.waitFor(&blocker,
-	      gea::AbsTime::now()+interval,
+	      gea::AbsTime::now()+interval+(rand()%10/10.0),
 	      &ExtMetric::wait,
 	      (void*)this);
 }

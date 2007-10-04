@@ -23,6 +23,7 @@
 using namespace std;
 
 awds::AwdsRouting::AwdsRouting(basic *base) :
+    verbose(false),
     Routing(base->MyId),
     beaconSeq(0),
     beaconPeriod((double)(this->period) / 1000.),
@@ -94,7 +95,9 @@ void awds::AwdsRouting::recv_beacon(BasePacket *p, gea::AbsTime t) {
     
 
     if ( this->refreshNeigh(p, t) ) {
-	GEA.dbg() << "got packet from new neighbor " << neighbor << std::endl;	  
+	if (verbose) {
+	    GEA.dbg() << "got packet from new neighbor " << neighbor << std::endl;	  
+	}
     }
 	
 }
@@ -315,8 +318,9 @@ void awds::AwdsRouting::removeOldNeigh(gea::AbsTime t) {
 	    ++newnum;
 	    
 	} else {
-	    
-	    GEA.dbg() << "removing old node " << neighbors[i].id << " from list" << std::endl;
+	    if (verbose) {
+		GEA.dbg() << "removing old node " << neighbors[i].id << " from list" << std::endl;
+	    }
 	    
 	}
     }
@@ -373,7 +377,7 @@ void awds::AwdsRouting::sendUnicastVia(BasePacket *p,gea::AbsTime t,NodeId nextH
     
     ucPacket.setNextHop(nextHop);
     p->setDest(nextHop);
-    p->ref();
+    //    p->ref();
     GEA.waitFor(this->udpSend, 
 		t + gea::Duration(12.2),
 		send_unicast,
@@ -561,13 +565,15 @@ void awds::AwdsRouting::recv_unicast(BasePacket *p, gea::AbsTime t) {
     bool found;
     topology->getNextHop(dest, nextHop, found);
     if (!found) {
-	GEA.dbg() << "no route to host " << dest << std::endl;
+	GEA.dbg() << "no route to host " << (int)dest << std::endl;
 	//	topology->print();
 	return;
     } else {
-// 	GEA.dbg() << "next hop to " << dest 
-// 		  << " is " << nextHop 
-// 		  << std::endl;
+	if (verbose) {
+	    GEA.dbg() << "next hop to " << (int) dest 
+		      << " is " << (int) nextHop 
+		      << std::endl;
+	}
 	
     }
     ucPacket.setNextHop(nextHop);
@@ -708,10 +714,20 @@ GEA_MAIN(argc, argv)
     if ( (argc >= 3) && (!strcmp(argv[1], "--name") ) ) {
 	strncpy(awdsRouting->topology->nodeName, argv[2], 32);
     }
+
+    for (int i(0);i<argc;++i) {
+	std::string w(argv[i]);
+	if (w == "--verbose") {
+	    awdsRouting->topology->verbose = true;
+	    awdsRouting->verbose = true;
+	    awds::NodeDescr::verbose = true;
+	}
+    }
         
     return 0;
 }
 
+bool awds::NodeDescr::verbose = false;
 
 /* This stuff is for emacs
  * Local variables:

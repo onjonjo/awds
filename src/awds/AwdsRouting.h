@@ -28,6 +28,7 @@ namespace awds {
     class AwdsRouting : public Routing { 
     
     public:
+	bool verbose;
 
 	basic * base;
     
