@@ -36,7 +36,6 @@ namespace awds {
     public:
 	bool verbose;
 	Metric *metric;
-
     
 	char nodeName[32];
     
@@ -58,9 +57,9 @@ namespace awds {
 	    link_quality_t quality; // unidirectional, received by topopackets
 	    unsigned long metric_weight; // calculated by metric bidirectional
 
-	    friend bool operator==(LinkQuality const &lq,NodeId const &n);
-	    friend bool operator==(LinkQuality const &lq,LinkQuality const &lq2);
-	    friend bool operator<(LinkQuality const &lq,LinkQuality const &lq2);
+	    friend bool operator==(LinkQuality const &lq, NodeId const &n);
+	    friend bool operator==(LinkQuality const &lq, LinkQuality const &lq2);
+	    friend bool operator<(LinkQuality const &lq, LinkQuality const &lq2);
 	    friend bool control_topology(RTopology::AdjList &adjList);
 
 	    LinkQuality &operator=(LinkQuality const &lq) {

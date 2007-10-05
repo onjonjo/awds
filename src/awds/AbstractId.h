@@ -82,7 +82,6 @@ public:
     unsigned long long d;
     
     static const size_t size = 6;
-    
         
     AbstractID() : d(0) {}
     

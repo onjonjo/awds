@@ -6,7 +6,7 @@
 namespace awds {
     
     typedef AbstractID<6> NodeId; 
-
+    
 }
 
 #endif //NODEID_H__

@@ -10,9 +10,10 @@
 namespace awds {
 
     enum PacketType {
-	PacketTypeBeacon,
-	PacketTypeFlood,
-	PacketTypeUnicast
+	PacketTypeBeacon  = 0,
+	PacketTypeFlood   = 1,
+	PacketTypeUnicast = 2,
+	PacketTypeForward = 3
     };
 
     class BasePacket {
@@ -28,7 +29,7 @@ namespace awds {
 	NodeId dest;
 
 	BasePacket() : size(0), refcount(1) {
-
+	    buffer[0] = 0;
 	}
 
 	int send(gea::Handle* h) { 
@@ -53,13 +54,12 @@ namespace awds {
 	}
 	
 	void setType(PacketType pt) {
-	    buffer[0] = (buffer[0] & ~0x03) |static_cast<char>(pt);
+	    buffer[0] = (buffer[0] & ~0x03) | static_cast<char>(pt);
 	}
 
 	void setDest(const NodeId& dest) {
 	    this->dest = dest;
 	}
-
 	
     };
 }

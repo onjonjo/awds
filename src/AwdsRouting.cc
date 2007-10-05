@@ -21,6 +21,9 @@
 #include <crypto/CryptoUnit.h>
 
 using namespace std;
+using namespace awds;
+using namespace gea;
+
 
 awds::AwdsRouting::AwdsRouting(basic *base) :
     verbose(false),
@@ -94,7 +97,7 @@ void awds::AwdsRouting::recv_beacon(BasePacket *p, gea::AbsTime t) {
     }
     
 
-    if ( this->refreshNeigh(p, t) ) {
+    if ( this->refreshNeigh(p) ) {
 	if (verbose) {
 	    GEA.dbg() << "got packet from new neighbor " << neighbor << std::endl;	  
 	}
@@ -115,7 +118,7 @@ void awds::AwdsRouting::trigger_topo(gea::Handle *h, gea::AbsTime t, void *data)
     TopoPacket topo(*p);
     assert(topo.getFloodType() == FloodTypeTopo); // done by constructor of TopoPacket
     
-    topo.setNeigh(self, t);
+    topo.setNeigh(self);
     long n = self->topology->getNumNodes();
     //    long newPeriod = ((n*n)/ isqrt(n) ) * 200; 
     long newPeriod = (200 * n * n * 4)/ isqrt(n * 16); 
@@ -157,48 +160,32 @@ void awds::AwdsRouting::recv_packet(gea::Handle *h, gea::AbsTime t, void *data) 
 	// okay, we received some packet
 	
 	BasePacket *p = new BasePacket(); 
-	size_t size = p->receive(h); 
-	
-	/* check if actually received (>0) and its big enough */
-	if (size >= SrcPacket::SrcPacketEnd) {
-		SrcPacket srcP(*p);
-		
-		if (srcP.getSrc() != self->myNodeId) {
-		    
-		 
-		    if (p->getType() == PacketTypeBeacon) {
-			
-			self->recv_beacon(p,t);
-		
-		    } else if (p->getType() == PacketTypeFlood) {
-		    
-			self->recv_flood(p, t);
-		    
-		    } else if (p->getType() == PacketTypeUnicast ) {
-			self->recv_unicast(p,t);
-		    }
 
-		}
-	}
+	int ret = p->receive(h); 
+	
+	if (ret >= 0 && SrcPacket(*p).getSrc() != self->myNodeId) 
+	    switch (p->getType()) {
+	    case PacketTypeBeacon:  self->recv_beacon(p,t);  break;
+	    case PacketTypeFlood:   self->recv_flood(p,t);   break;
+	    case PacketTypeUnicast: self->recv_unicast(p,t); break;
+	    case PacketTypeForward: /* will be added later */;break;
+	    }
 	p->unref();
     } else {
 	
 	self->nextBeacon += gea::Duration((double)(self->period) / 1000. );
-		
+	
 	GEA.waitFor(self->udpSend,
 		    self->nextBeacon,
 		    send_beacon, data);
 	
     }
-    ///GEA.dbg() << "AAAA" <<std::endl;
+    
     GEA.waitFor(h, self->nextBeacon, AwdsRouting::recv_packet, data);
-    ///GEA.dbg() << "BBBB" <<std::endl;
 }
 
 void awds::AwdsRouting::send_beacon(gea::Handle *h, gea::AbsTime t, void *data) {
     
-
-	
     AwdsRouting *self = static_cast<AwdsRouting*>(data);
     self->calcMpr();
     BasePacket p;
@@ -221,10 +208,9 @@ void awds::AwdsRouting::send_beacon(gea::Handle *h, gea::AbsTime t, void *data) 
 }
 
 
-
-bool awds::AwdsRouting::refreshNeigh(BasePacket *p, gea::AbsTime t) {
+bool awds::AwdsRouting::refreshNeigh(BasePacket *p) {
     
-	
+    gea::AbsTime t = GEA.lastEventTime;
     assert(p->getType() == PacketTypeBeacon);
 		
     Beacon beacon(*p);
@@ -250,7 +236,7 @@ bool awds::AwdsRouting::refreshNeigh(BasePacket *p, gea::AbsTime t) {
 	++numNeigh;
 	assert(numNeigh <= MaxNeighbors);
 	p->ref();
-	(void)neighbors[idx].isGood(t);
+	(void)neighbors[idx].isGood();
 	// update 2hop neighbors. 
 	
 	beacon.add2Hop(this);
@@ -284,7 +270,7 @@ bool awds::AwdsRouting::refreshNeigh(BasePacket *p, gea::AbsTime t) {
 }
 
 
-static void cpStat2Dyn(AwdsRouting::Hop2List::value_type& r) {
+static void cpStat2Dyn(awds::AwdsRouting::Hop2List::value_type& r) {
     r.second.dyn = r.second.stat;
 }
 
@@ -306,11 +292,11 @@ bool awds::AwdsRouting::getNodeByName(awds::NodeId& id, const char *name) const 
 }
 
 
-void awds::AwdsRouting::removeOldNeigh(gea::AbsTime t) {
+void awds::AwdsRouting::removeOldNeigh() {
     
     size_t newnum = 0;
     for (size_t i = 0; i < (size_t)numNeigh; ++i) {
-	bool tooOld = neighbors[i].isTooOld(t);
+	bool tooOld = neighbors[i].isTooOld();
 	
 	if (!tooOld) {
 	    
@@ -503,16 +489,19 @@ void awds::AwdsRouting::repeat_flood(gea::Handle *h, gea::AbsTime t, void *data)
 
 
 BasePacket *awds::AwdsRouting::newFloodPacket(int floodType) {
-	
+
     BasePacket * p = new BasePacket();
-    Flood flood(*p);
-	
-    flood.setSrc(myNodeId);
-    flood.setLastHop(myNodeId);
-    flood.setFloodType(floodType);
-    flood.setTTL(32);
-    flood.setSeq(floodSeq++);
-    
+
+    if (p) {
+	Flood flood(*p);
+	    
+	flood.setSrc(myNodeId);
+	flood.setLastHop(myNodeId);
+	flood.setFloodType(floodType);
+	flood.setTTL(32);
+	flood.setSeq(floodSeq++);
+    }
+
     return p;
 }
 
@@ -521,14 +510,15 @@ BasePacket *awds::AwdsRouting::newFloodPacket(int floodType) {
 BasePacket *awds::AwdsRouting::newUnicastPacket(int type) {
     
     BasePacket *p = new BasePacket();
-    
-    UnicastPacket uniP(*p);
-    uniP.setTraceFlag(false);
-    uniP.setSrc(myNodeId);
-    uniP.setNextHop(myNodeId);
-    uniP.setTTL(32);
-    uniP.setSeq(unicastSeq++);
-    uniP.setUcPacketType(type);
+    if (p) {
+	UnicastPacket uniP(*p);
+	uniP.setTraceFlag(false);
+	uniP.setSrc(myNodeId);
+	uniP.setNextHop(myNodeId);
+	uniP.setTTL(32);
+	uniP.setSeq(unicastSeq++);
+	uniP.setUcPacketType(type);
+    }
     return p;
 }
 
@@ -682,6 +672,8 @@ size_t awds::AwdsRouting::getMTU() {
 	max = Flood::FloodHeaderEnd;
     return 2000U - max;
 }
+
+#define MODULE_NAME awdsrouting
 
 GEA_MAIN(argc, argv)
 {

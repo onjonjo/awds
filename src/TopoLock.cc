@@ -1,5 +1,5 @@
 
-
+#include <gea/gea_main.h>
 #include <cstdlib>
 
 #include <gea/ObjRepository.h>
@@ -15,7 +15,8 @@
 
 
 using namespace std;
-
+using namespace awds;
+using namespace gea;
 
 enum TopoLockCmd {
     TopoLockCmd_Lock   = 0,
@@ -121,14 +122,7 @@ int TopoLock::addTopoLockCmd() {
 }
 
 
-extern "C"
-#ifdef PIC
-int gea_main(int argc, const char  * const * argv) 
-#else
-int awdsRouting_gea_main(int argc, const char  * const *argv) 
-#endif
-
-{
+GEA_MAIN(argc,argv) {
 
     ObjRepository& rep = ObjRepository::instance();
     

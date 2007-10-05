@@ -5,6 +5,10 @@
 #include <string>
 #include <sstream>
 
+using namespace awds;
+using namespace std;
+using namespace gea;
+
 awds::TTMetric::TTMetric(awds::Routing *r):UCastMetric(r),interval(1),debug(false),packetSize(800) {  
 }
 

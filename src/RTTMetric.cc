@@ -5,6 +5,10 @@
 #include <string>
 #include <sstream>
 
+using namespace std;
+using namespace awds;
+using namespace gea;
+
 awds::RTTMetric::RTTMetric(awds::Routing *r):UCastMetric(r),history(0),interval(0.5),debug(false),alpha(1),packetSize(800) {  
   srand(time(0));
 }

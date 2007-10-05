@@ -1,6 +1,12 @@
 #include <awds/PktPair.h>
 #include <iostream>
 
+
+using namespace awds;
+using namespace std;
+using namespace gea;
+
+
 PktPair::PktPair(Routing *r):UCastMetric(r),interval(0.5),debug(false),alpha(1),packetSize(800),bufferSize(0) {
 }
 

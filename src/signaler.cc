@@ -1,5 +1,7 @@
 #include <iostream>
+#include <sstream>
 
+#include <gea/gea_main.h>
 #include <gea/ObjRepository.h>
 #include <gea/Blocker.h>
 #include <gea/API.h>
@@ -10,19 +12,19 @@
 #include <awds/gea2mad.h>
 #include <awds/Traffic.h>
 
-#include <sstream>
+using namespace std;
+using namespace awds;
+using namespace gea;
 
 
-extern "C"
-#ifdef PIC
-int gea_main(int argc, const char  * const * argv) 
-#else
-int awdsRouting_gea_main(int argc, const char  * const *argv) 
-#endif
-{
+
+GEA_MAIN(argc, argv) {
+
   ObjRepository& rep = ObjRepository::instance();
+
   bool stop(false);
   std::string result;
+  
   for (int i(1);i<argc;++i) {
     std::string w(argv[i]);
     std::string p;

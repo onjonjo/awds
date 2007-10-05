@@ -20,9 +20,6 @@
 #include <awds/settings.h>
 #include <awds/RateMonitor.h>
 
-
-
-
 namespace awds {
 
     class AwdsRouting : public Routing { 
@@ -74,17 +71,13 @@ namespace awds {
 	 *  \returns 0 on success, -1 otherwise.
 	 */
 	virtual bool getNodeByName(awds::NodeId& id, const char *name) const;
-	
 
-	virtual int foreachNode(NodeFunctor, void *data) const;
-	virtual int foreachEdge(EdgeFunctor, void *data) const;
-    
-
+	virtual int foreachNode(awds::Routing::NodeFunctor, void *data) const;
+	virtual int foreachEdge(awds::Routing::EdgeFunctor, void *data) const;
+  
 	virtual void addNodeObserver(struct awds::Routing::NodesObserver *observer);
 	virtual void addLinkObserver(struct LinksObserver *observer);
-  
-	
-    
+      
 	void recv_beacon(BasePacket *p, gea::AbsTime t); 
 	void recv_flood(BasePacket *p, gea::AbsTime t); 
 	void recv_unicast(BasePacket *p, gea::AbsTime t);
@@ -97,7 +90,6 @@ namespace awds {
 	virtual void sendBroadcast(BasePacket *p, gea::AbsTime t);
 	virtual void sendUnicast(BasePacket *p, gea::AbsTime t);
 	virtual void sendUnicastVia(BasePacket *p,gea::AbsTime t,NodeId nextHop);
-	
         
 	struct Hop2RefCount {
 	    short stat; 
@@ -131,8 +123,7 @@ namespace awds {
 	u_int16_t floodSeq;
 	u_int16_t unicastSeq;
 	
-	
-	
+		
 	int findNeigh(const NodeId& id) const {
 	    
 	    /* do a binary search in the sorted array */
@@ -155,11 +146,10 @@ namespace awds {
 	bool hasNeigh(const NodeId& id) const {
 	    return findNeigh(id) >= 0;
 	}
+		
+	void removeOldNeigh();
 	
-	
-	void removeOldNeigh(gea::AbsTime t);
-	
-	bool refreshNeigh(BasePacket *p, gea::AbsTime t);
+	bool refreshNeigh(BasePacket *p);
 	
 	void stat2dyn();
 	
@@ -171,7 +161,7 @@ namespace awds {
     
 }
 
-using namespace awds;
+// using namespace awds;
 
 #endif //INTERF_H__
 /* This stuff is for emacs

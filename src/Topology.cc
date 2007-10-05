@@ -18,6 +18,7 @@
 
 using namespace std;
 using namespace gea;
+using namespace awds;
 
 bool awds::operator==(RTopology::LinkQuality const &lq,NodeId const &n) {
     return lq.neighbor == n;

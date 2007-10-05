@@ -7,6 +7,11 @@
 #include <awds/AwdsRouting.h>
 #include <awds/Topology.h>
 
+using namespace std;
+using namespace awds;
+using namespace gea;
+
+
 RTopology::link_quality_t awds::EtxMetric::my_get_quality(NodeDescr &ndescr) {
   RTopology::link_quality_t q(32-ndescr.quality());
   // highest value is worst value!

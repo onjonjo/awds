@@ -1,6 +1,12 @@
 #include <awds/Traffic.h>
 #include <iostream>
 
+
+using namespace awds;
+using namespace std;
+using namespace gea;
+
+
 awds::Traffic::Traffic(Type t,Routing *r):type(t),routing(r),debug(false),packetCount(0),count(0),start(gea::AbsTime::now()) {
   routing->registerUnicastProtocol(PACKET_TYPE_TRAFFIC,recv_packet,(void*)this);
 }

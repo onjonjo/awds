@@ -31,7 +31,7 @@ public:
      *  \param awdsRouting pointer to the interf object that contains the neihbors.
      *  \param t the current time, used for calculating timeouts. 
      */ 
-    void setNeigh(AwdsRouting *awdsRouting, gea::AbsTime t);
+    void setNeigh(AwdsRouting *awdsRouting);
     
     /** get the number of links in a TopoPacket.
      *  \return number of links.

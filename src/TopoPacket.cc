@@ -12,8 +12,10 @@
 #include <iostream>
 
 using namespace std;
+using namespace awds;
+using namespace gea;
 
-void TopoPacket::setNeigh(AwdsRouting *awdsRouting, gea::AbsTime t) {
+void TopoPacket::setNeigh(AwdsRouting *awdsRouting) {
   
     unsigned char  n = 0;
 	    
@@ -28,7 +30,7 @@ void TopoPacket::setNeigh(AwdsRouting *awdsRouting, gea::AbsTime t) {
     awdsRouting->topology->metric->update();
     for (int i = 0; i < awdsRouting->numNeigh; ++i) {
 	    
-	if ( awdsRouting->neighbors[i].isBidiGood(t, awdsRouting->myNodeId) )
+	if ( awdsRouting->neighbors[i].isBidiGood(awdsRouting->myNodeId) )
 	    {
 		NodeId nId = awdsRouting->neighbors[i].id;
 		nId.toArray(addr); 
@@ -82,16 +84,6 @@ void TopoPacket::setNeigh(AwdsRouting *awdsRouting, gea::AbsTime t) {
     
     //  assert(getNumLinks() == n);
 }   
-
-/* magic cookie */
-const char *magic = "\t\r\naw"/*""*/"ds routi"
-    "n"/*"Hello Welt's"*/"g "
-    /**/"©""2""0""0""6 by A";
-const char *magic2 = "ndr"
-    "é"
-    " "
-    "H" /*0x100, 0x23, 0x42, 0x54, 0x00*/
-    "e""r""m""s ";
 
 #include <iostream>
 

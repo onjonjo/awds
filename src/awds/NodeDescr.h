@@ -33,13 +33,13 @@ struct NodeDescr {
     bool active;                  /// is this an active (good recieved) node
     bool mpr;			  /// is this a MPR node
     
-    void updateActive(gea::AbsTime t) {
+    void updateActive( /* gea::AbsTime t */) {
 	
 	const bool last12received = (beaconHist > 0xFFF00000UL);
 	const bool last4lost      = (beaconHist < 0x08000000UL );
 	const bool lastBeacon2old = (lastBeaconTime < 
-				     t - gea::Duration( (double)beaconInterval 
-							* (double)LostTrigger) );
+				     GEA.lastEventTime - gea::Duration( (double)beaconInterval 
+									* (double)LostTrigger) );
 	if ( !active && !lastBeacon2old && last12received) { 
 	    active = true;
 	    if (verbose) {
@@ -57,8 +57,8 @@ struct NodeDescr {
 	} 
     }
     
-    bool isGood(gea::AbsTime t) {
-	updateActive(t); 
+    bool isGood() {
+	updateActive(); 
 	return active;
     }
 
@@ -66,7 +66,7 @@ struct NodeDescr {
     /** test for good bidirection connectivity to a neighbor.
      *  \return true, if neighbor link has good bidirectional connectivity.
      */
-    bool isBidiGood(gea::AbsTime t, const NodeId& myId) {
+    bool isBidiGood(const NodeId& myId) {
 	if (!lastBeacon) {
 	    return false;
 	}
@@ -74,11 +74,11 @@ struct NodeDescr {
 	if (!beacon.hasNeigh(myId)) {
 	    return false;
 	}
-	return isGood(t);
+	return isGood();
     }
     
-    bool isTooOld(gea::AbsTime t) {
-	return lastBeaconTime + (beaconInterval * 32)  < t;
+    bool isTooOld() {
+	return lastBeaconTime + (beaconInterval * 32)  < GEA.lastEventTime;
 	
     }
 

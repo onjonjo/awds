@@ -9,7 +9,8 @@
 
 #include <iostream>
 using namespace std;
-
+using namespace awds;
+using namespace gea;
 
 gea::Duration Beacon::getPeriod() const {
     u_int16_t period = fromArray<u_int16_t>(&packet.buffer[OffsetPeriod]);
@@ -39,7 +40,7 @@ void Beacon::setNeigh(AwdsRouting *awdsRouting, gea::AbsTime  t) {
     // insert all MPR nodes:
     for (i = 0; i != awdsRouting->numNeigh; ++i) {
 
-	if ( awdsRouting->neighbors[i].isGood(t) &&
+	if ( awdsRouting->neighbors[i].isGood() &&
 	     awdsRouting->neighbors[i].mpr ) 
 	    {
 		
@@ -51,7 +52,7 @@ void Beacon::setNeigh(AwdsRouting *awdsRouting, gea::AbsTime  t) {
     
     for (i = 0; i != awdsRouting->numNeigh; ++i) {
 	
-	if ( awdsRouting->neighbors[i].isGood(t) &&
+	if ( awdsRouting->neighbors[i].isGood() &&
 	     ! awdsRouting->neighbors[i].mpr ) 
 	    {
 		

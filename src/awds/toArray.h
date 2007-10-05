@@ -6,9 +6,9 @@
 
 
 
-/* 
+/** 
  * converts an integer into a byte array of the size of the basic type
- * The output format is in big endian(network byte order )
+ * The output format is in big endian (network byte order)
  */
 template <typename T>  
 void toArray(T d, char *array) {
@@ -44,6 +44,15 @@ static unsigned long fromArray<unsigned long>(const char *array) {
     return bswap_32( *(unsigned long *)array );
 }
 
+template <>
+static void toArray<unsigned short>(unsigned short v, char *array) {
+    *(unsigned short *)array = bswap_16(v);
+}
+
+template <>
+static void toArray<unsigned long>(unsigned long v, char *array) {
+    *(unsigned long *)array = bswap_32(v);
+}
 
 #endif
 

@@ -1,3 +1,9 @@
+awds (7.1) unstable; urgency=low
+
+  * minimized visibility of symbols in modules
+
+ -- Andre Herms <aherms@ivs.cs.uni-magdeburg.de>  Tue, 02 Oct 2007 10:00:25 +0200
+
 awds (6.2) unstable; urgency=low
 
   * addded name resolution to routing API

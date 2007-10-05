@@ -24,7 +24,6 @@ pkglib_LTLIBRARIES = \
 	etxmetric.la \
 	rttmetric.la \
 	signaler.la \
-	gea2mad.la \
 	ttmetric.la \
 	pktpair.la \
 	traffic.la
@@ -32,7 +31,7 @@ pkglib_LTLIBRARIES = \
 #	tapiface_crypto.la \
 #
 
-AM_LDFLAGS =  -module --avoid-version
+AM_LDFLAGS =  -module -avoid-version
 
 
 awdsrouting_la_SOURCES =  \
@@ -63,13 +62,13 @@ awdsrouting_la_SOURCES =  \
 	awds/sqrt_int.h sqrt_int.c 
 
 
-awdsrouting_la_CPPFLAGS = -DMODULE_NAME=interf -fvisibility=hidden
+awdsrouting_la_CPPFLAGS = -DMODULE_NAME=awdsrouting -fvisibility=hidden
 awdsrouting_la_LDFLAGS = -module  -avoid-version -export-symbols-regex gea_main 
 awdsrouting_la_LIBADD = -lgea
 
 
 udpbasic_la_SOURCES = udpBasic.cc awds/basic.h basic.cc
-udpbasic_la_CPPFLAGS = -DMODULE_NAME=udpbasic
+udpbasic_la_CPPFLAGS = -DMODULE_NAME=udpbasic -fvisibility=hidden
 udpbasic_la_LDFLAGS = -module  -avoid-version -export-symbols-regex gea_main 
 udpbasic_la_LIBADD = -lgea
 
@@ -87,17 +86,17 @@ tapiface_la_LDFLAGS = -module  -avoid-version -export-symbols-regex gea_main
 tapiface_la_LIBADD = -lgea -lgea-posix
 
 tapiface2_la_SOURCES = TapInterface.cc TapInterface2.cc awds/tapiface.h tapiface2.cc  awds/tapiface2.h
-tapiface2_la_CPPFLAGS = -DMODULE_NAME=tapiface2
+tapiface2_la_CPPFLAGS = -DMODULE_NAME=tapiface2 -fvisibility=hidden
 tapiface2_la_LDFLAGS = -module  -avoid-version -export-symbols-regex gea_main
 tapiface2_la_LIBADD = -lgea -lgea-posix
 
 topowatch_la_SOURCES  = topowatch.cc
-topowatch_la_CPPFLAGS = -DMODULE_NAME=topowatch
+topowatch_la_CPPFLAGS = -DMODULE_NAME=topowatch -fvisibility=hidden
 topowatch_la_LDFLAGS  = -module  -avoid-version -export-symbols-regex gea_main
 topowatch_la_LIBADD = -lgea -lgea-posix
 
 shell_la_SOURCES  = shell.cc unixfdostream.h 
-shell_la_CPPFLAGS = -DMODULE_NAME=shell
+shell_la_CPPFLAGS = -DMODULE_NAME=shell -fvisibility=hidden
 shell_la_LDFLAGS  = -module  -avoid-version -export-symbols-regex gea_main
 shell_la_LIBADD = -lgea -lgea-posix
 
@@ -106,19 +105,26 @@ topodump_la_LDFLAGS = -module  -avoid-version -export-symbols-regex gea_main
 
 topolock_la_SOURCES = TopoLock.cc
 topolock_la_LDFLAGS = $(module_flags)
+topolock_la_LIBADD  = -lgea
 
 etxmetric_la_SOURCES = Metric.h EtxMetric.h EtxMetric.cc
 etxmetric_la_LDFLAGS = $(module_flags)
 
-rttmetric_la_SOURCES = Metric.h UCMetricPacket.h UCMetricPacket.cc ExtMetric.h ExtMetric.cc UCastMetric.h UCastMetric.cc RTTMetric.h RTTMetric.cc
+rttmetric_la_SOURCES = Metric.h UCMetricPacket.h UCMetricPacket.cc ExtMetric.h \
+	ExtMetric.cc UCastMetric.h UCastMetric.cc RTTMetric.h RTTMetric.cc
 rttmetric_la_LDFLAGS = $(module_flags)
 
 signaler_la_SOURCES = signaler.cc
+signaler_la_CPPFLAGS = -DMODULE_NAME=signaler -fvisibility=hidden
 signaler_la_LDFLAGS = $(module_flags)
+signaler_la_LIBADD = -lgea 
 
-gea2mad_la_SOURCES = gea2mad.cc
-gea2mad_la_CPPFLAGS = -I/scratch/wienoebs/awds/ns2-gea/ns-2 -I/usr/include/tcl8.4
-gea2mad_la_LDFLAGS = $(module_flags)
+
+EXTRA_PROGRAMS =  awds_static 
+
+#gea2mad_la_SOURCES = gea2mad.cc
+#gea2mad_la_CPPFLAGS = -I/scratch/wienoebs/awds/ns2-gea/ns-2 -I/usr/include/tcl8.4
+#gea2mad_la_LDFLAGS = $(module_flags)
 
 ttmetric_la_SOURCES = Metric.h UCMetricPacket.h UCMetricPacket.cc ExtMetric.h ExtMetric.cc UCastMetric.h UCastMetric.cc TTMetric.h TTMetric.cc
 ttmetric_la_LDFLAGS = $(module_flags)
@@ -130,15 +136,17 @@ traffic_la_SOURCES = Traffic.h Traffic.cc
 traffic_la_LDFLAGS = $(module_flags)
 
 
-EXTRA_PROGRAMS =  awds 
+
+
 
 
 
 if AES_MMX
 AES_IMPL = crypto/gladman/aescrypt.mmx.asm
-aesccm_la_LIBADD = aescrypt.mmx.o
+aesccm_la_LIBADD = aescrypt.mmx.o -lgea
 else	
 AES_IMPL = crypto/gladman/aescrypt.c
+aesccm_la_LIBADD = -lgea
 endif
 
 aescrypt.mmx.o: crypto/gladman/aescrypt.mmx.asm
@@ -164,13 +172,13 @@ aesccm_la_CPPFLAGS = -DMODULE_NAME=aesccm
 aesccm_la_LDFLAGS  = -module  -avoid-version -export-symbols-regex gea_main
 
 daemon_la_SOURCES = debug_cmd.cc
-daemon_la_CPPFLAGS = -DMODULE_NAME=daemon
+daemon_la_CPPFLAGS = -DMODULE_NAME=daemon -fvisibility=hidden
 daemon_la_LDFLAGS  = -module  -avoid-version -export-symbols-regex gea_main
 
 
-awds_SOURCES = awds.cc
-awds_LDADD  = -lgea-posix rawbasic.la interf.la tapiface2.la 
-awds_LDFLAGS = -static
+awds_static_SOURCES = awds.cc
+awds_static_LDADD  = -lgea -lgea-posix rawbasic.la awdsrouting.la tapiface2.la 
+awds_static_LDFLAGS = -static
 
 
 
