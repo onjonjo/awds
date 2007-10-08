@@ -217,10 +217,11 @@ std::string RTopology::getNameOfNode(const NodeId& id) const {
     
 }
 
-void RTopology::feed(const TopoPacket& p, gea::AbsTime t) {
+void RTopology::feed(const TopoPacket& p) {
     if (locked) return; // when locked status is set, ignore new packets
 
-
+    AbsTime t = GEA.lastEventTime;
+    
     NodeId src = p.getSrc();
 
     int n = p.getNumLinks();

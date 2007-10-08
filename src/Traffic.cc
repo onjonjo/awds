@@ -54,7 +54,7 @@ void awds::Traffic::send(int pCount,int pSize,NodeId d) {
   uniP.setUcDest(dest);
   uniP.packet.size = packetSize;
   p->setDest(dest);
-  routing->sendUnicast(p,gea::AbsTime::now());
+  routing->sendUnicast(p);
   GEA.waitFor(&blocker,
 	      gea::AbsTime::now()+10,
 	      &Traffic::wait,
@@ -85,9 +85,9 @@ void awds::Traffic::on_wait(gea::Handle *h,gea::AbsTime t) {
 }
 
 
-void awds::Traffic::recv_packet(BasePacket *p,gea::AbsTime t,void *data) {
+void awds::Traffic::recv_packet(BasePacket *p,void *data) {
   Traffic *instance(static_cast<Traffic*>(data));
-  instance->on_recv(p,t);
+  instance->on_recv(p);
 }
 
 void awds::Traffic::send_reply(NodeId dest) {
@@ -98,12 +98,12 @@ void awds::Traffic::send_reply(NodeId dest) {
   UnicastPacket uniP(*rp);
   uniP.setUcDest(dest);
   rp->setDest(dest);
-  routing->sendUnicast(rp,gea::AbsTime::now());	      
+  routing->sendUnicast(rp);	      
 }
 
-void awds::Traffic::on_recv(BasePacket *p,gea::AbsTime t) {
+void awds::Traffic::on_recv(BasePacket *p) {
   if (debug) {
-    GEA.dbg() << gea::AbsTime::now()-start <<" got packet" << std::endl;
+    GEA.dbg() << GEA.lastEventTime - start <<" got packet" << std::endl;
     //    GEA.dbg() << count << " " << packetCount << " " << std::endl;
   }
   if (type == src) {
@@ -117,7 +117,7 @@ void awds::Traffic::on_recv(BasePacket *p,gea::AbsTime t) {
 	send(0,0,NodeId(0));
       } else {
 	// finished, print result:
-	end = gea::AbsTime::now();
+	end = GEA.lastEventTime;
 	count = packetCount+1;
 	GEA.dbg() << "Traffic finished start: " << "  end: "  << " difference: " << end-start << std::endl;
 	exit(1);
@@ -137,7 +137,7 @@ void awds::Traffic::on_recv(BasePacket *p,gea::AbsTime t) {
 	std::cout << "waiting" << std::endl;
 	dest = src;
 	GEA.waitFor(&blocker,
-		    gea::AbsTime::now()+1,
+		    GEA.lastEventTime + Duration(1,1),
 		    &Traffic::wait,
 		    (void*)this);
       }

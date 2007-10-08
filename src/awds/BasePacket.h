@@ -42,6 +42,7 @@ namespace awds {
 	int ref()   { return ++refcount; }
 	int unref() { 
 	    int ret; 
+	    assert(refcount > 0);
 	    --refcount; 
 	    ret = refcount;
 	    if (refcount == 0) 

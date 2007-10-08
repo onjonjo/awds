@@ -13,6 +13,7 @@
 #include <awds/beacon.h>
 #include <awds/TopoPacket.h>
 #include <awds/UnicastPacket.h>
+#include <awds/FlowPacket.h>
 #include <awds/TraceUcPacket.h>
 #include <awds/Topology.h>
 #include <awds/FloodHistory.h>
@@ -27,7 +28,7 @@ using namespace gea;
 
 awds::AwdsRouting::AwdsRouting(basic *base) :
     verbose(false),
-    Routing(base->MyId),
+    FlowRouting(base),
     beaconSeq(0),
     beaconPeriod((double)(this->period) / 1000.),
     nextBeacon( gea::AbsTime::now() + beaconPeriod),
@@ -80,7 +81,7 @@ awds::AwdsRouting::~AwdsRouting() {
     delete floodHistory;
 }
 
-void awds::AwdsRouting::recv_beacon(BasePacket *p, gea::AbsTime t) {
+void awds::AwdsRouting::recv_beacon(BasePacket *p) {
     
     
     Beacon beacon(*p);
@@ -142,7 +143,7 @@ void awds::AwdsRouting::trigger_topo(gea::Handle *h, gea::AbsTime t, void *data)
 	//assert ( self->cryptoUnit->verifySignature(self->myNodeId, p->buffer, p->size, noSign) );
     }
     
-    self->sendBroadcast(p,t);
+    self->sendBroadcast(p);
     p->unref();
     
     GEA.waitFor(h, t + ( (double)self->topoPeriod * 0.001),
@@ -165,10 +166,12 @@ void awds::AwdsRouting::recv_packet(gea::Handle *h, gea::AbsTime t, void *data) 
 	
 	if (ret >= 0 && SrcPacket(*p).getSrc() != self->myNodeId) 
 	    switch (p->getType()) {
-	    case PacketTypeBeacon:  self->recv_beacon(p,t);  break;
-	    case PacketTypeFlood:   self->recv_flood(p,t);   break;
-	    case PacketTypeUnicast: self->recv_unicast(p,t); break;
-	    case PacketTypeForward: /* will be added later */;break;
+	    case PacketTypeBeacon:  self->recv_beacon(p);    break;
+	    case PacketTypeFlood:   self->recv_flood(p);     break;
+	    case PacketTypeUnicast: self->recv_unicast(p);   break;
+	    case PacketTypeForward: 
+		p->ref(); // prevent double unref!, by sendFlowPacket and 3 lines later
+		self->sendFlowPacket(p); break;
 	    }
 	p->unref();
     } else {
@@ -332,24 +335,24 @@ void awds::AwdsRouting::calcMpr() {
 
 
 
-void awds::AwdsRouting::sendBroadcast(BasePacket *p, gea::AbsTime t) {
+void awds::AwdsRouting::sendBroadcast(BasePacket *p) {
     
     // increase TTL by one, because it will be decreased by recv_flood in the next
     // step 
     Flood(*p).incTTL();
-    recv_flood(p,t);
+    recv_flood(p);
     
 }
 
-void awds::AwdsRouting::sendUnicast(BasePacket *p, gea::AbsTime t) {
+void awds::AwdsRouting::sendUnicast(BasePacket *p) {
     
     UnicastPacket uniP(*p);
     uniP.incTTL();
     uniP.setNextHop(myNodeId);
-    recv_unicast(p, t);
+    recv_unicast(p);
 }
 
-void awds::AwdsRouting::sendUnicastVia(BasePacket *p,gea::AbsTime t,NodeId nextHop) {
+void awds::AwdsRouting::sendUnicastVia(BasePacket *p,/*gea::AbsTime t,*/ NodeId nextHop) {
     UnicastPacket ucPacket(*p);
     
     if (ucPacket.getTTL() == 0)
@@ -365,7 +368,7 @@ void awds::AwdsRouting::sendUnicastVia(BasePacket *p,gea::AbsTime t,NodeId nextH
     p->setDest(nextHop);
     //    p->ref();
     GEA.waitFor(this->udpSend, 
-		t + gea::Duration(12.2),
+		GEA.lastEventTime + gea::Duration(12.2),
 		send_unicast,
 		new std::pair<BasePacket *,AwdsRouting *>(p,this) );
 }
@@ -382,7 +385,7 @@ void awds::AwdsRouting::registerBroadcastProtocol(int num, recv_callback cb, voi
 
 
 
-void awds::AwdsRouting::recv_flood(BasePacket *p, gea::AbsTime t) {
+void awds::AwdsRouting::recv_flood(BasePacket *p ) {
     Flood flood(*p);
 
     NodeId    srcId  = flood.getSrc();
@@ -427,7 +430,7 @@ void awds::AwdsRouting::recv_flood(BasePacket *p, gea::AbsTime t) {
 	
 	//	topoPacket.print();
 	if (validPacket)
-	    topology->feed(topoPacket, t);
+	    topology->feed(topoPacket);
 
 	// 	if (myNodeId == NodeId(2)) {
 	// 	    this->topology->print();
@@ -437,7 +440,7 @@ void awds::AwdsRouting::recv_flood(BasePacket *p, gea::AbsTime t) {
 	
 	ProtocolRegister::iterator itr = broadcastRegister.find(flood.getFloodType());
 	if (itr != broadcastRegister.end()) {
-	    itr->second.first(p,t,itr->second.second);
+	    itr->second.first(p,itr->second.second);
 	    
 	} else {
 	    GEA.dbg() << "unknown Flood Type " << flood.getFloodType() << std::endl;
@@ -465,7 +468,7 @@ void awds::AwdsRouting::recv_flood(BasePacket *p, gea::AbsTime t) {
     p->ref();
         
     GEA.waitFor(udpSend,
-		t + gea::Duration(12.2),
+		GEA.lastEventTime + gea::Duration(12.2),
 		AwdsRouting::repeat_flood, 
 		p);
     
@@ -524,7 +527,7 @@ BasePacket *awds::AwdsRouting::newUnicastPacket(int type) {
 
 
 
-void awds::AwdsRouting::recv_unicast(BasePacket *p, gea::AbsTime t) {
+void awds::AwdsRouting::recv_unicast(BasePacket *p) {
     UnicastPacket ucPacket(*p);
     
     ucPacket.decrTTL();
@@ -545,7 +548,7 @@ void awds::AwdsRouting::recv_unicast(BasePacket *p, gea::AbsTime t) {
     if (dest == myNodeId) {
 	ProtocolRegister::iterator itr = unicastRegister.find(ucPacket.getUcPacketType());
 	if (itr != unicastRegister.end()) {
-	    itr->second.first(p,t,itr->second.second);
+	    itr->second.first(p,  itr->second.second);
 	}
 	
 	return;
@@ -570,7 +573,7 @@ void awds::AwdsRouting::recv_unicast(BasePacket *p, gea::AbsTime t) {
     p->setDest(nextHop);
     p->ref();
     GEA.waitFor(this->udpSend, 
-		t + gea::Duration(12.2),
+		GEA.lastEventTime + gea::Duration(12.2),
 		send_unicast,
 		new std::pair<BasePacket *,AwdsRouting *>(p,this) );
     
@@ -672,6 +675,91 @@ size_t awds::AwdsRouting::getMTU() {
 	max = Flood::FloodHeaderEnd;
     return 2000U - max;
 }
+
+int  awds::AwdsRouting::addForwardingRule(FlowRouting::FlowId flowid, NodeId nextHop) {
+    if (forwardingTable.find(flowid) != forwardingTable.end() ) {
+	// entry already exists;
+	return -1;
+    }
+    forwardingTable[flowid] = nextHop;
+    return 0;
+}
+
+int  awds::AwdsRouting::delForwardingRule(FlowRouting::FlowId flowid) {
+    ForwardingTable::iterator itr  = forwardingTable.find(flowid);
+    if (itr == forwardingTable.end())
+	return -1; // entry not found;
+    forwardingTable.erase(itr);
+    return 0;
+}
+
+int awds::AwdsRouting::addFlowReceiver(FlowRouting::FlowId flowid, FlowRouting::FlowReceiver r, void *data) {
+    FlowReceiverMap::const_iterator itr = flowReceiverMap.find(flowid);
+    if (itr != flowReceiverMap.end()) {
+	/* entry already exists! */
+	return -1;
+    }
+    FlowReceiverData &entry = flowReceiverMap[flowid];
+    entry.receiver = r;
+    entry.data     = data;
+    return 0;
+}
+
+int awds::AwdsRouting::delFlowReceiver(FlowRouting::FlowId flowid) {
+    FlowReceiverMap::iterator itr = flowReceiverMap.find(flowid);
+    if (itr == flowReceiverMap.end()) {
+	/*	cannot find  the entry */
+	return -1;
+    }
+    
+    flowReceiverMap.erase(itr);
+    return 0;
+}
+
+BasePacket *awds::AwdsRouting::newFlowPacket(FlowRouting::FlowId flowid) {
+    BasePacket *p = new BasePacket();
+    if (p) {
+	p->setType(PacketTypeForward);
+	awds::FlowPacket flowP(*p);
+	flowP.setTraceFlag(false);
+	flowP.setSrc(myNodeId);
+	flowP.setFlowId(flowid);
+    }
+    return p;
+
+}
+
+int awds::AwdsRouting::sendFlowPacket(BasePacket *p) {
+    
+    assert(p->getType() == PacketTypeForward);
+    
+    FlowPacket flowP(*p);
+
+    if (flowP.getFlowDest() == myNodeId) {
+	// I'm the destination node
+	FlowReceiverMap::iterator itr = flowReceiverMap.find(flowP.getFlowId());
+	if (itr == flowReceiverMap.end()) {
+	    GEA.dbg() << "received flow, but there's no handler registered" << endl;
+	    return 0;
+	} 
+	itr->second.receiver(p, itr->second.data);
+	return 0;
+    }
+    
+    ForwardingTable::const_iterator citr = 
+	forwardingTable.find( flowP.getFlowId() );
+    
+    if (citr == forwardingTable.end()) 
+	return -1;
+
+    base->setSendDest( citr->second );
+    p->send(udpSend);
+    
+    p->unref();
+
+    return 0;
+}
+
 
 #define MODULE_NAME awdsrouting
 

@@ -8,7 +8,7 @@ void awds::UCastMetric::send(BasePacket *p,gea::AbsTime t,NodeId dest) {
   UnicastPacket uniP(*p);
   uniP.setUcDest(dest);
   p->setDest(dest);
-  routing->sendUnicast(p,t);
+  routing->sendUnicast(p);
 }
 
 void awds::UCastMetric::sendvia(BasePacket *p,gea::AbsTime t,NodeId dest,unsigned int size) {
@@ -16,5 +16,5 @@ void awds::UCastMetric::sendvia(BasePacket *p,gea::AbsTime t,NodeId dest,unsigne
   uniP.setUcDest(dest);
   p->setDest(dest);
   uniP.packet.size = std::max(uniP.packet.size,size);
-  routing->sendUnicastVia(p,t,dest);
+  routing->sendUnicastVia(p,dest);
 }

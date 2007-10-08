@@ -181,8 +181,7 @@ void awds::RTTMetric::go_measure() {
 }
 
 void 
-awds::RTTMetric::on_recv(BasePacket *p,
-			 gea::AbsTime t) {
+awds::RTTMetric::on_recv(BasePacket *p) {
   UCMetricPacket mp(*p);
   if (debug) {
     GEA.dbg() << "rtt: receive metricpacket from: " << (unsigned int) mp.getSrc() << std::endl;
@@ -199,13 +198,13 @@ awds::RTTMetric::on_recv(BasePacket *p,
     sendvia(p_response,gea::AbsTime::now(),mp.getSrc());
   } else {
     gea::AbsTime t1(mp.getTime1());
-    gea::Duration d(t-t1);
+    gea::Duration d(GEA.lastEventTime - t1);
     RTTData::iterator it(rttData.find(mp.getSrc()));
     if (it != rttData.end()) {
       //      std::cout << "alpha: " << alpha << "  " << d << "  " << it->second.time << std::endl;
       it->second.time = alpha*d+(1-alpha)*(it->second.time);
       //std::cout << it->second.time << std::endl;
-      it->second.lastrecv = t;
+      it->second.lastrecv = GEA.lastEventTime;
       if (debug) {
 	GEA.dbg() << "rtt: response measured rtt: " << d << std::endl;
       }

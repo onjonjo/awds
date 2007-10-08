@@ -41,8 +41,8 @@ namespace awds {
     virtual void send(int pCount,int pSize,NodeId d);
     void send_reply(NodeId dest);
 
-    static void recv_packet(BasePacket *p,gea::AbsTime t,void *data);
-    void on_recv(BasePacket *p,gea::AbsTime t);
+    static void recv_packet(BasePacket *p,void *data);
+    void on_recv(BasePacket *p);
 
     static void wait(gea::Handle *h,gea::AbsTime t,void *data);
     void on_wait(gea::Handle *h,gea::AbsTime t);

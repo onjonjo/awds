@@ -62,7 +62,7 @@ struct Pinger {
     }
     
     static void next_ping(gea::Handle *h, gea::AbsTime t, void *data);
-    static void ping_recv(BasePacket *p, gea::AbsTime t, void *data);
+    static void ping_recv(BasePacket *p,  void *data);
     
     //    int x_getNodeByName(awds::NodeId& ret, const awds::RTopology::AdjList& l, const char* name);
     
@@ -220,7 +220,7 @@ void Pinger::next_ping(gea::Handle *h, gea::AbsTime t, void *data) {
     self->dbg() << "sending ping to " << self->dest 
 	       << std::endl;
     
-    self->awdsRouting->sendUnicast(p, t);
+    self->awdsRouting->sendUnicast(p);
     p->unref();
     
     self->numTransmitted++;
@@ -241,7 +241,7 @@ void Pinger::print_stats(std::ostream& out) {
 }
 
 
-void Pinger::ping_recv(BasePacket *p, gea::AbsTime t, void *data) {
+void Pinger::ping_recv(BasePacket *p, void *data) {
     
     Pinger *self = static_cast<Pinger *>(data);
     
@@ -257,11 +257,11 @@ void Pinger::ping_recv(BasePacket *p, gea::AbsTime t, void *data) {
 	uniP.setSrc(self->awdsRouting->myNodeId);
 	p->buffer[PingDirection] = 'o';
 	p->ref();
-	self->awdsRouting->sendUnicast(p, t);
+	self->awdsRouting->sendUnicast(p);
 	p->unref();
     } else {
 	Duration timestamp = durationFromArray( &p->buffer[PingTimeStamp]);
-	double deltaT= (double)(t - ( self->myT0 + timestamp ) );
+	double deltaT= (double)(GEA.lastEventTime - ( self->myT0 + timestamp ) );
 	ostream& out = self->dbg();
 	
 	out << "received pong from " << uniP.getSrc() 

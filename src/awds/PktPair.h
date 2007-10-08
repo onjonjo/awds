@@ -62,7 +62,7 @@ namespace awds {
     int bufferSize;
     PktPair(Routing *r);
     virtual ~PktPair();
-    virtual void on_recv(BasePacket *p,gea::AbsTime t);
+    virtual void on_recv(BasePacket *p);
     virtual void on_wait(gea::Handle *h,gea::AbsTime t);
     virtual void addNode(NodeId &nodeId);
     virtual void begin_update();

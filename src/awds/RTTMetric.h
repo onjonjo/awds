@@ -33,7 +33,7 @@ namespace awds {
     unsigned int packetSize;
     RTTMetric(Routing *r);
     virtual ~RTTMetric();
-    virtual void on_recv(BasePacket *p,gea::AbsTime t);
+    virtual void on_recv(BasePacket *p);
     virtual void on_wait(gea::Handle *h,gea::AbsTime t);
     
     void go_history() {

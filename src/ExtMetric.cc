@@ -4,9 +4,9 @@
 awds::ExtMetric::ExtMetric(awds::Routing *r):Metric(r) {
 }
 
-void awds::ExtMetric::recv_packet(BasePacket *p,gea::AbsTime t,void *data) {
+void awds::ExtMetric::recv_packet(BasePacket *p,void *data) {
   ExtMetric *instance(static_cast<ExtMetric*>(data));
-  instance->on_recv(p,t);
+  instance->on_recv(p);
 }
 
 

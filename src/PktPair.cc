@@ -58,7 +58,9 @@ awds::PktPair::start() {
 }
 
 
-void PktPair::on_recv(BasePacket *p,gea::AbsTime t) {
+void PktPair::on_recv(BasePacket *p) {
+  const AbsTime t = GEA.lastEventTime;
+  
   UCMetricPacket mp(*p);
   NodeId sender(mp.getSrc());
   if (debug) {

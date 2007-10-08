@@ -48,8 +48,8 @@ public:
     bool createDevice(const char *dev);
     
     static void tap_recv(gea::Handle *h, gea::AbsTime t, void *data);
-    static void recv_unicast  ( BasePacket *p, gea::AbsTime t, void *data);
-    static void recv_broadcast( BasePacket *p, gea::AbsTime t, void *data);
+    static void recv_unicast  ( BasePacket *p, void *data);
+    static void recv_broadcast( BasePacket *p, void *data);
     
     /** detemine the routing node ID for the given MAC address.
      *  \param mac pointer to 6 chars with the MAC address

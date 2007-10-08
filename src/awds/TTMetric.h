@@ -21,7 +21,7 @@ namespace awds {
     gea::Blocker blocker;
     gea::Duration interval;
 
-    virtual void on_recv(BasePacket *p,gea::AbsTime t) {}
+    virtual void on_recv(BasePacket *p) {}
     virtual void on_wait(gea::Handle *h,gea::AbsTime t);
 
     bool debug;

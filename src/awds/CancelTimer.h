@@ -14,7 +14,7 @@ protected:
     
     gea::Blocker blocker;
     
-    typedef void (*callback_t)(gea::AbsTime t, CancelTimer *timer, void *data);
+    typedef void (*callback_t)( CancelTimer *timer, void *data);
     
     callback_t callback;
     void *data;
@@ -42,7 +42,7 @@ protected:
 	//	GEA.dbg() << "timeout happend for " << self << std::endl;
 	
 	if (self->state == Active) {
-	    self->callback(t, self, self->data);
+	    self->callback( self, self->data);
 	    self->state = Fired;
 	    //GEA.dbg() << "calling timout callback" << std::endl;
 	}

@@ -5,6 +5,7 @@
 #include <cstring>
 
 #include <awds/routing.h>
+#include <awds/FlowRouting.h>
 #include <awds/basic.h>
 
 #include <gea/API.h>
@@ -22,7 +23,7 @@
 
 namespace awds {
 
-    class AwdsRouting : public Routing { 
+    class AwdsRouting : public FlowRouting { 
     
     public:
 	bool verbose;
@@ -78,18 +79,18 @@ namespace awds {
 	virtual void addNodeObserver(struct awds::Routing::NodesObserver *observer);
 	virtual void addLinkObserver(struct LinksObserver *observer);
       
-	void recv_beacon(BasePacket *p, gea::AbsTime t); 
-	void recv_flood(BasePacket *p, gea::AbsTime t); 
-	void recv_unicast(BasePacket *p, gea::AbsTime t);
+	void recv_beacon(BasePacket *p); 
+	void recv_flood(BasePacket *p); 
+	void recv_unicast(BasePacket *p);
 
 	virtual bool isReachable(const NodeId& id) const;
     
 	virtual BasePacket *newFloodPacket(int floodType); 
 	virtual BasePacket *newUnicastPacket(int type);
     
-	virtual void sendBroadcast(BasePacket *p, gea::AbsTime t);
-	virtual void sendUnicast(BasePacket *p, gea::AbsTime t);
-	virtual void sendUnicastVia(BasePacket *p,gea::AbsTime t,NodeId nextHop);
+	virtual void sendBroadcast(BasePacket *p);
+	virtual void sendUnicast(BasePacket *p);
+	virtual void sendUnicastVia(BasePacket *p,NodeId nextHop);
         
 	struct Hop2RefCount {
 	    short stat; 
@@ -156,6 +157,30 @@ namespace awds {
 	void assert_stat();
 	
 	void calcMpr();
+
+	/* -------------------- flow routing stuff -------------------- */
+	
+	struct FlowReceiverData {
+	    FlowRouting::FlowReceiver receiver;
+	    void *data;
+	};
+	
+	typedef std::map<FlowRouting::FlowId, struct FlowReceiverData> FlowReceiverMap;
+	FlowReceiverMap flowReceiverMap;
+	
+	typedef std::map<FlowRouting::FlowId, NodeId> ForwardingTable;
+	ForwardingTable forwardingTable;
+	
+	virtual int  addForwardingRule(FlowRouting::FlowId flowid, NodeId nextHop);
+	virtual int  delForwardingRule(FlowRouting::FlowId flowid);
+	//	virtual bool getNextHop(FlowId flowid, NodeId& retval);
+
+	virtual int addFlowReceiver(FlowRouting::FlowId flowid, FlowRouting::FlowReceiver, void *data);
+	virtual int delFlowReceiver(FlowRouting::FlowId);
+
+	virtual BasePacket *newFlowPacket(FlowRouting::FlowId flowid); 
+	virtual int sendFlowPacket(BasePacket *p);
+	
 	
     };
     

@@ -38,11 +38,11 @@ public:
 	addTopoLockCmd();
     }
     int addTopoLockCmd();
-    static void topolock_recv(BasePacket *p, gea::AbsTime t, void *data);
+    static void topolock_recv(BasePacket *p, void *data);
     
 };
 
-void TopoLock::topolock_recv(BasePacket *p, gea::AbsTime t, void *data) {
+void TopoLock::topolock_recv(BasePacket *p, void *data) {
     
     RTopology *topology = static_cast<TopoLock*>(data)->awdsRouting->topology;
     
@@ -97,7 +97,7 @@ static int topo_command_fn(ShellClient &sc, void *data, int argc, char **argv) {
     p->buffer[Flood::FloodHeaderEnd] = cmd;
     p->size = Flood::FloodHeaderEnd + 1;
     
-    awdsRouting->sendBroadcast(p, gea::AbsTime::now() );
+    awdsRouting->sendBroadcast(p);
     
     p->unref();
     

@@ -170,7 +170,7 @@ void TapInterface::tap_recv(gea::Handle *h, gea::AbsTime t, void *data) {
 	    }
 	    
 	    
-	    self->routing->sendBroadcast(p,t);
+	    self->routing->sendBroadcast(p);
 
 // 	    GEA.dbg() << " sending tap data with packet size " << p->size 
 // 		      << std::endl;
@@ -195,7 +195,7 @@ void TapInterface::tap_recv(gea::Handle *h, gea::AbsTime t, void *data) {
 		p->size += 32;
 	    }
 	    
-	    self->routing->sendUnicast(p,t);
+	    self->routing->sendUnicast(p);
 	    
 	}
 	
@@ -208,7 +208,7 @@ void TapInterface::tap_recv(gea::Handle *h, gea::AbsTime t, void *data) {
     
 }
 
-void TapInterface::recv_unicast ( BasePacket *p, gea::AbsTime t, void *data) { 
+void TapInterface::recv_unicast ( BasePacket *p,  void *data) { 
     
     // UnicastPacket uinP(*p);
     TapInterface *self = static_cast<TapInterface *>(data);
@@ -238,12 +238,14 @@ void TapInterface::recv_unicast ( BasePacket *p, gea::AbsTime t, void *data) {
 	  p->size - UnicastPacket::UnicastPacketEnd );
 
 
-    self->storeSrcAndMac(srcP.getSrc(), &p->buffer[UnicastPacket::UnicastPacketEnd], t);
+    self->storeSrcAndMac(srcP.getSrc(), 
+			 &p->buffer[UnicastPacket::UnicastPacketEnd], 
+			 GEA.lastEventTime );
     
 }
 
 
-void TapInterface::recv_broadcast ( BasePacket *p, gea::AbsTime t, void *data) {
+void TapInterface::recv_broadcast ( BasePacket *p, void *data) {
 
     Flood flood(*p);
     SrcPacket srcP(*p);
@@ -278,7 +280,9 @@ void TapInterface::recv_broadcast ( BasePacket *p, gea::AbsTime t, void *data) {
 	  &p->buffer[Flood::FloodHeaderEnd],
 	  p->size - Flood::FloodHeaderEnd);
 
-    self->storeSrcAndMac(srcP.getSrc(), &p->buffer[Flood::FloodHeaderEnd], t);
+    self->storeSrcAndMac( srcP.getSrc(), 
+			  &p->buffer[Flood::FloodHeaderEnd], 
+			  GEA.lastEventTime);
 }
 
 

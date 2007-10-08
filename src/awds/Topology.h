@@ -196,7 +196,7 @@ namespace awds {
 	virtual void reset();
     
 	virtual bool hasLink(const NodeId& from, const NodeId&to) const;
-	void feed(const TopoPacket& p, gea::AbsTime t);    
+	void feed(const TopoPacket& p);    
 
 	virtual std::string getNameOfNode(const NodeId& id) const;
 	virtual bool getNodeByName(NodeId& id, const char *name) const;
