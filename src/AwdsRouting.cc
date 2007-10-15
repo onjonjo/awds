@@ -168,7 +168,13 @@ void awds::AwdsRouting::recv_packet(gea::Handle *h, gea::AbsTime t, void *data) 
 	    switch (p->getType()) {
 	    case PacketTypeBeacon:  self->recv_beacon(p);    break;
 	    case PacketTypeFlood:   self->recv_flood(p);     break;
-	    case PacketTypeUnicast: self->recv_unicast(p);   break;
+	    case PacketTypeUnicast: 
+		if (self->verbose) { 
+		    GEA.dbg() << "received UC packet from " 
+			      << UnicastPacket(*p).getSrc() << endl;
+		}
+		self->recv_unicast(p);
+		break;
 	    case PacketTypeForward: 
 		p->ref(); // prevent double unref!, by sendFlowPacket and 3 lines later
 		self->sendFlowPacket(p); break;
@@ -583,16 +589,22 @@ void awds::AwdsRouting::recv_unicast(BasePacket *p) {
 
 void awds::AwdsRouting::send_unicast(gea::Handle *h, gea::AbsTime t, void *data) {
     
+    if (h->status != gea::Handle::Ready) {
+	GEA.dbg() << "ERROR: transmission timed out" << endl;
+    }
+
     std::pair<BasePacket *,AwdsRouting *>* xdata = ( std::pair<BasePacket *,AwdsRouting *>* )data;
     BasePacket *p = xdata->first;
     AwdsRouting *self = xdata->second;
     
     UnicastPacket uniP(*p);
+    NodeId dest = uniP.getNextHop();
+    self->base->setSendDest( dest );
     
-    self->base->setSendDest( uniP.getNextHop() );
-    
-    p->send(h);
-    
+    int ret = p->send(h);
+    if (ret < 0) {
+	GEA.dbg() << "There was an error while sending a packet to " << dest << endl;
+    }
     self->base->setSendDest( self->base->BroadcastId );
 
     p->unref();
