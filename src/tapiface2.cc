@@ -1,17 +1,11 @@
 
 #include <awds/tapiface2.h>
+#include <gea/gea_main.h>
 #include <gea/ObjRepository.h>
 
 using namespace awds;
 
-extern "C" 
-#ifdef PIC
-int gea_main(int argc, const char  * const *argv) 
-#else
-int tapiface2_gea_main(int argc, const char  * const *argv) 
-#endif
-
-{
+GEA_MAIN(argc, argv) {
     
     ObjRepository& rep = ObjRepository::instance(); 
     

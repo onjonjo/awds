@@ -11,6 +11,7 @@
 #include <iostream>
 #include <cstring>
 
+#include <gea/gea_main.h>
 #include <gea/ObjRepository.h>
 #include <gea/posix/UnixFdHandle.h>
 #include <gea/API.h>
@@ -178,14 +179,7 @@ void RawBasic::getRecvSrc(NodeId& s) {
     s = src;
 }
 
-extern "C" 
-#ifdef PIC
-int gea_main(int argc, const char  * const *argv) 
-#else
-int rawbasic_gea_main(int argc, const char  * const *argv) 
-#endif
-
-{
+GEA_MAIN(argc, argv) {
     
     RawBasic *basic;
     const  char *netif = "ath0";

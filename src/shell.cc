@@ -4,6 +4,7 @@
 #include <sys/types.h>
 #include <arpa/inet.h>
 
+#include <gea/gea_main.h>
 #include <gea/ObjRepository.h>
 #include <gea/API.h>
 #include <gea/Time.h>
@@ -362,12 +363,7 @@ int test(ShellClient &sc, void *data, int argc, char **argv) {
     return 0;
 }
 
-extern "C"
-#ifdef PIC
-int gea_main(int argc, const char  * const * argv) 
-#else
-int awdsRouting_gea_main(int argc, const char  * const *argv) 
-#endif
+GEA_MAIN(argc, argv)
 {    
 
     ObjRepository& rep = ObjRepository::instance();

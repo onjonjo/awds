@@ -4,6 +4,7 @@
 #include <sys/types.h>
 #include <arpa/inet.h>
 
+#include <gea/gea_main.h>
 #include <gea/ObjRepository.h>
 #include <gea/API.h>
 #include <gea/posix/UnixFdHandle.h>
@@ -229,8 +230,8 @@ void TopoWatch::read_client_data(gea::Handle *h, gea::AbsTime t, void *data) {
 }
 
 
-extern "C" 
-int gea_main(int argc, const char  * const *argv) {
+GEA_MAIN(argc, argv)
+{
     
 
     ObjRepository& rep = ObjRepository::instance();
