@@ -173,7 +173,9 @@ RTopology::getNodeEntry(const NodeId& id, gea::AbsTime t ) {
 	sendNodeAdded(id);
 	if (!newXmlTopologyDelta.empty()) {
 	    ostringstream ns;
-	    ns << "<topodiff timestamp=\"" << (GEA.lastEventTime - gea::AbsTime::t0())<<"\" />\n" 
+	    ns.precision(9);
+	    ns << fixed 
+	       << "<topodiff timestamp=\"" << (GEA.lastEventTime - gea::AbsTime::t0())<<"\" />\n" 
 	       << "  <add_node id=\"" << id << "\" name=\"" << getNameOfNode(id) <<"\" />\n"
 	       << "</topodiff>\n";
 	    string s = ns.str();
@@ -213,7 +215,18 @@ std::string RTopology::getNameOfNode(const NodeId& id) const {
 	ret = os.str();
     }
     
-    return ret;
+    string ret_quote = "";
+    for (size_t i = 0; i < ret.length() ; ++i) {
+	char c = ret[i];
+	if ( isalnum(c) || string("-+*?$%/()[]{}^;._").find(c) != string::npos )  {
+	    ret_quote += c;
+	} else {
+	    char buf[10];
+	    sprintf(buf, "&#%d;", (int)c);
+	    ret_quote += buf;
+	}
+    }
+    return ret_quote;
     
 }
 
@@ -373,7 +386,9 @@ void RTopology::feed(const TopoPacket& p) {
 	
 	if (deltaN.size() + deltaQ.size() != 0) {
 	    ostringstream deltaS;
-	    deltaS << "<topodiff timestamp=\"" << (GEA.lastEventTime - gea::AbsTime::t0()) << "\" >\n" 
+	    deltaS.precision(9);
+	    deltaS << std::fixed
+		   << "<topodiff timestamp=\"" << (GEA.lastEventTime - gea::AbsTime::t0()) << "\" >\n" 
 		   << deltaN << deltaQ << "</topodiff>\n";
 	    string xmlDelta = deltaS.str();
 	    newXmlTopologyDelta(xmlDelta);
@@ -461,8 +476,9 @@ std::string RTopology::getAdjString() const {
 std::string RTopology::getXmlString() const {
     
     std::ostringstream os;
-    
-    os << "<topology timestamp=\"" << (GEA.lastEventTime - gea::AbsTime::t0()) << "\" >\n";
+    os.precision(9);
+    os << std::fixed 
+       << "<topology timestamp=\"" << (GEA.lastEventTime - gea::AbsTime::t0()) << "\" >\n";
     for (AdjList::const_iterator i = adjList.begin();
 	 i != adjList.end(); ++i) {
 	
@@ -646,7 +662,9 @@ void RTopology::createRemoveMessages(const NodeId& node, const NDescr& nDescr ) 
     if (!newXmlTopologyDelta.empty()) {
 	ostringstream ns;
 	
-	ns << "<topodiff timestamp=\"" << (GEA.lastEventTime - gea::AbsTime::t0()) << "\" >\n";
+	ns.precision(9);
+	ns << fixed 
+	   << "<topodiff timestamp=\"" << (GEA.lastEventTime - gea::AbsTime::t0()) << "\" >\n";
 
 	const LinkList &linklist = nDescr.linklist;
 	LinkList::const_iterator i;
@@ -689,8 +707,9 @@ gea::AbsTime RTopology::removeOldNodes(gea::AbsTime t) {
     ostringstream edge_s;
     ostringstream node_s;
     bool oneRemoved = false;
-
-    edge_s << "<topodiff timestamp=\"" << (GEA.lastEventTime - gea::AbsTime::t0()) << "\" >\n";
+    edge_s.precision(9);
+    edge_s << fixed
+	   << "<topodiff timestamp=\"" << (GEA.lastEventTime - gea::AbsTime::t0()) << "\" >\n";
     
     AdjList::iterator itr = adjList.begin();
 
