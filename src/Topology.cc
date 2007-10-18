@@ -175,7 +175,7 @@ RTopology::getNodeEntry(const NodeId& id, gea::AbsTime t ) {
 	    ostringstream ns;
 	    ns.precision(9);
 	    ns << fixed 
-	       << "<topodiff timestamp=\"" << (GEA.lastEventTime - gea::AbsTime::t0())<<"\" />\n" 
+	       << "<topodiff timestamp=\"" << (GEA.lastEventTime - gea::AbsTime::t0())<<"\" >\n" 
 	       << "  <add_node id=\"" << id << "\" name=\"" << getNameOfNode(id) <<"\" />\n"
 	       << "</topodiff>\n";
 	    string s = ns.str();
