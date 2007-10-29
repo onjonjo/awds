@@ -468,15 +468,14 @@ void RTopology::feed(const TopoPacket& p) {
 	strcpy(itr_src->second.nodeName, buf); 
     }
 
-    /*        
-	      if (!newXmlTopologyDelta.empty() && nameHasChanged) {
-	      ostringstream ns;
-	      xmlDeltaStream << "  <modify_node id=\"" 
-	      << src << "\" name=\"" 
-	      << getNameOfNode(src) << "\" />\n";
+    if (!newXmlTopologyDelta.empty() && nameHasChanged) {
+	xmlDeltaStream << "  <modify_node id=\"" 
+		       << src << "\" name=\"" 
+		       << getNameOfNode(src) << "\" />\n";
 		       
-	      }
-    
+    }
+    /*        
+	 
 	      if (!newXmlTopologyDelta.empty() || linkObserver) {
 	
 
