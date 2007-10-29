@@ -648,7 +648,7 @@ int awds::AwdsRouting::foreachEdge(EdgeFunctor f, void *data) const {
 		 itr2 != llist.end();
 		 ++itr2) 
 		{
-		    ret2 =  f(data, itr1->first, itr2->neighbor);
+		    ret2 =  f(data, itr1->first, getNodeId(*itr2) );
 		    
 		    if (ret2)
 			return ret2;

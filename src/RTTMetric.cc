@@ -98,14 +98,14 @@ std::string awds::RTTMetric::get_values() {
 
 awds::RTopology::link_quality_t 
 awds::RTTMetric::my_get_quality(NodeDescr &ndescr) {
-  RTopology::link_quality_t ret(max_quality);
-  RTTData::iterator it(rttData.find(ndescr.id));
+  RTopology::link_quality_t ret = RTopology::max_quality();
+  RTTData::iterator it = rttData.find(ndescr.id);
   if (it == rttData.end()) {
     // first time, register to measure
     rttData[ndescr.id] = s_rtt_data();
   } else {
     if (it->second.time) {
-      ret = (RTopology::link_quality_t)std::max((double) 1,(double)max_quality*it->second.time*10);
+      ret = (RTopology::link_quality_t)std::max( 1., (double)RTopology::max_quality() * it->second.time * 10.);
     }
   }
   return ret;

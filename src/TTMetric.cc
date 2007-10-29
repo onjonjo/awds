@@ -27,7 +27,9 @@ awds::TTMetric::start() {
 awds::RTopology::link_quality_t 
 awds::TTMetric::my_get_quality(NodeDescr &ndescr) {
   //  std::cout << "TTraw: " << g2m->getTT(ndescr.id) << std::endl;
-  RTopology::link_quality_t ret = std::min((RTopology::link_quality_t)(g2m->getTT(ndescr.id)*max_quality),(RTopology::link_quality_t)max_quality);
+  RTopology::link_quality_t ret = 
+    std::min( (RTopology::link_quality_t)(g2m->getTT(ndescr.id)  * RTopology::max_quality()),
+	      RTopology::max_quality());
   ttData[ndescr.id].tt = ret;
   return ret;
 }

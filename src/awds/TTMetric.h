@@ -13,7 +13,7 @@ namespace awds {
       bool active;
       gea::AbsTime lastsend;
       
-      NodeData():tt(max_quality),active(true),lastsend(0) {
+      NodeData():tt( RTopology::max_quality()),active(true),lastsend(0) {
       }
     };
     typedef std::map<NodeId,NodeData> TTData;

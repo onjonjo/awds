@@ -1,30 +1,38 @@
+#include <gea/gea_main.h>
 #include <awds/PktPair.h>
 #include <iostream>
-
 
 using namespace awds;
 using namespace std;
 using namespace gea;
 
-
-PktPair::PktPair(Routing *r):UCastMetric(r),interval(0.5),debug(false),alpha(1),packetSize(800),bufferSize(0) {
-}
+PktPair::PktPair(Routing *r):
+  UCastMetric(r),
+  interval(0.5),
+  debug(false),
+  alpha(1),
+  packetSize(800),
+  bufferSize(0) 
+{}
 
 PktPair::~PktPair() {
 }
 
-RTopology::link_quality_t PktPair::my_get_quality(NodeDescr &ndescr) {
-  RTopology::link_quality_t ret(max_quality);
+RTopology::link_quality_t PktPair::my_get_quality(NodeDescr &ndescr) 
+{
+  RTopology::link_quality_t ret = RTopology::max_quality();
   Nodes::iterator it(nodes.find(ndescr.id));
   if (it != nodes.end()) {
     if (it->second.getTime()) {
-      ret = (RTopology::link_quality_t)std::max((double) 1,(double)max_quality*it->second.time*10);
+      ret = (RTopology::link_quality_t)std::max( 1.,
+						 (double)RTopology::max_quality() * it->second.time * 10.);
     }
   }
   return ret;
 }
 
-unsigned long PktPair::my_calculate(RTopology::link_quality_t forward,RTopology::link_quality_t backward) {
+unsigned long PktPair::my_calculate(RTopology::link_quality_t forward,
+				    RTopology::link_quality_t backward) {
   return forward+backward;
 }
 
@@ -157,13 +165,7 @@ void PktPair::end_update() {
   }
 }
 
-extern "C"
-#ifdef PIC
-int gea_main(int argc, const char  * const * argv) 
-#else
-int awdsRouting_gea_main(int argc, const char  * const *argv) 
-#endif
-
+GEA_MAIN(argc, argv)
 {
   ObjRepository& rep = ObjRepository::instance();
   AwdsRouting *routing = (AwdsRouting *)rep.getObj("awdsRouting");

@@ -23,7 +23,8 @@ namespace awds {
     class Metric;
 
     class TopoPacket;
-
+    class RTopology;
+    
     
     /** class that contains all topology information of the routing 
      *
@@ -41,43 +42,53 @@ namespace awds {
     
 	static void cleanup_nodes(gea::Handle *h, gea::AbsTime t, void *data); 
     
-	typedef unsigned short link_quality_t;
-#define max_quality 0xffff
-
-	//    typedef std::vector<NodeId> NList; 
+	typedef uint16_t link_quality_t;
+	static link_quality_t max_quality() { return 0xFFFFu; }
+	
+	// #define max_quality 0xffff
 
 	class LinkList;
 	class AdjList;
 
 	class LinkQuality {
 	protected:
+	public:	    
 	    LinkQuality *counterpart; // pointer to the reverse LinkQuality in another NDescr
-	public:
+
 	    NodeId neighbor;
+	    
+	    //const NodeId& getNeighbor() const { return neighbor; }
 	    link_quality_t quality; // unidirectional, received by topopackets
 	    unsigned long metric_weight; // calculated by metric bidirectional
-
+	    //	    friend const NodeId& getNodeId(const RTopology::LinkQuality& lq);
 	    friend bool operator==(LinkQuality const &lq, NodeId const &n);
 	    friend bool operator==(LinkQuality const &lq, LinkQuality const &lq2);
 	    friend bool operator<(LinkQuality const &lq, LinkQuality const &lq2);
-	    friend bool control_topology(RTopology::AdjList &adjList);
+	    //	    friend bool check_topology(RTopology::AdjList &adjList);
 
-	    LinkQuality &operator=(LinkQuality const &lq) {
-		neighbor = lq.neighbor;
-		quality = lq.quality;
+	    LinkQuality &operator=(const LinkQuality& lq) {
+		counterpart   = lq.counterpart;
+		neighbor      = lq.neighbor;
+		quality       = lq.quality;
 		metric_weight = lq.metric_weight;
-		counterpart = lq.counterpart;
+
 		if (counterpart) {
 		    counterpart->counterpart = this;
 		}
 		return *this;
 	    }
 	
-	    LinkQuality(LinkQuality const &lq):counterpart(0),neighbor(0),quality(0),metric_weight(0) {
+	    LinkQuality(LinkQuality const &lq) {
 		*this = lq;
 	    }
-	    LinkQuality():counterpart(0),neighbor(0),quality(0),metric_weight(0) {}
-	    LinkQuality(NodeId n,link_quality_t w):counterpart(0),neighbor(n),quality(w),metric_weight(0) {}
+	    
+	    LinkQuality():counterpart(0),quality(0),metric_weight(0) {}
+	    
+	    LinkQuality(NodeId n, link_quality_t w): 
+		counterpart(0),
+		neighbor(n),
+		quality(w),
+		metric_weight(0) {}
 
 	    void remove_reference() {
 		if (counterpart) {
@@ -87,15 +98,16 @@ namespace awds {
 	    }
 
 	    void set_counterpart(LinkQuality *lq) {
-		lq->counterpart = this;
+		if (lq)
+		    lq->counterpart = this;
 		counterpart = lq;
 	    }
 
-	    bool get_qualities(link_quality_t &f,link_quality_t &b) const;
+	    bool get_qualities(link_quality_t &f, link_quality_t &b) const;
 
 	    double get_percentage() const {
 		double v(quality);
-		v = 100.0*((double)max_quality-quality)/(double)max_quality;
+		v = 100.0*((double)max_quality() - quality)/(double)max_quality();
 		return v;
 	    }
 
@@ -109,36 +121,40 @@ namespace awds {
 	};
 
 	class LinkList : public std::vector<LinkQuality> {
-	protected:
-	    void copy(LinkList const &ll) {  
-		// the copy of a linklist is not allowed to use copycontructor of LinkQuality due 
-		// to the counterpart links between two of them, see LinkQuality CopyConstructor 
-		LinkList::const_iterator it(ll.begin());
-		while (it != ll.end()) {
-		    LinkQuality lq(it->neighbor,it->quality);
-		    lq.metric_weight = it->metric_weight;
-		    push_back(lq);
-		    ++it;
-		}
-	    }
+	
+	    // protected:
+	    // 	    void copy(LinkList const &ll) {  
+	    // 		// the copy of a linklist is not allowed to use copycontructor of LinkQuality due 
+	    // 		// to the counterpart links between two of them, see LinkQuality CopyConstructor 
+	    // 		LinkList::const_iterator it(ll.begin());
+	    // 		while (it != ll.end()) {
+		    
+	    // 		    LinkQuality lq;
+	    // 		    lq.neighbor = it->neighbor;
+	    // 		    lq.quality = it->quality;
+	    // 		    lq.metric_weight = it->metric_weight;
+	    // 		    push_back(lq);
+	    // 		    ++it;
+	    // 		}
+	    // 	    }
 	public:
 	
 	    LinkList():std::vector<LinkQuality>() {}
 	
-	    LinkList &operator=(LinkList const &ll) {
-		copy(ll);
-		return *this;
-	    }
+	    //LinkList &operator=(LinkList const &ll) {
+	    // 		copy(ll);
+	    // 		return *this;
+	    //}
 	
-	    LinkList(LinkList const &ll) : 
-		std::vector<LinkQuality>() 
-	    {
-		*this = ll;
-	    }
+	    // 	    LinkList(LinkList const &ll) : 
+	    // 		std::vector<LinkQuality>() 
+	    // 	    {
+	    // 		*this = ll;
+	    // 	    }
 	
 	    /*  inserts or updates the LinkQuality */
-	    LinkList::iterator insert(LinkQuality const &lq, 
-				      AdjList &adjList,const NodeId &me); 
+	    //	    LinkList::iterator insert(LinkQuality const &lq, 
+	    //		      AdjList &adjList,const NodeId &me); 
 	};
 
 	
@@ -157,15 +173,23 @@ namespace awds {
 	    {
 		nodeName[0]='\0';
 	    }
+
+	    void update_validity(const gea::AbsTime& new_v) {
+		if (this->validity < new_v)
+		    this->validity = new_v;
+	    }
+
+	    
+	    LinkQuality *findLinkQuality(NodeId id);
 	};
 
-	class AdjList : public std::map<NodeId,NDescr> {
+	class AdjList : public std::map<NodeId, NDescr> {
 	public:
 	    friend bool operator==(std::pair<NodeId,NDescr> const &a,NodeId const &b);
 	    iterator find(NodeId const &nodeId) {
 		return std::map<NodeId,NDescr>::find(nodeId);
 	    }
-	    const_iterator const_find(NodeId const &nodeId) const {
+	    const_iterator find(NodeId const &nodeId) const {
 		return std::map<NodeId,NDescr>::find(nodeId);
 	    }
 	    bool find(NodeId const &from,NodeId const &to,LinkList::iterator &it);
@@ -190,12 +214,17 @@ namespace awds {
 	RTopology(NodeId id,Routing *routing);
 
 	virtual ~RTopology();
-
+	
 	void setLocked(bool t) { locked = t; };
 	bool getLocked() const { return locked; }
 	virtual void reset();
-    
+	
+	bool hasNode(const NodeId &node) const;
 	virtual bool hasLink(const NodeId& from, const NodeId&to) const;
+	
+	/** 
+	 * feed a topology update in the internal topology representation 
+	 */
 	void feed(const TopoPacket& p);    
 
 	virtual std::string getNameOfNode(const NodeId& id) const;
@@ -203,11 +232,17 @@ namespace awds {
 	
 	std::string getNameList() const;
     
+	/** 
+	 * get the number of nodes in the topology
+	 */
 	int getNumNodes() const {
 	    return adjList.size();
 	}
-    
-	gea::AbsTime removeOldNodes(gea::AbsTime t);
+
+	/** 
+	 * try to find node entries in the topology and remove them.
+	 */
+	gea::AbsTime removeOldNodes();
     
 	void createRemoveMessages(const NodeId& node, const NDescr& nDescr );
 
@@ -249,7 +284,16 @@ namespace awds {
 	virtual std::string getXmlString() const;
     };
 
+    // some access functions. 
+    
+    static const NodeId& getNodeId(const RTopology::LinkQuality& lq) {
+	return lq.neighbor;
+    }
+    
+
 }
+
+
 
 #endif //TOPOLOGY_H__
 /* This stuff is for emacs

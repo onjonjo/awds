@@ -13,7 +13,18 @@
 /** class for accessing fields of a Topology packet.
  */
 namespace awds {
-class TopoPacket : public Flood {
+    
+    struct TopoPacketNeighItr {
+	char *ptr;
+    public:
+
+	bool operator ==(const TopoPacketNeighItr& other) const { return ptr == other.ptr; }
+	bool operator !=(const TopoPacketNeighItr& other) const { return !(*this == other); }
+	TopoPacketNeighItr& operator++() { ptr += awds::NodeId::size + 2; return *this; }
+	NodeId operator *() const { NodeId ret; ret.fromArray(ptr); return ret; }
+    };
+    
+    class TopoPacket : public Flood {
     
 public:
     // definitions  of packet layout.

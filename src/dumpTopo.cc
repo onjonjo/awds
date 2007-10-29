@@ -18,9 +18,10 @@ struct topostream {
     
     static bool xmlTopoDiff(void *d,  string& s) {
 	struct topostream *self = static_cast<struct topostream *>(d);
-	if (self->file.is_open()) 	    
+	if (self->file.is_open()) {
 	    self->file << s;
-	
+	    self->file.flush();
+	}
 	return true;
     }
     
@@ -77,6 +78,7 @@ GEA_MAIN(argc, argv) {
       stream->file << "<?xml version=\"1.0\"?>\n<graph>\n";
       stream->file << result;
       topology->newXmlTopologyDelta.add( &topostream::xmlTopoDiff, (void *)stream);
+      stream->file.flush();
       return 0;
   }
   

@@ -39,35 +39,8 @@ void TopoPacket::setNeigh(AwdsRouting *awdsRouting) {
 		// the installed metric decides which quality values will be send
 		RTopology::link_quality_t quality = awdsRouting->topology->metric->get_quality(awdsRouting->neighbors[i]);
 		
-		/*		switch (awdsRouting->metrics) {
-		  
-		case Routing::PacketLossMetrics:
-		metric = 0xff - (awdsRouting->neighbors[i].quality() - 1) * (0x100 / 32);    
-		break;
-		
-		case Routing::EtxMetrics: 
-		metric = 0xff - (awdsRouting->neighbors[i].quality() - 1) * (0x100 / 32);
-		break;
-		
-		case Routing::TransmitDurationMetrics:
-		{
-		assert(rm);
-		rm->update();
-		metric = rm->getTT(nId) / 256;
-		}
-		break;
-		case Routing::HopCountMetrics:
-		metric = 0xff;
-		break;
-		}
-		
-		// clamp ranges dass machen wir dann auch in der metric
-		metric = max( min(metric, 0xff), 1);
-		*/
-		
-		*(reinterpret_cast<RTopology::link_quality_t*>(addr)) = quality;
-		assert(*(reinterpret_cast<RTopology::link_quality_t*>(addr)));
-		addr += sizeof(RTopology::link_quality_t);
+		toArray<uint16_t>( quality, addr);
+		addr += 2;
 
 	    }
     }	
