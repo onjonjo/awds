@@ -19,7 +19,7 @@
 #include <awds/basic.h>
 
 
-#define ETHERTYPE_AWDS 0x8333
+#define ETHERTYPE_AWDS 0x8334
 
 
 using namespace awds;
