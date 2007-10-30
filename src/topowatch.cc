@@ -230,7 +230,7 @@ void TopoWatch::read_client_data(gea::Handle *h, gea::AbsTime t, void *data) {
 }
 
 
-GEA_MAIN(argc, argv)
+GEA_MAIN_2(topowatch, argc, argv)
 {
     
 

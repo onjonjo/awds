@@ -165,7 +165,7 @@ void PktPair::end_update() {
   }
 }
 
-GEA_MAIN(argc, argv)
+GEA_MAIN_2(pktpair, argc, argv)
 {
   ObjRepository& rep = ObjRepository::instance();
   AwdsRouting *routing = (AwdsRouting *)rep.getObj("awdsRouting");

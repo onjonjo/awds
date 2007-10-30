@@ -28,7 +28,7 @@ struct topostream {
 };
 
 
-GEA_MAIN(argc, argv) {
+GEA_MAIN_2(topodump, argc, argv) {
   
   ObjRepository& rep = ObjRepository::instance();
   RTopology *topology = (RTopology *)rep.getObj("topology");

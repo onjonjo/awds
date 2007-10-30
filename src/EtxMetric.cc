@@ -38,7 +38,7 @@ awds::EtxMetric::EtxMetric(Routing *r):Metric(r) {
 awds::EtxMetric::~EtxMetric() {
 }
 
-GEA_MAIN(argc, argv)
+GEA_MAIN_2(etxmetric, argc, argv)
 {
   ObjRepository& rep = ObjRepository::instance();
   AwdsRouting *routing = (AwdsRouting *)rep.getObj("awdsRouting");

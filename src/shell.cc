@@ -363,7 +363,7 @@ int test(ShellClient &sc, void *data, int argc, char **argv) {
     return 0;
 }
 
-GEA_MAIN(argc, argv)
+GEA_MAIN_2(shell, argc, argv)
 {    
 
     ObjRepository& rep = ObjRepository::instance();

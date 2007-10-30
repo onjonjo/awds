@@ -5,8 +5,8 @@
 
 using namespace awds;
 
-GEA_MAIN(argc, argv) {
-    
+GEA_MAIN_2(tapiface2, argc, argv) {
+  
     ObjRepository& rep = ObjRepository::instance(); 
     
     Routing *routing = (Routing *)rep.getObj("awdsRouting");
@@ -35,3 +35,9 @@ GEA_MAIN(argc, argv) {
     return 0;
 }
 
+/* This stuff is for emacs
+ * Local variables:
+ * mode:c++
+ * c-basic-offset: 4
+ * End:
+ */

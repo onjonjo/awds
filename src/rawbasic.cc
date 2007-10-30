@@ -179,7 +179,7 @@ void RawBasic::getRecvSrc(NodeId& s) {
     s = src;
 }
 
-GEA_MAIN(argc, argv) {
+GEA_MAIN_2(rawbasic, argc, argv) {
     
     RawBasic *basic;
     const  char *netif = "ath0";

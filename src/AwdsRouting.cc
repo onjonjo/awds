@@ -775,7 +775,7 @@ int awds::AwdsRouting::sendFlowPacket(BasePacket *p) {
 
 #define MODULE_NAME awdsrouting
 
-GEA_MAIN(argc, argv)
+GEA_MAIN_2(awdsrouting, argc, argv)
 {
     
     ObjRepository& rep = ObjRepository::instance();

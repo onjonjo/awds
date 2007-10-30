@@ -1,6 +1,6 @@
 SUBDIRS =  crypto 
 
-LIBADD = -lgea
+LIBADD = -lgea2
 module_flags = -module  -avoid-version -export-symbols-regex gea_main 
 
 #AM_CPPFLAGS= @GEAINC@ -pedantic -Wno-long-long
@@ -64,18 +64,18 @@ awdsrouting_la_SOURCES =  \
 
 awdsrouting_la_CPPFLAGS = -DMODULE_NAME=awdsrouting -fvisibility=hidden
 awdsrouting_la_LDFLAGS = -module  -avoid-version -export-symbols-regex gea_main 
-awdsrouting_la_LIBADD = -lgea
+awdsrouting_la_LIBADD = -lgea2
 
 
 udpbasic_la_SOURCES = udpBasic.cc awds/basic.h basic.cc
 udpbasic_la_CPPFLAGS = -DMODULE_NAME=udpbasic -fvisibility=hidden
 udpbasic_la_LDFLAGS = -module  -avoid-version -export-symbols-regex gea_main 
-udpbasic_la_LIBADD = -lgea
+udpbasic_la_LIBADD = -lgea2
 
 rawbasic_la_SOURCES = rawbasic.cc basic.cc awds/basic.h awds/NodeId.h
 rawbasic_la_CPPFLAGS = -DMODULE_NAME=rawbasic
 rawbasic_la_LDFLAGS = -module  -avoid-version -export-symbols-regex gea_main
-rawbasic_la_LIBADD = -lgea -lgea-posix
+rawbasic_la_LIBADD = -lgea2 -lgea2-posix
 
 pinger_la_SOURCES = pinger.cc
 pinger_la_LDFLAGS = -module  -avoid-version -export-symbols-regex gea_main
@@ -83,29 +83,29 @@ pinger_la_LDFLAGS = -module  -avoid-version -export-symbols-regex gea_main
 
 tapiface_la_SOURCES = TapInterface.cc tapiface.cc awds/tapiface.h
 tapiface_la_LDFLAGS = -module  -avoid-version -export-symbols-regex gea_main
-tapiface_la_LIBADD = -lgea -lgea-posix
+tapiface_la_LIBADD = -lgea2 -lgea2-posix
 
 tapiface2_la_SOURCES = TapInterface.cc TapInterface2.cc awds/tapiface.h tapiface2.cc  awds/tapiface2.h
 tapiface2_la_CPPFLAGS = -DMODULE_NAME=tapiface2 -fvisibility=hidden
 tapiface2_la_LDFLAGS = -module  -avoid-version -export-symbols-regex gea_main
-tapiface2_la_LIBADD = -lgea -lgea-posix
+tapiface2_la_LIBADD = -lgea2 -lgea2-posix
 
 topowatch_la_SOURCES  = topowatch.cc
 topowatch_la_CPPFLAGS = -DMODULE_NAME=topowatch -fvisibility=hidden
 topowatch_la_LDFLAGS  = -module  -avoid-version -export-symbols-regex gea_main
-topowatch_la_LIBADD = -lgea -lgea-posix
+topowatch_la_LIBADD = -lgea2 -lgea2-posix
 
 shell_la_SOURCES  = shell.cc unixfdostream.h 
 shell_la_CPPFLAGS = -DMODULE_NAME=shell -fvisibility=hidden
 shell_la_LDFLAGS  = -module  -avoid-version -export-symbols-regex gea_main
-shell_la_LIBADD = -lgea -lgea-posix
+shell_la_LIBADD = -lgea2 -lgea2-posix
 
 topodump_la_SOURCES = dumpTopo.cc
 topodump_la_LDFLAGS = -module  -avoid-version -export-symbols-regex gea_main
 
 topolock_la_SOURCES = TopoLock.cc
 topolock_la_LDFLAGS = $(module_flags)
-topolock_la_LIBADD  = -lgea
+topolock_la_LIBADD  = -lgea2
 
 etxmetric_la_SOURCES = Metric.h EtxMetric.h EtxMetric.cc
 etxmetric_la_LDFLAGS = $(module_flags)
@@ -117,7 +117,7 @@ rttmetric_la_LDFLAGS = $(module_flags)
 signaler_la_SOURCES = signaler.cc
 signaler_la_CPPFLAGS = -DMODULE_NAME=signaler -fvisibility=hidden
 signaler_la_LDFLAGS = $(module_flags)
-signaler_la_LIBADD = -lgea 
+signaler_la_LIBADD = -lgea2
 
 
 EXTRA_PROGRAMS =  awds_static 
@@ -143,10 +143,10 @@ traffic_la_LDFLAGS = $(module_flags)
 
 if AES_MMX
 AES_IMPL = crypto/gladman/aescrypt.mmx.asm
-aesccm_la_LIBADD = aescrypt.mmx.o -lgea
+aesccm_la_LIBADD = aescrypt.mmx.o -lgea2
 else	
 AES_IMPL = crypto/gladman/aescrypt.c
-aesccm_la_LIBADD = -lgea
+aesccm_la_LIBADD = -lgea2
 endif
 
 aescrypt.mmx.o: crypto/gladman/aescrypt.mmx.asm
@@ -177,7 +177,7 @@ daemon_la_LDFLAGS  = -module  -avoid-version -export-symbols-regex gea_main
 
 
 awds_static_SOURCES = awds.cc
-awds_static_LDADD  = -lgea -lgea-posix rawbasic.la awdsrouting.la tapiface2.la 
+awds_static_LDADD  = -lgea2 -lgea2-posix rawbasic.la awdsrouting.la tapiface2.la 
 awds_static_LDFLAGS = -static
 
 

@@ -2,12 +2,12 @@ Source: awds
 Section: net
 Priority: optional
 Maintainer: Andre Herms <aherms@ivs.cs.uni-magdeburg.de>
-Build-Depends: debhelper (>= 4.2.32), autotools-dev, libgea2-dev (>= 1.4), nasm, libtool (>= 1.5), automaken
+Build-Depends: debhelper (>= 4.2.32), autotools-dev, libgea2-dev (>= 2.2), nasm, libtool (>= 1.5), automaken
 Standards-Version: 3.7.2
 
 Package: awds
 Architecture: any
-Depends: libgea2 (>= 1.4), lsb-base (>= 3.0-6)
+Depends: libgea2 (>= 2.2), lsb-base (>= 3.0-6)
 Description: A multi-hop routing for wireless ad-hoc networks
  This package contains the multi-hop rounting AWDS. It creates a
  virtual network interface on all participating stations that are 
@@ -18,7 +18,7 @@ Description: A multi-hop routing for wireless ad-hoc networks
 
 Package: awds-dev
 Architecture: any
-Depends: libgea2 (>= 1.4), awds (=  ${Source-Version})
+Depends: libgea2 (>= 2.2), awds (=  ${Source-Version})
 Description: This packages contains all header files of awds for creating
  extensions for the AWDS routing. 
 

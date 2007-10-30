@@ -20,8 +20,6 @@ using namespace std;
 using namespace gea;
 using namespace awds;
 
-//const RTopology::link_quality_t RTopology::max_quality = 0xFFFFu;
-
 bool awds::operator==(const RTopology::LinkQuality& lq,const NodeId& n) {
     return lq.neighbor == n;
 }
@@ -381,9 +379,7 @@ void RTopology::feed(const TopoPacket& p) {
 
 	    }
 	    
-	    
 	    //---- end of xml output generation
-
 
 	    ++itr_new;
 	    ++itr_old;
@@ -780,14 +776,6 @@ void RTopology::getNextHop(const NodeId& dest, NodeId& nextHop, bool& found) {
 
 bool RTopology::hasLink(const NodeId& from, const NodeId& to) const { 
     return adjList.find(from,to);
-
-    /*    AdjList::const_iterator itr = adjList.const_find(from);
-    if (itr == adjList.end()) return false;
-    
-    const LinkList& linklist = itr->second.linklist;
-    LinkList::const_iterator itr2 
-	= find(linklist.begin(),linklist.end(), to);
-	return itr2 != linklist.end();*/
 }
 
 
@@ -862,10 +850,9 @@ gea::AbsTime RTopology::removeOldNodes() {
     if (locked) return nextTimeout;
     
     while( itr != adjList.end() ) {
-	NodeId currentNodeId = itr->first;
-	gea::AbsTime validity = itr->second.validity;
-	
-	
+	const NodeId currentNodeId = itr->first;
+	const gea::AbsTime validity = itr->second.validity;
+		
 	if (validity <= t) {
 	    
 	    if (currentNodeId == myNodeId) {
@@ -879,8 +866,6 @@ gea::AbsTime RTopology::removeOldNodes() {
 			  << currentNodeId << endl;
 	    }
 	    
-	   
-
 	    AdjList::iterator itr2 = itr;
 	    itr2++;
 	    
@@ -898,7 +883,7 @@ gea::AbsTime RTopology::removeOldNodes() {
 	    // createRemoveMessages(itr->first, itr->second);
 	    oneRemoved = true;
 
-	    LinkList::iterator ll(itr->second.linklist.begin());
+	    LinkList::iterator ll = itr->second.linklist.begin();
 	    while (ll != itr->second.linklist.end()) {
 		ll->remove_reference();
 		++ll;
@@ -906,8 +891,7 @@ gea::AbsTime RTopology::removeOldNodes() {
 
 	    adjList.erase(itr);
 	    itr = itr2;
-	    
-	    sendNodeRemoved(currentNodeId);
+	    sendNodeRemoved(currentNodeId);	    
 	
 	} else {
 	    itr++;
@@ -917,6 +901,7 @@ gea::AbsTime RTopology::removeOldNodes() {
 	    
 	}
     }
+
     if (!newXmlTopologyDelta.empty() && oneRemoved) {
 
 	string s = "";
