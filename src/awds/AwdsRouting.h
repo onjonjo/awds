@@ -40,7 +40,7 @@ namespace awds {
 	class RTopology * topology;
 	class FloodHistory *floodHistory;
 
-	class RateMonitor *madwifiRateMonitor;
+	//class RateMonitor *madwifiRateMonitor;
 
 
 	AwdsRouting(basic *base);

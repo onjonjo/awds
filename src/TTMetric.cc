@@ -42,6 +42,7 @@ awds::TTMetric::my_calculate(awds::RTopology::link_quality_t forward,
 
 int
 awds::TTMetric::update() {
+  return 0;
 }
 
 

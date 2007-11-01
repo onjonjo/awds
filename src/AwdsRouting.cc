@@ -27,14 +27,14 @@ using namespace gea;
 
 
 awds::AwdsRouting::AwdsRouting(basic *base) :
-    verbose(false),
     FlowRouting(base),
+    verbose(false),
+    //    madwifiRateMonitor(0),
     beaconSeq(0),
     beaconPeriod((double)(this->period) / 1000.),
     nextBeacon( gea::AbsTime::now() + beaconPeriod),
     floodSeq(0),
-    unicastSeq(0),
-    madwifiRateMonitor(0)
+    unicastSeq(0)
 {
     
     this->numNeigh = 0;
@@ -795,13 +795,13 @@ GEA_MAIN_2(awdsrouting, argc, argv)
     // rep.insertObj("topology","Topology", awdsRouting->topology);
     
     // RateMonitor *rateMonitor = (RateMonitor *)rep.getObj("rateMonitor");
-    REP_MAP_OBJ(awds::RateMonitor *, rateMonitor);
-    if (rateMonitor) {
-	awdsRouting->madwifiRateMonitor = rateMonitor;
-	GEA.dbg() << "adding transmission duration metrics of rate module" << endl;
-	awdsRouting->metrics = Routing::TransmitDurationMetrics; 
-	//	rateMonitor->update();
-    }
+    //     REP_MAP_OBJ(awds::RateMonitor *, rateMonitor);
+    //     if (rateMonitor) {
+    // 	awdsRouting->madwifiRateMonitor = rateMonitor;
+    // 	GEA.dbg() << "adding transmission duration metrics of rate module" << endl;
+    // 	awdsRouting->metrics = Routing::TransmitDurationMetrics; 
+    // 	//	rateMonitor->update();
+    //     }
     
     if ( (argc >= 3) && (!strcmp(argv[1], "--name") ) ) {
 	strncpy(awdsRouting->topology->nodeName, argv[2], 32);

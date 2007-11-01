@@ -59,9 +59,9 @@
 
 #define inc_ctr(x)      \
     switch(x->blk[0]) { \
-    case 3: !++(x->blk[15]) && !++(x->blk[14]) && !++(x->blk[13]) &&  ++(x->blk[12]); break; \
-    case 2: !++(x->blk[15]) && !++(x->blk[14]) &&  ++(x->blk[13]); break; \
-    case 1: !++(x->blk[15]) &&  ++(x->blk[14]); break; }
+    case 3: (void)(!++(x->blk[15]) && !++(x->blk[14]) && !++(x->blk[13]) &&  ++(x->blk[12]) ); break; \
+    case 2: (void)(!++(x->blk[15]) && !++(x->blk[14]) &&  ++(x->blk[13]) ); break; \
+    case 1: (void)(!++(x->blk[15]) &&  ++(x->blk[14]) ); break; }
 
 #else
 
@@ -80,19 +80,19 @@
 
 /* increment the 8, 7, 6, 5, 4, 3 or 2 byte CTR value   */
 
-#define inc_ctr(x)      \
-    switch(x->blk[0]) { \
-    case 7: !++(x->blk[15]) && !++(x->blk[14]) && !++(x->blk[13]) && !++(x->blk[12]) &&      \
-            !++(x->blk[11]) && !++(x->blk[10]) && !++(x->blk[ 9]) &&  ++(x->blk[ 8]); break; \
-    case 6: !++(x->blk[15]) && !++(x->blk[14]) && !++(x->blk[13]) && !++(x->blk[12]) &&      \
-            !++(x->blk[11]) && !++(x->blk[10]) &&  ++(x->blk[ 9]); break;                    \
-    case 5: !++(x->blk[15]) && !++(x->blk[14]) && !++(x->blk[13]) && !++(x->blk[12]) &&      \
-            !++(x->blk[11]) &&  ++(x->blk[10]); break;                                       \
-    case 4: !++(x->blk[15]) && !++(x->blk[14]) && !++(x->blk[13]) && !++(x->blk[12]) &&      \
-             ++(x->blk[11]); break;                                                          \
-    case 3: !++(x->blk[15]) && !++(x->blk[14]) && !++(x->blk[13]) &&  ++(x->blk[12]); break; \
-    case 2: !++(x->blk[15]) && !++(x->blk[14]) &&  ++(x->blk[13]); break;                    \
-    case 1: !++(x->blk[15]) &&  ++(x->blk[14]); break; }
+#define inc_ctr(x)							\
+	switch(x->blk[0]) {						\
+	case 7: if (!++(x->blk[15]) && !++(x->blk[14]) && !++(x->blk[13]) && !++(x->blk[12]) && \
+		    !++(x->blk[11]) && !++(x->blk[10]) && !++(x->blk[ 9]) &&  ++(x->blk[ 8]) ); break; \
+	case 6: if (!++(x->blk[15]) && !++(x->blk[14]) && !++(x->blk[13]) && !++(x->blk[12]) && \
+		    !++(x->blk[11]) && !++(x->blk[10]) &&  ++(x->blk[ 9]) ); break; \
+	case 5: if (!++(x->blk[15]) && !++(x->blk[14]) && !++(x->blk[13]) && !++(x->blk[12]) && \
+		    !++(x->blk[11]) &&  ++(x->blk[10]) ); break;	\
+	case 4: if (!++(x->blk[15]) && !++(x->blk[14]) && !++(x->blk[13]) && !++(x->blk[12]) && \
+		    ++(x->blk[11]) ); break;				\
+	case 3: if (!++(x->blk[15]) && !++(x->blk[14]) && !++(x->blk[13]) &&  ++(x->blk[12]) ); break; \
+	case 2: if (!++(x->blk[15]) && !++(x->blk[14]) &&  ++(x->blk[13]) ); break; \
+	case 1: if (!++(x->blk[15]) &&  ++(x->blk[14]) ); break; }
 
 #endif
 
@@ -234,7 +234,8 @@ ret_type CCM_encrypt(unsigned char mbuf[],		/* the plaintext input message      
 		
 			if(b_pos == (AES_BLOCK_SIZE >> 2))
 			{
-				b_pos = 0; inc_ctr(ctx); 
+			        b_pos = 0; 
+				inc_ctr(ctx); 
 				aes_encrypt(ctx->blk, ctx->sii, ctx->aes);
 				aes_encrypt(ctx->cbc, ctx->cbc, ctx->aes);
 			}
@@ -426,3 +427,10 @@ ret_type CCM_mode(
         ? CCM_decrypt(msg, msg_len + auth_field_len, ctx) 
         : CCM_encrypt(msg, msg_len, ctx);
 }
+
+/* This stuff is for emacs
+ * Local variables:
+ * mode:c++
+ * c-basic-offset: 8
+ * End:
+ */

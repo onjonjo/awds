@@ -72,6 +72,7 @@ public:
 	virtual void nodesChanged() = 0;
 	virtual void nodeAdded(const awds::NodeId& id) = 0 ;
 	virtual void nodeRemoved(const awds::NodeId& id) = 0;
+	virtual ~NodesObserver() {}
     };
     
     virtual void addNodeObserver(struct NodesObserver *observer) = 0;
@@ -81,6 +82,7 @@ public:
 	virtual void linksChanged() = 0;
 	virtual void linkAdded(const awds::NodeId& from, const awds::NodeId& to) = 0;
 	virtual void linkRemoved(const awds::NodeId& from, const awds::NodeId& to) = 0;
+	virtual ~LinksObserver() {}
     };
 
     virtual void addLinkObserver(struct LinksObserver *observer) = 0;

@@ -286,7 +286,7 @@ namespace awds {
 
     // some access functions. 
     
-    static const NodeId& getNodeId(const RTopology::LinkQuality& lq) {
+    static inline const NodeId& getNodeId(const RTopology::LinkQuality& lq) {
 	return lq.neighbor;
     }
     

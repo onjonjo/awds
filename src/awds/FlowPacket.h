@@ -25,6 +25,7 @@ namespace awds {
 	NodeId getFlowDest() const {
 	    NodeId ret;
 	    ret.fromArray(packet.buffer + OffsetFlowDest);
+	    return ret;
 	}
 	
 	void setFlowDest(const NodeId& id) const {
@@ -35,7 +36,7 @@ namespace awds {
 	    return fromArray<uint32_t>(packet.buffer + OffsetFlowType);
 	}
 	
-	uint32_t setFlowType(uint32_t type) {
+	void setFlowType(uint32_t type) {
 	    toArray<uint32_t>(type, packet.buffer + OffsetFlowType);
 	}
 

@@ -345,8 +345,8 @@ void RTopology::feed(const TopoPacket& p) {
 
     // update the counterparts 
 
-    assert(is_sorted(linklist.begin(), linklist.end()));
-    assert(is_sorted(old_linklist.begin(), old_linklist.end()));
+    //    assert(is_sorted(linklist.begin(), linklist.end()));
+    // assert(is_sorted(old_linklist.begin(), old_linklist.end()));
     
 
     LinkList::iterator itr_new = linklist.begin();
