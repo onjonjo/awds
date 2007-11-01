@@ -2,6 +2,7 @@
 #include <cstdlib>
 #include <cstdio>
 
+#include <gea/gea_main.h>
 #include <gea/ObjRepository.h>
 #include <gea/Blocker.h>
 #include <gea/API.h>
@@ -20,8 +21,13 @@ using namespace std;
 static const char *short_help = "ping another AWDS node";
 
 static const char *long_help = 
-    "ping  <DESTINATION>\n";
-    
+    "ping  [options] <DESTINATION>\n"
+    "  options: \n"
+    "  -t <TTL>   maximum hop count\n"
+    "  -s <size>  set packet size\n"
+    "  -i <time>  time interval\n"
+    "  -p         trace path\n";
+
 
 
 struct Pinger {
@@ -156,7 +162,7 @@ int Pinger::parse_opts(int argc, const char* const *argv) {
 	
     //    REP_MAP_OBJ(RTopology *, topology);
     dbg() << " dest is " << destName << endl;
-    return awdsRouting->getNodeByName(this->dest, destName);
+    return -!awdsRouting->getNodeByName(this->dest, destName);
     
 } // end parse_opts
 
@@ -361,13 +367,7 @@ int Pinger::startPing( Handle *h) {
     return 0;
 }
 
-extern "C"
-#ifdef PIC
-int gea_main(int argc, const char  * const * argv) 
-#else
-int pinger_gea_main(int argc, const char  * const *argv) 
-#endif
-    
+GEA_MAIN_2(pinger, argc, argv)
 {    
     Pinger *pinger;
     REP_MAP_OBJ(awds::Routing *, routing);
