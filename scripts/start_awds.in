@@ -37,8 +37,10 @@ AWDS_TOPO=''
 [ "$USE_TOPO_EXPORT" = yes ] && AWDS_TOPO='topowatch.so'
 
 AWDS_DAEMON=''
+[ "$2" = -N ] && DAEMONIZE=no
 PIDFILE=${PIDFILE:-/var/run/awds.pid}
 [ "$DAEMONIZE" = yes ] && AWDS_DAEMON="daemon.so --pidfile $PIDFILE"
+
 
 
 if [ "$DEV_CHANGE_WIRELESS_SETTINGS" = yes ]
