@@ -564,13 +564,13 @@ void awds::AwdsRouting::recv_unicast(BasePacket *p) {
     bool found;
     topology->getNextHop(dest, nextHop, found);
     if (!found) {
-	GEA.dbg() << "no route to host " << (int)dest << std::endl;
+	GEA.dbg() << "no route to host " << dest << std::endl;
 	//	topology->print();
 	return;
     } else {
 	if (verbose) {
-	    GEA.dbg() << "next hop to " << (int) dest 
-		      << " is " << (int) nextHop 
+	    GEA.dbg() << "next hop to " << dest 
+		      << " is " << nextHop 
 		      << std::endl;
 	}
 	
