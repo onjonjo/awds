@@ -6,7 +6,7 @@ MODULES_DIR=@AWDS_MOD_DIR@
 CONF_FILE=$CONF_DIR/awds.conf
 [ -e $CONF_FILE ] && source $CONF_FILE
 
-find /lib/modules/$(uname -r) -name tun.*o -exec insmod {} \;
+grep -q tun /proc/modules || find /lib/modules/$(uname -r) -name tun.*o -exec insmod {} \;
 
 # use this for early detection of wrong configured stack:
 export LD_BIND_NOW=1
