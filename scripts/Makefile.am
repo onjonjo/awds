@@ -8,5 +8,7 @@ sysconf_DATA = awds.conf awds.key
 start_awds: start_awds.in ../config.status
 	sed -e "s,@AWDS_CONF_DIR@,$(sysconfdir)," -e "s,@AWDS_MOD_DIR@,$(pkglibdir)," < start_awds.in  >$@ 
 
+awds.conf: awds.conf.in ../config.status
+	sed -e "s,@AWDS_CONF_DIR@,$(sysconfdir)," -e "s,@AWDS_MOD_DIR@,$(pkglibdir)," < awds.conf.in  >$@ 
 
 
