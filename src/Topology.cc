@@ -265,7 +265,7 @@ RTopology::LinkQuality *RTopology::NDescr::findLinkQuality(NodeId id) {
 
 void RTopology::feed(const TopoPacket& p) {
     if (locked) return; // when locked status is set, ignore new packets
-    
+
     bool links_have_changed = false;
     
     AbsTime t = GEA.lastEventTime;
@@ -341,6 +341,7 @@ void RTopology::feed(const TopoPacket& p) {
 	
     }
 
+    assert(linklist.size() == n);
     
 
     // update the counterparts 
@@ -355,12 +356,12 @@ void RTopology::feed(const TopoPacket& p) {
     const LinkList::iterator itr_old_end = old_linklist.end();
     
     while (itr_new != itr_new_end || itr_old != itr_old_end ) {
-	
+	    
 	if (itr_new != itr_new_end &&
 	    itr_old != itr_old_end &&
 	    itr_new->neighbor == itr_old->neighbor) {
 	    // case 1: link is kept 
-	    
+
 	    NDescr& nDescr = getNodeEntry(itr_new->neighbor, t)->second;
 	    nDescr.update_validity(newValidity);
 	    LinkQuality *counterpart = nDescr.findLinkQuality(src);
@@ -384,7 +385,7 @@ void RTopology::feed(const TopoPacket& p) {
 	    ++itr_new;
 	    ++itr_old;
 	} else if (itr_old == itr_old_end || 
-		   itr_new->neighbor < itr_old->neighbor ) {
+		   ( itr_new != itr_new_end && itr_new->neighbor < itr_old->neighbor ) ) {
 	    // case 2: we found a new link
 	    
 	    //	    GEA.dbg() << "new link from "  << src << " to " << itr_new->neighbor << endl;
@@ -412,8 +413,8 @@ void RTopology::feed(const TopoPacket& p) {
 
 
 	    ++itr_new;
-	} else if (itr_new == itr_new_end || 
-		   itr_new->neighbor > itr_old->neighbor ) {
+	} else if ( itr_new == itr_new_end || 
+		    ( itr_old != itr_old_end && itr_new->neighbor > itr_old->neighbor ) ) {
 	    // case 3: we found an old link that was removed
 	    
 	    // the node entry should still exist, because it was referenced before.
@@ -444,7 +445,10 @@ void RTopology::feed(const TopoPacket& p) {
 
 	    ++itr_old;
 	}
+		
     }
+
+
 
     if (src == myNodeId) {
 	metric->end_update();
@@ -541,7 +545,8 @@ void RTopology::feed(const TopoPacket& p) {
     
     check_topology(this->adjList);
     
-    
+
+	
 }
 
 
