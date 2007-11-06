@@ -17,6 +17,9 @@
 
 #include <iostream>
 
+
+
+
 namespace awds {
 
 
@@ -45,8 +48,6 @@ namespace awds {
 	typedef uint16_t link_quality_t;
 	static link_quality_t max_quality() { return 0xFFFFu; }
 	
-	// #define max_quality 0xffff
-
 	class LinkList;
 	class AdjList;
 
@@ -57,14 +58,8 @@ namespace awds {
 
 	    NodeId neighbor;
 	    
-	    //const NodeId& getNeighbor() const { return neighbor; }
 	    link_quality_t quality; // unidirectional, received by topopackets
 	    unsigned long metric_weight; // calculated by metric bidirectional
-	    //	    friend const NodeId& getNodeId(const RTopology::LinkQuality& lq);
-	    friend bool operator==(LinkQuality const &lq, NodeId const &n);
-	    friend bool operator==(LinkQuality const &lq, LinkQuality const &lq2);
-	    friend bool operator<(LinkQuality const &lq, LinkQuality const &lq2);
-	    //	    friend bool check_topology(RTopology::AdjList &adjList);
 
 	    LinkQuality &operator=(const LinkQuality& lq) {
 		counterpart   = lq.counterpart;

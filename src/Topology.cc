@@ -20,14 +20,15 @@ using namespace std;
 using namespace gea;
 using namespace awds;
 
-bool awds::operator==(const RTopology::LinkQuality& lq,const NodeId& n) {
+bool operator==(const awds::RTopology::LinkQuality& lq, const awds::NodeId& n) {
     return lq.neighbor == n;
 }
 
-bool awds::operator==(RTopology::LinkQuality const &lq,RTopology::LinkQuality const &lq2) {
-    return lq.neighbor == lq2.neighbor;
+bool operator==(const awds::RTopology::LinkQuality& lq1, const awds::RTopology::LinkQuality& lq2) {
+    return lq1.neighbor == lq2.neighbor;
 }
-bool awds::operator<(RTopology::LinkQuality const &lq1, RTopology::LinkQuality const &lq2) {
+
+bool operator<(const awds::RTopology::LinkQuality& lq1, const awds::RTopology::LinkQuality& lq2) {
     //return lq.neighbor < lq2.neighbor;
     return getNodeId(lq1) < getNodeId(lq2);
 }
@@ -272,7 +273,7 @@ void RTopology::feed(const TopoPacket& p) {
     
     NodeId src = p.getSrc();
 
-    int n = p.getNumLinks();
+    size_t n = p.getNumLinks();
 
     //    string deltaQ;
     // string deltaN;
@@ -313,7 +314,7 @@ void RTopology::feed(const TopoPacket& p) {
     }
 
     //    GEA.dbg() << "parsing topo packet with " << n << " links" << endl;
-    for (int i = 0; i < n ; ++i) {
+    for (size_t i = 0; i < n ; ++i) {
 	
 	node.fromArray(addr);	
 	addr += NodeId::size; // skip the node entry
