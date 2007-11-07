@@ -1,7 +1,7 @@
 #!/bin/sh
 
 CONF_FILE=/etc/awds.conf
-[ -e $CONF_FILE ] && source $CONF_FILE
+[ -e $CONF_FILE ] && . $CONF_FILE
 
 
 # use this for early detection of wrong configured stack:

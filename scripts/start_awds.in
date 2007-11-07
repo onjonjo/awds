@@ -4,7 +4,7 @@ CONF_DIR=@AWDS_CONF_DIR@
 MODULES_DIR=@AWDS_MOD_DIR@ 
 
 CONF_FILE=$CONF_DIR/awds.conf
-[ -e $CONF_FILE ] && source $CONF_FILE
+[ -e $CONF_FILE ] && . $CONF_FILE
 
 grep -q tun /proc/modules || find /lib/modules/$(uname -r) -name tun.*o -exec insmod {} \;
 
