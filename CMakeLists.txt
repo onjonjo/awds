@@ -1,0 +1,32 @@
+PROJECT(Interf2 CXX)
+
+SET(CPACK_PACKAGE_NAME "awds")
+SET(CPACK_PACKAGE_VENDOR "Andre Herms <aherms [et] ivs.cs.uni-magdeburg.de>")
+SET(CPACK_PACKAGE_VERSION_MAJOR "7")
+SET(CPACK_PACKAGE_VERSION_MINOR "1")
+SET(CPACK_PACKAGE_VERSION_PATCH "0")
+
+INCLUDE(CheckIncludeFileCXX)
+INCLUDE(TestCXXAcceptsFlag)
+INCLUDE(CPack)
+
+
+INCLUDE(TestForANSIForScope)
+INCLUDE(TestForANSIStreamHeaders)
+INCLUDE(TestForSTDNamespace)
+
+       
+
+FIND_LIBRARY(GEA_LIBRARY gea 
+  DOC "Which GEA library should be used for linking?")
+GET_FILENAME_COMPONENT(GEA_LIB_DIR ${GEA_LIBRARY} PATH CACHE)
+
+CHECK_INCLUDE_FILE_CXX(gea/API.h GEA_HEADER_API)	
+
+CHECK_CXX_ACCEPTS_FLAG(-fvisibility=hidden GXX_ACCEPTS_VISHIDDEN)
+
+ADD_SUBDIRECTORY(src)
+
+# Local variables:
+# mode:cmake
+# End:
