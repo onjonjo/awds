@@ -1,3 +1,7 @@
+*.o
+*.lo
+*.la
+*~
 aclocal.m4
 autom4te.cache
 compile
@@ -11,3 +15,62 @@ install-sh
 libtool
 ltmain.sh
 missing
+
+# /
+/Makefile.in
+/configure
+/config.log
+/config.status
+/libtool
+/autom4te.cache
+/Makefile
+/aclocal.m4
+/build-stamp
+/depcomp
+/compile
+/ltmain.sh
+/missing
+/install-sh
+/config.guess
+/config.sub
+
+# debian
+/debian/awds
+/debian/awds-dev
+/debian/tmp
+
+# doc
+
+# ns2-scripts
+/ns2-scripts/*.gz
+
+# scripts
+/scripts/Makefile.in
+/scripts/Makefile
+
+# src
+/src/Makefile.in
+/src/*.gz
+/src/.libs
+/src/.deps
+/src/log
+/src/Makefile
+/src/out.ifx
+/src/out2.ifx
+/src/*.svg
+/src/*.dot
+/src/trisearch
+/src/*log
+
+# src/awds
+
+# src/awds/ext
+
+# src/crypto
+/src/crypto/Makefile
+/src/crypto/Makefile.in
+/src/crypto/crypto_test
+/src/crypto/.deps/
+/src/crypto/.deps
+
+# src/crypto/gladman
