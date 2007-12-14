@@ -20,15 +20,15 @@ using namespace std;
 using namespace gea;
 using namespace awds;
 
-bool operator==(const awds::RTopology::LinkQuality& lq, const awds::NodeId& n) {
+static bool operator==(const awds::RTopology::LinkQuality& lq, const awds::NodeId& n) {
     return lq.neighbor == n;
 }
 
-bool operator==(const awds::RTopology::LinkQuality& lq1, const awds::RTopology::LinkQuality& lq2) {
+static bool operator==(const awds::RTopology::LinkQuality& lq1, const awds::RTopology::LinkQuality& lq2) {
     return lq1.neighbor == lq2.neighbor;
 }
 
-bool operator<(const awds::RTopology::LinkQuality& lq1, const awds::RTopology::LinkQuality& lq2) {
+static bool operator<(const awds::RTopology::LinkQuality& lq1, const awds::RTopology::LinkQuality& lq2) {
     //return lq.neighbor < lq2.neighbor;
     return getNodeId(lq1) < getNodeId(lq2);
 }
@@ -254,6 +254,17 @@ static bool cmp_nodeid_quality(const awds::RTopology::LinkQuality& q, const awds
 RTopology::LinkQuality *RTopology::NDescr::findLinkQuality(NodeId id) {
     
     LinkList::iterator i = 
+	std::lower_bound(linklist.begin(), linklist.end(), id, cmp_nodeid_quality);
+    
+    if (i == linklist.end() || i->neighbor != id)
+	return 0;
+    assert(i->neighbor == id);
+    return &(*i);
+}
+
+const RTopology::LinkQuality *RTopology::NDescr::findLinkQuality(NodeId id) const {
+    
+    LinkList::const_iterator i = 
 	std::lower_bound(linklist.begin(), linklist.end(), id, cmp_nodeid_quality);
     
     if (i == linklist.end() || i->neighbor != id)

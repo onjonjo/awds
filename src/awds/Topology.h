@@ -17,11 +17,7 @@
 
 #include <iostream>
 
-
-
-
 namespace awds {
-
 
     class Metric;
 
@@ -117,39 +113,10 @@ namespace awds {
 
 	class LinkList : public std::vector<LinkQuality> {
 	
-	    // protected:
-	    // 	    void copy(LinkList const &ll) {  
-	    // 		// the copy of a linklist is not allowed to use copycontructor of LinkQuality due 
-	    // 		// to the counterpart links between two of them, see LinkQuality CopyConstructor 
-	    // 		LinkList::const_iterator it(ll.begin());
-	    // 		while (it != ll.end()) {
-		    
-	    // 		    LinkQuality lq;
-	    // 		    lq.neighbor = it->neighbor;
-	    // 		    lq.quality = it->quality;
-	    // 		    lq.metric_weight = it->metric_weight;
-	    // 		    push_back(lq);
-	    // 		    ++it;
-	    // 		}
-	    // 	    }
-	public:
+	  public:
 	
 	    LinkList():std::vector<LinkQuality>() {}
 	
-	    //LinkList &operator=(LinkList const &ll) {
-	    // 		copy(ll);
-	    // 		return *this;
-	    //}
-	
-	    // 	    LinkList(LinkList const &ll) : 
-	    // 		std::vector<LinkQuality>() 
-	    // 	    {
-	    // 		*this = ll;
-	    // 	    }
-	
-	    /*  inserts or updates the LinkQuality */
-	    //	    LinkList::iterator insert(LinkQuality const &lq, 
-	    //		      AdjList &adjList,const NodeId &me); 
 	};
 
 	
@@ -176,6 +143,7 @@ namespace awds {
 
 	    
 	    LinkQuality *findLinkQuality(NodeId id);
+	    const LinkQuality *findLinkQuality(NodeId id) const;
 	};
 
 	class AdjList : public std::map<NodeId, NDescr> {
