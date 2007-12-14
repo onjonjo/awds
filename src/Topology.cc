@@ -1,4 +1,3 @@
-
 #include <sstream>
 #include <cassert>
 #include <limits>
@@ -44,7 +43,7 @@ static bool check_topology(RTopology::AdjList &adjList) {
     RTopology::AdjList::iterator it(adjList.begin());
     while (it != adjList.end()) {
 	RTopology::LinkList::iterator n = it->second.linklist.begin();
-	while (n != it->second.linklist.end()) { 
+	while (n != it->second.linklist.end()) {
 	    RTopology::AdjList::iterator it2 = adjList.find( getNodeId(*n));
 
 	    if (adjList.end() != it2) {
@@ -53,10 +52,10 @@ static bool check_topology(RTopology::AdjList &adjList) {
 						      it->first));
 		//	    assert(n2 != it2->second.linklist.end());
 		if (n2 != it2->second.linklist.end()) {
-		    if (n2->counterpart != &*n) 
+		    if (n2->counterpart != &*n)
 			GEA.dbg() << n2->counterpart << " vs " << &*n << endl;
 		    assert(n2->counterpart == &*n);
-		    
+
 		    if (n->counterpart != &*n2)
 			GEA.dbg() << n->counterpart << " vs " << &*n2 << endl;
 		    assert(n->counterpart == &*n2);
@@ -69,7 +68,7 @@ static bool check_topology(RTopology::AdjList &adjList) {
     return true;
 }
 
-bool 
+bool
 RTopology::LinkQuality::get_qualities(RTopology::link_quality_t &f,
 				      RTopology::link_quality_t &b) const {
     if (counterpart) {
@@ -106,16 +105,16 @@ bool RTopology::AdjList::find(NodeId const &from,NodeId const &to,RTopology::Lin
 }
 
 /*
-  RTopology::LinkList::iterator 
+  RTopology::LinkList::iterator
   RTopology::LinkList::insert(RTopology::LinkQuality const &lq,
   RTopology::AdjList &adjList,NodeId const &me) {
   //    assert(control_topology(adjList));
-    
+
   LinkList::iterator it(find(begin(),end(),lq));  // lookup
   if (it != end()) {
   it->quality = lq.quality; // found then update
   } else {
-  it = begin(); // not found insert	
+  it = begin(); // not found insert
   while ((it != end()) && (*it < lq)) { // at the right position
   ++it;
   }
@@ -140,7 +139,7 @@ bool RTopology::AdjList::find(NodeId const &from,NodeId const &to,RTopology::Lin
   }
 */
 
-RTopology::RTopology(NodeId id,Routing *routing) : 
+RTopology::RTopology(NodeId id,Routing *routing) :
     verbose(false),
     metric(new Metric(routing)),
     adjList(),
@@ -155,13 +154,13 @@ RTopology::RTopology(NodeId id,Routing *routing) :
 
     // zero string as default name.
     nodeName[0] = '\0';
-    
+
     // start regular cleanup of removed stations.
     gea::AbsTime t = gea::AbsTime::now();
-    adjList[myNodeId].validity = t 
+    adjList[myNodeId].validity = t
 	+ gea::Duration(double(5 * TOPO_INTERVAL) * 0.001);
     cleanup_nodes(&cleanup_blocker, t, this);
-    
+
     addTopoCmd();
 }
 
@@ -170,17 +169,17 @@ RTopology::RTopology(NodeId id,Routing *routing) :
 RTopology::~RTopology() {
     //    std::cout << __PRETTY_FUNCTION__ << std::endl;
     delete metric;
-} 
+}
 
-RTopology::AdjList::iterator 
+RTopology::AdjList::iterator
 RTopology::getNodeEntry(const NodeId& id, gea::AbsTime t ) {
 
-    std::pair<AdjList::iterator, bool> ret = 
+    std::pair<AdjList::iterator, bool> ret =
 	adjList.insert(AdjList::value_type( id, NDescr() ));
     //    assert(ret.second);
-    
+
     AdjList::iterator itr = ret.first;
-    
+
     assert(itr != adjList.end());
     if (ret.second) { // new entry
 	sendNodesChanged();
@@ -188,32 +187,32 @@ RTopology::getNodeEntry(const NodeId& id, gea::AbsTime t ) {
 	if (!newXmlTopologyDelta.empty()) {
 	    ostringstream ns;
 	    ns.precision(9);
-	    ns << fixed 
-	       << "<topodiff timestamp=\"" << (GEA.lastEventTime - gea::AbsTime::t0())<<"\" >\n" 
+	    ns << fixed
+	       << "<topodiff timestamp=\"" << (GEA.lastEventTime - gea::AbsTime::t0())<<"\" >\n"
 	       << "  <add_node id=\"" << id << "\" name=\"" << getNameOfNode(id) <<"\" />\n"
 	       << "</topodiff>\n";
 	    string s = ns.str();
 	    newXmlTopologyDelta(s);
-	} 
+	}
     }
-    return itr;    
+    return itr;
 }
 
 std::string RTopology::getNameOfNode(const NodeId& id) const {
-    
+
     string ret;
     bool ambiguous = false;
 
     AdjList::const_iterator itr = adjList.find(id);
     const char *n = itr->second.nodeName;
-    
-    if ( itr == adjList.end() || strlen(n) == 0 ) { // not found 
+
+    if ( itr == adjList.end() || strlen(n) == 0 ) { // not found
 	ret = "";
 	ambiguous = true;
     } else {
 	ret = n;
     }
-    
+
 
     for (itr = adjList.begin(); itr != adjList.end(); ++itr) {
 	if ( 0 == strcmp(itr->second.nodeName, n ) && itr->first != id ) {
@@ -221,14 +220,14 @@ std::string RTopology::getNameOfNode(const NodeId& id) const {
 	    break;
 	}
     }
-    
+
 
     if (ambiguous) {
 	ostringstream os;
 	os << ret << "[" << id << "]";
 	ret = os.str();
     }
-    
+
     string ret_quote = "";
     for (size_t i = 0; i < ret.length() ; ++i) {
 	char c = ret[i];
@@ -241,7 +240,7 @@ std::string RTopology::getNameOfNode(const NodeId& id) const {
 	}
     }
     return ret_quote;
-    
+
 }
 
 bool RTopology::hasNode(const NodeId &node) const {
@@ -255,10 +254,10 @@ static bool cmp_nodeid_quality(const awds::RTopology::LinkQuality& q, const awds
 DLLEXPORT RTopology::NDescr::~NDescr() {}
 
 DLLEXPORT RTopology::LinkQuality *RTopology::NDescr::findLinkQuality(NodeId id) {
-    
-    LinkList::iterator i = 
+
+    LinkList::iterator i =
 	std::lower_bound(linklist.begin(), linklist.end(), id, cmp_nodeid_quality);
-    
+
     if (i == linklist.end() || i->neighbor != id)
 	return 0;
     assert(i->neighbor == id);
@@ -266,10 +265,10 @@ DLLEXPORT RTopology::LinkQuality *RTopology::NDescr::findLinkQuality(NodeId id) 
 }
 
 DLLEXPORT const RTopology::LinkQuality *RTopology::NDescr::findLinkQuality(NodeId id) const {
-    
-    LinkList::const_iterator i = 
+
+    LinkList::const_iterator i =
 	std::lower_bound(linklist.begin(), linklist.end(), id, cmp_nodeid_quality);
-    
+
     if (i == linklist.end() || i->neighbor != id)
 	return 0;
     assert(i->neighbor == id);
@@ -282,9 +281,9 @@ void RTopology::feed(const TopoPacket& p) {
     if (locked) return; // when locked status is set, ignore new packets
 
     bool links_have_changed = false;
-    
+
     AbsTime t = GEA.lastEventTime;
-    
+
     NodeId src = p.getSrc();
 
     size_t n = p.getNumLinks();
@@ -295,9 +294,9 @@ void RTopology::feed(const TopoPacket& p) {
     ostringstream xmlDeltaStream;
 
     AdjList::iterator itr_src ;
-    
+
     itr_src = getNodeEntry(src, t); // find entry, create a new one if not found and return it.
-    gea::AbsTime newValidity = t + p.getValidity(); 
+    gea::AbsTime newValidity = t + p.getValidity();
     itr_src->second.validity = newValidity;   // set validity
 
     LinkList &linklist = itr_src->second.linklist;
@@ -306,12 +305,12 @@ void RTopology::feed(const TopoPacket& p) {
     linklist.resize(n);
     /* now, linklist is empty and old_linklist contains all its entries. */
 
-    
+
     /*     if (!newXmlTopologyDelta.empty() || linkObserver) {
 	   old_linklist = linklist;
 	   }
     */
-    
+
 
     NodeId node;
 
@@ -329,16 +328,16 @@ void RTopology::feed(const TopoPacket& p) {
 
     //    GEA.dbg() << "parsing topo packet with " << n << " links" << endl;
     for (size_t i = 0; i < n ; ++i) {
-	
-	node.fromArray(addr);	
+
+	node.fromArray(addr);
 	addr += NodeId::size; // skip the node entry
 	link_quality_t q = fromArray<uint16_t>(addr);
 	assert(q);
-	
+
 	addr += 2;
 
 	if ( i != 0 && linklist[i-1].neighbor >= node ) {
-	    GEA.dbg() << "Neighbor set in topo packet from " << src 
+	    GEA.dbg() << "Neighbor set in topo packet from " << src
 		      << " is not ordered, but it should be." << endl;
 	    linklist.resize(i);
 	    break;
@@ -350,61 +349,61 @@ void RTopology::feed(const TopoPacket& p) {
 	//	LinkList::iterator it = linklist.insert( LinkQuality(node,q), adjList, src);
 	// metric->calculate(it);
 
-	
+
 	// set validity of referenced nodes to the validity of this topo packet.
 	// This way a node does not become invalid as long as it is referenced by others.
-	
+
     }
 
     assert(linklist.size() == n);
-    
 
-    // update the counterparts 
+
+    // update the counterparts
 
     //    assert(is_sorted(linklist.begin(), linklist.end()));
     // assert(is_sorted(old_linklist.begin(), old_linklist.end()));
-    
+
 
     LinkList::iterator itr_new = linklist.begin();
     LinkList::iterator itr_old = old_linklist.begin();
     const LinkList::iterator itr_new_end = linklist.end();
     const LinkList::iterator itr_old_end = old_linklist.end();
-    
+
     while (itr_new != itr_new_end || itr_old != itr_old_end ) {
-	    
+
 	if (itr_new != itr_new_end &&
 	    itr_old != itr_old_end &&
 	    itr_new->neighbor == itr_old->neighbor) {
-	    // case 1: link is kept 
+	    // case 1: link is kept
 
 	    NDescr& nDescr = getNodeEntry(itr_new->neighbor, t)->second;
 	    nDescr.update_validity(newValidity);
 	    LinkQuality *counterpart = nDescr.findLinkQuality(src);
 	    // the counterpart might be 0, but this is handled by set_counterpart()
 	    itr_new->set_counterpart(counterpart);
-	    
+
 	    //---- xml diff output is generated here.
-	    
+
 	    if (itr_new->quality != itr_old->quality) {
 		dirty = true;
 
-		if (!newXmlTopologyDelta.empty()) 
-		    xmlDeltaStream << "  <modify_edge from=\"" << src << "\" to=\"" 
-				   << itr_new->neighbor << "\"> <quality value=\""			    
+		if (!newXmlTopologyDelta.empty())
+		    xmlDeltaStream << "  <modify_edge from=\"" << src << "\" to=\""
+				   << itr_new->neighbor << "\"> <quality value=\""
 				   << itr_new->get_percentage() << "%\" /></modify_edge>\n";
 
 	    }
-	    
+
 	    //---- end of xml output generation
 
 	    ++itr_new;
 	    ++itr_old;
-	} else if (itr_old == itr_old_end || 
+	} else if (itr_old == itr_old_end ||
 		   ( itr_new != itr_new_end && itr_new->neighbor < itr_old->neighbor ) ) {
 	    // case 2: we found a new link
-	    
+
 	    //	    GEA.dbg() << "new link from "  << src << " to " << itr_new->neighbor << endl;
-	    
+
 	    NDescr& nDescr = getNodeEntry(itr_new->neighbor, t)->second;
 	    nDescr.update_validity(newValidity);
 	    LinkQuality *counterpart = nDescr.findLinkQuality(src);
@@ -412,55 +411,55 @@ void RTopology::feed(const TopoPacket& p) {
 	    itr_new->set_counterpart(counterpart);
 
 	    //---- xml diff output is generated here.
-	    if (!newXmlTopologyDelta.empty()) 
-		xmlDeltaStream << "  <add_edge from=\"" << src << "\" to=\"" 
+	    if (!newXmlTopologyDelta.empty())
+		xmlDeltaStream << "  <add_edge from=\"" << src << "\" to=\""
 			       << itr_new->neighbor << "\"> <quality value=\""
 			       << itr_new->get_percentage() << "%\" /></add_edge>\n";
 	    //---- end of xml output generation
 
 	    this->sendLinkAdded(src, itr_new->neighbor);
 	    links_have_changed = true;
- 	    dirty  = true;
-	    
+	    dirty  = true;
+
 	    if (src == myNodeId) {
 		metric->addNode(node);
 	    }
 
 
 	    ++itr_new;
-	} else if ( itr_new == itr_new_end || 
+	} else if ( itr_new == itr_new_end ||
 		    ( itr_old != itr_old_end && itr_new->neighbor > itr_old->neighbor ) ) {
 	    // case 3: we found an old link that was removed
-	    
+
 	    // the node entry should still exist, because it was referenced before.
 	    NDescr& nDescr = getNodeEntry(itr_old->neighbor, t)->second;
-	    // We do not update the validity of the destination, because it is 
+	    // We do not update the validity of the destination, because it is
 	    // not referenced anymore.
 	    LinkQuality *counterpart = nDescr.findLinkQuality(src);
 	    // this time we must be carefull, because counterpart can be 0;
 	    if (counterpart) {
 		// there is no couterpart of our counterpart, it was removed.
-		counterpart->set_counterpart(0); 
+		counterpart->set_counterpart(0);
 	    }
 
 	    //---- xml diff output is generated here.
-	    if (!newXmlTopologyDelta.empty()) 
-		xmlDeltaStream << "  <remove_edge from=\"" << src 
+	    if (!newXmlTopologyDelta.empty())
+		xmlDeltaStream << "  <remove_edge from=\"" << src
 			       << "\" to=\"" << itr_old->neighbor << "\"/>\n";
 
 	    //---- end of xml output generation
-		
+
 	    this->sendLinkRemoved(src, itr_old->neighbor);
 	    links_have_changed = true;
 	    dirty  = true;
-			    
+
 	    if (src == myNodeId) {
 		metric->delNode(node);
 	    }
 
 	    ++itr_old;
 	}
-		
+
     }
 
 
@@ -468,53 +467,53 @@ void RTopology::feed(const TopoPacket& p) {
     if (src == myNodeId) {
 	metric->end_update();
     }
- 
+
     bool nameHasChanged = false;
-    
+
     if (p.packet.buffer + p.packet.size > addr) {
 	char buf[33];
-	
+
 	unsigned  namelen = (unsigned)(unsigned char)(*addr++);
 	if (namelen > 32) namelen = 32;
-	
+
 	memcpy(buf, addr, namelen);
 	buf[namelen]='\0'; // add termination
 	nameHasChanged = strcmp( itr_src->second.nodeName, buf) != 0;
-	strcpy(itr_src->second.nodeName, buf); 
+	strcpy(itr_src->second.nodeName, buf);
     }
 
     if (!newXmlTopologyDelta.empty() && nameHasChanged) {
-	xmlDeltaStream << "  <modify_node id=\"" 
-		       << src << "\" name=\"" 
+	xmlDeltaStream << "  <modify_node id=\""
+		       << src << "\" name=\""
 		       << getNameOfNode(src) << "\" />\n";
-		       
+
     }
-    /*        
-	 
+    /*
+
 	      if (!newXmlTopologyDelta.empty() || linkObserver) {
-	
+
 
 	      for (unsigned i = 0; i < linklist.size(); ++i) {
-	    	    
+
 	      bool found = false;
 	      for (unsigned j = 0; j < old_linklist.size(); ++j) {
 	      if (linklist[i] == old_linklist[j]) {
 	      found = true;
 	      if (linklist[i].metric_weight != old_linklist[j].metric_weight) {
 	      ostringstream qs;
-	      qs << "  <modify_edge from=\"" << src << "\" to=\"" 
-	      << getNodeId(linklist[i]) << "\"> <quality value=\""			    
+	      qs << "  <modify_edge from=\"" << src << "\" to=\""
+	      << getNodeId(linklist[i]) << "\"> <quality value=\""
 	      << linklist[i].get_percentage() << "%\" /></modify_edge>\n";
 	      deltaQ += qs.str();
 	      }
 	      break;
 	      }
 	      }
-	    
+
 	      if (!found) {
 	      // this is a new edge...
 	      ostringstream es;
-	      es << "  <add_edge from=\"" << src << "\" to=\"" 
+	      es << "  <add_edge from=\"" << src << "\" to=\""
 	      << getNodeId( linklist[i] ) << "\"> <quality value=\""
 	      << linklist[i].get_percentage() << "%\" /></add_edge>\n";
 	      deltaN += es.str();
@@ -524,21 +523,21 @@ void RTopology::feed(const TopoPacket& p) {
 
 	      for (unsigned i = 0; i < old_linklist.size(); ++i) {
 	      bool found = false;
-	      for (unsigned j = 0; j < linklist.size(); ++j) 
+	      for (unsigned j = 0; j < linklist.size(); ++j)
 	      if (linklist[j] == old_linklist[i]) {
-	      found = true;	
+	      found = true;
 	      break;
 	      }
 	      if (!found) {
 	      ostringstream ns;
-	      ns << "  <remove_edge from=\"" << src 
+	      ns << "  <remove_edge from=\"" << src
 	      << "\" to=\"" << getNodeId(old_linklist[i]) << "\"/>\n";
 	      deltaN += ns.str();
 	      this->sendLinkRemoved(src, getNodeId(old_linklist[i])  );
 	      }
 	      }
 
-    */	
+    */
     if ( xmlDeltaStream.str().size() != 0 ) {
 	ostringstream deltaS;
 	deltaS.precision(9);
@@ -549,19 +548,19 @@ void RTopology::feed(const TopoPacket& p) {
 	string xmlDelta = deltaS.str();
 	newXmlTopologyDelta(xmlDelta);
     }
-    
+
     if (links_have_changed)
- 	this->sendLinksChanged();
-    
+	this->sendLinksChanged();
+
     if ( dirty && !newDotTopology.empty() ) {
 	std::string s = getDotString();
 	newDotTopology( s );
     }
-    
-    check_topology(this->adjList);
-    
 
-	
+    check_topology(this->adjList);
+
+
+
 }
 
 
@@ -571,17 +570,17 @@ using namespace std;
 
 
 struct printAdjX {
-    
+
     ostream& os;
-    
-    printAdjX(ostream& os) : os(os) {}    
+
+    printAdjX(ostream& os) : os(os) {}
     void operator()(const RTopology::AdjList::value_type &v) const {
 	for (size_t i = 0; i < v.second.linklist.size(); ++i ) {
-	    
-	    unsigned  q = (unsigned)(v.second.linklist[i].metric_weight) * 255U / 0xff; 
+
+	    unsigned  q = (unsigned)(v.second.linklist[i].metric_weight) * 255U / 0xff;
 	    char colorstring[13];
 	    sprintf(colorstring, "%02x00%02x", q, RTopology::max_quality() - q);
-	    os << " n" << v.first <<" -> n" << getNodeId(v.second.linklist[i]) << "[color=\"#" 
+	    os << " n" << v.first <<" -> n" << getNodeId(v.second.linklist[i]) << "[color=\"#"
 	       << colorstring << "\"]; ";
 	}
 	    }
@@ -589,34 +588,34 @@ struct printAdjX {
 
 
 void RTopology::print() {
-    
+
     ostream&  os = GEA.dbg();
     os << "digraph topo { ";
     for_each(adjList.begin(), adjList.end(), printAdjX(os));
-    
+
     os <<"}" << endl;
 }
 
 std::string RTopology::getDotString() const {
-    
+
     std::stringstream os;
     os << "digraph topo { ";
     os << " n" << myNodeId << " [shape=box]; ";
-    
+
     for_each(adjList.begin(), adjList.end(), printAdjX(os));
     os <<"}" << endl;
-    
+
     return os.str();
-    
+
 }
 
 std::string RTopology::getAdjString() const {
-    
+
     std::stringstream os;
-    
+
     for (AdjList::const_iterator i = adjList.begin();
 	 i != adjList.end(); ++i) {
-	
+
 	os << i->first << ": ";
 	for (size_t j = 0; j < i->second.linklist.size(); ++j ) {
 	    os << getNodeId(i->second.linklist[j] ) << " ";
@@ -625,28 +624,28 @@ std::string RTopology::getAdjString() const {
     }
     //    for_each(adjList.begin(), adjList.end(), printAdjX(os));
     //    os <<"}" << endl;
-    
+
     return os.str();
 }
 
 std::string RTopology::getXmlString() const {
-    
+
     std::ostringstream os;
     os.precision(9);
-    os << std::fixed 
+    os << std::fixed
        << "<topology timestamp=\"" << (GEA.lastEventTime - gea::AbsTime::t0()) << "\" >\n";
     for (AdjList::const_iterator i = adjList.begin();
 	 i != adjList.end(); ++i) {
-	
-	os << "<node id=\"" << i->first << "\" name=\"" 
+
+	os << "<node id=\"" << i->first << "\" name=\""
 	   << getNameOfNode(i->first)
 	   << "\" />\n";
     }
-    
+
     for (AdjList::const_iterator i = adjList.begin();
 	 i != adjList.end(); ++i) {
-	
-	
+
+
 	for (size_t j = 0; j < i->second.linklist.size(); ++j ) {
 	    os << "<edge from=\"" << i->first << "\" to=\""
 	       << getNodeId(i->second.linklist[j]) << "\" ><quality value=\""
@@ -655,7 +654,7 @@ std::string RTopology::getXmlString() const {
     }
     //    for_each(adjList.begin(), adjList.end(), printAdjX(os));
     //    os <<"}" << endl;
-    
+
     os << "</topology>\n";
     return os.str();
 }
@@ -670,26 +669,26 @@ static bool dist_comp(RTopology::AdjList::iterator a, RTopology::AdjList::iterat
 
 
 void RTopology::calcNextHop(const NodeId& id) {
-    
+
     NDescr& d = adjList[id];
-    
+
     if (d.distance == numeric_limits<unsigned>::max()) {
 	d.nextHop = myNodeId;
 	return;
     }
-    
+
     if (d.nextHop != myNodeId)  // already calculated;
 	return;
-    
-    if (d.prevHop == myNodeId) { // end of recursion 
+
+    if (d.prevHop == myNodeId) { // end of recursion
 	d.nextHop = id;
 
     } else {
 	if (d.distance < adjList[d.prevHop].distance) {
 
-	    GEA.dbg() << id << "(" 
+	    GEA.dbg() << id << "("
 		      << d.distance
-		      << ") prev=" << d.prevHop << "(" 
+		      << ") prev=" << d.prevHop << "("
 		      << adjList[d.prevHop].distance << ")"
 		      << std::endl;
 	    assert(d.distance >= adjList[d.prevHop].distance);
@@ -700,40 +699,40 @@ void RTopology::calcNextHop(const NodeId& id) {
 }
 
 void RTopology::calcRoutes() {
-    
+
     todo.reserve(adjList.size());
     todo.clear();
-    
+
 
 
     assert(adjList.find(myNodeId) != adjList.end());
-      
+
     for(AdjList::iterator itr = adjList.begin();
 	itr != adjList.end(); ++itr) {
-	
+
 	itr->second.nextHop = myNodeId; // mark as "no next hop defined, yet"
-	
+
 	todo.push_back(itr);
-	if (itr->first == myNodeId) { 
+	if (itr->first == myNodeId) {
 	    itr->second.distance = 0;
 	    itr->second.prevHop = myNodeId;
-	} else 
+	} else
 	    itr->second.distance = numeric_limits<unsigned>::max();
     }
- 
-  
-    
+
+
+
     while(!todo.empty()) {
-	
+
 	sort(todo.begin(), todo.end(), dist_comp);
 	AdjList::iterator nearest = todo.back();
 	assert(nearest->second.distance <= todo.front()->second.distance);
 	todo.pop_back();
-	
+
 	const NDescr& ndescr = nearest->second;
 	size_t numN = ndescr.linklist.size();
 	//	assert( numN == ndescr.qList.size() );
-	
+
 	for (size_t i = 0; i < numN; ++i) {
 	    if (ndescr.distance == numeric_limits<unsigned>::max() ) {
 		// all other nodes are unreachable, so we can stop here.
@@ -741,20 +740,20 @@ void RTopology::calcRoutes() {
 	    }
 	    AdjList::iterator itr2 = adjList.find(getNodeId( ndescr.linklist[i]) );
 	    if (itr2 == adjList.end() ) continue;
-	    
+
 	    NDescr& neigh = itr2->second;
 	    //	    assert(ndescr.qList[i] <= 64U); // no negative edges allowed
 	    unsigned newDist = ndescr.distance + (unsigned)(ndescr.linklist[i].metric_weight);
 	    if (newDist < neigh.distance) {
 
-		// debugging stuff 
-	// 	if ( find(todo.begin(), todo.end(), itr2) == todo.end() ) {
-// 		    GEA.dbg() << " new path to " <<  itr2->first 
-// 			      << " pref=(" << itr2->second.prevHop << ") "
-// 			      << " shorter than previous found" << std::endl;
-// 		    assert (!"ouch!" );
-// 		}
-		// end of debugging stuff 
+		// debugging stuff
+	//	if ( find(todo.begin(), todo.end(), itr2) == todo.end() ) {
+//		    GEA.dbg() << " new path to " <<  itr2->first
+//			      << " pref=(" << itr2->second.prevHop << ") "
+//			      << " shorter than previous found" << std::endl;
+//		    assert (!"ouch!" );
+//		}
+		// end of debugging stuff
 		neigh.distance = newDist;
 		neigh.prevHop = nearest->first;
 	    }
@@ -766,74 +765,74 @@ void RTopology::calcRoutes() {
     for(AdjList::iterator itr = adjList.begin(); itr != adjList.end(); ++itr) {
 	calcNextHop(itr->first);
     }
-    
+
     dirty = false;
 }
 
 
 
 void RTopology::getNextHop(const NodeId& dest, NodeId& nextHop, bool& found) {
-    
-    
-    if (dirty) { 
-	
+
+
+    if (dirty) {
+
 	removeOldNodes();
-	
+
 	calcRoutes();
     }
-    
-    
+
+
     AdjList::const_iterator itr = adjList.find(dest);
     found = (itr != adjList.end());
     if (found)
 	nextHop = itr->second.nextHop;
-    
+
     if (nextHop == myNodeId)
 	found = false;
 
- 
+
 }
 
-bool RTopology::hasLink(const NodeId& from, const NodeId& to) const { 
+bool RTopology::hasLink(const NodeId& from, const NodeId& to) const {
     return adjList.find(from,to);
 }
 
 
 void RTopology::cleanup_nodes(gea::Handle *h, gea::AbsTime /*t */, void *data) {
-    
+
     RTopology *self = static_cast<RTopology *>(data);
     GEA.waitFor(h, self->removeOldNodes(), cleanup_nodes, data);
 }
 
 void RTopology::createRemoveMessages(const NodeId& node, const NDescr& nDescr ) {
-    
+
     if (!newXmlTopologyDelta.empty()) {
 	ostringstream ns;
-	
+
 	ns.precision(9);
-	ns << fixed 
+	ns << fixed
 	   << "<topodiff timestamp=\"" << (GEA.lastEventTime - gea::AbsTime::t0()) << "\" >\n";
 
 	const LinkList &linklist = nDescr.linklist;
 	LinkList::const_iterator i;
 	for (i = linklist.begin(); i != linklist.end(); ++i) {
-	    ns << "  <remove_edge from=\"" << node << "\" to=\"" 
+	    ns << "  <remove_edge from=\"" << node << "\" to=\""
 	       << (getNodeId(*i)) << "\" ></remove_edge>\n";
 	}
-	ns << "  <remove_node id=\"" << node << "\" ></remove_node>\n";  
+	ns << "  <remove_node id=\"" << node << "\" ></remove_node>\n";
 	ns << "</topodiff>\n";
 	string s = ns.str();
-	
+
 	newXmlTopologyDelta(s);
-    } 
-    
+    }
+
 }
 
 
 struct doInvalidate {
     gea::AbsTime t;
     const NodeId& myNodeId;
-    
+
     doInvalidate(gea::AbsTime t, const NodeId myId) : t(t), myNodeId(myId) {}
     void operator ()( RTopology::AdjList::value_type& v)  const  {
 	if (v.first != myNodeId) {
@@ -848,47 +847,47 @@ void RTopology::reset() {
     gea::AbsTime t = gea::AbsTime::now();
     std::for_each(adjList.begin(), adjList.end(), doInvalidate(t, myNodeId) );
     removeOldNodes();
-} 
+}
 
 gea::AbsTime RTopology::removeOldNodes() {
 
     ostringstream edge_s;
     ostringstream node_s;
     bool oneRemoved = false;
-    
+
     gea::AbsTime t = GEA.lastEventTime;
-    
+
     edge_s.precision(9);
     edge_s << fixed
 	   << "<topodiff timestamp=\"" << (GEA.lastEventTime - gea::AbsTime::t0()) << "\" >\n";
-    
+
     AdjList::iterator itr = adjList.begin();
 
     assert(itr != adjList.end());
     gea::AbsTime nextTimeout = t + gea::Duration(314.1592);
-    
+
     if (locked) return nextTimeout;
-    
+
     while( itr != adjList.end() ) {
 	const NodeId currentNodeId = itr->first;
 	const gea::AbsTime validity = itr->second.validity;
-		
+
 	if (validity <= t) {
-	    
+
 	    if (currentNodeId == myNodeId) {
-		GEA.dbg() << "failure! removing my one node from topology" 
+		GEA.dbg() << "failure! removing my one node from topology"
 			  << " age is " << ( t - validity )
 			  << endl;
 	    }
-	  
+
 	    if (verbose) {
 		GEA.dbg() << "removing node "
 			  << currentNodeId << endl;
 	    }
-	    
+
 	    AdjList::iterator itr2 = itr;
 	    itr2++;
-	    
+
 	    if (!newXmlTopologyDelta.empty() || linkObserver ) {
 		const LinkList& linklist = itr->second.linklist;
 		for (LinkList::const_iterator iN = linklist.begin();
@@ -911,14 +910,14 @@ gea::AbsTime RTopology::removeOldNodes() {
 
 	    adjList.erase(itr);
 	    itr = itr2;
-	    sendNodeRemoved(currentNodeId);	    
-	
+	    sendNodeRemoved(currentNodeId);
+
 	} else {
 	    itr++;
-	    
+
 	    if ( validity < nextTimeout)
 		nextTimeout = validity;
-	    
+
 	}
     }
 
@@ -926,15 +925,15 @@ gea::AbsTime RTopology::removeOldNodes() {
 
 	string s = "";
 	node_s <<  "</topodiff>\n";
-	
+
 	s += edge_s.str() + node_s.str();
 	newXmlTopologyDelta(s);
 	sendNodesChanged();
 	sendLinksChanged();
     }
     //   GEA.dbg() << " next cleanup in "
-    // 	      << (nextTimeout - t) << endl;
-  
+    //	      << (nextTimeout - t) << endl;
+
     return nextTimeout;
 }
 
@@ -945,7 +944,7 @@ bool awds::RTopology::getNodeByName(awds::NodeId& id, const char *name) const {
     for (AdjList::const_iterator itr = adjList.begin();
 	 itr != adjList.end();
 	 ++itr) {
-	
+
 	if (!strncmp( name, itr->second.nodeName, 32)) {
 	    // found it;
 	    id = itr->first;
@@ -953,13 +952,13 @@ bool awds::RTopology::getNodeByName(awds::NodeId& id, const char *name) const {
 	}
     }
     //    GEA.dbg() << "not found " << endl;
-    
+
     // try to convert 12 hex-digit syntax
     if (strlen(name) == 12) {
 	char mac[6];
 	const char *p= name;
 	bool parse_success = true;
-	
+
 	for (int i = 0; i < 6; ++i) {
 	    unsigned v;
 	    int ret = sscanf(p, "%2X", &v);
@@ -974,16 +973,16 @@ bool awds::RTopology::getNodeByName(awds::NodeId& id, const char *name) const {
 	    return true;
 	}
     }
-	
+
     // try nummerical conversation.
     char * endptr;
     unsigned long int v = strtoul(name, &endptr, 0);
     if (*endptr || endptr == name)  // parse error!
 	return false;
-    
+
     id = awds::NodeId(v);
     return true;
-    
+
 }
 
 
@@ -991,7 +990,7 @@ std::string RTopology::getNameList() const {
     std::ostringstream os;
     for (AdjList::const_iterator itr = adjList.begin();
 	 itr != adjList.end();
-	 ++itr) 
+	 ++itr)
 	{
 	    os << itr->first << "\t'" << itr->second.nodeName << "'\n";
 	}
@@ -1063,10 +1062,10 @@ static const char *topo_cmd_usage = "topo <cmd> \n"
 
 static int topo_command_fn(ShellClient &sc, void *data, int argc, char **argv) {
     RTopology *topology = static_cast<RTopology *>(data);
-    
+
     if ( (argc == 2) && !strcmp(argv[1], "dump") ) {
 	*sc.sockout << topology->getAdjString() << endl;
-	
+
 	return 0;
     } else   if ( (argc == 2) && !strcmp(argv[1], "get_locked") ) {
 	*sc.sockout << (topology->getLocked() ? "true" : "false") << endl;
@@ -1083,24 +1082,24 @@ static int topo_command_fn(ShellClient &sc, void *data, int argc, char **argv) {
 	*sc.sockout << topology->getNameList();
 	return 0;
     }
-    
+
     *sc.sockout << topo_cmd_usage <<endl;
-    
+
     return 0;
 }
 
 
 int RTopology::addTopoCmd() {
-    
+
     ObjRepository& rep = ObjRepository::instance();
-    
+
     Shell *shell = static_cast<Shell *>(rep.getObj("shell"));
-    
-    if (!shell) 
+
+    if (!shell)
 	return -1;
-    
+
     shell->add_command("topo", topo_command_fn, this, "functions for the routing topology", topo_cmd_usage);
-    
+
     return 0;
 }
 
