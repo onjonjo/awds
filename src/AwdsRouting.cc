@@ -489,7 +489,10 @@ void awds::AwdsRouting::repeat_flood(gea::Handle *h, gea::AbsTime t, void *data)
     
     //self->base->setSendDest( self->base->BroadcastId );
     
-    p->send(h);
+    int ret = p->send(h);
+    if (ret < 0) {
+	GEA.dbg() << "There was an error while sending a broadcast packet." << endl;
+    }
     
     p->unref();
     
@@ -765,7 +768,10 @@ int awds::AwdsRouting::sendFlowPacket(BasePacket *p) {
 	return -1;
 
     base->setSendDest( citr->second );
-    p->send(udpSend);
+    int ret = p->send(udpSend);
+    if (ret < 0) {
+	GEA.dbg() << "There was an error while sending a packet to " << citr->second << endl;
+    }
     
     p->unref();
 
