@@ -2,19 +2,24 @@
 #define __ABSTRACTID_H_
 
 #include <cstring>
-
 #include <inttypes.h>
 
 
-/** Unique identifier for a system service (aka port number) 
+/** \brief Generic type for identifiers of an fixed length
  *
- *  
+ *  The AbstractID template allows to define identifier types of an
+ *  arbitrary, fixed size.
  */
 template<unsigned Size>
 class AbstractID {
 
 public:
-    static const size_t size = Size;
+    /** \brief the storage size of an identifier 
+     *  The size is the storage size of an indtifier, when written
+     *  with toArray() or read with fromArray().
+     *
+     */
+    static const size_t size = Size; 
     
     /** we should better use an valarray<unsigned char> */
     unsigned char id[size];
@@ -42,11 +47,16 @@ public:
 	return *this;
     }
     
+    /** \brief read an identifier from a memory location.    
+     */
     AbstractID<Size>& fromArray(const char *data) {
 	memcpy(this->id, data, size );
 	return *this;
     }
     
+
+    /** \brief store an identifier in a memory location.
+     */
     AbstractID<Size>& toArray( char *data) const {
 	memcpy(data, this->id, size );
 	return *this;
@@ -150,12 +160,13 @@ public:
 
 
 
-
-
 #define ID_IO 1
 #if ID_IO
 #include <iostream>
 
+/** \brief output operator for STL ostreams 
+ *   Use this operator to create a human readable representation of an indentifier.
+ */
 template <unsigned S> 
 std::ostream& operator <<(std::ostream& s, const AbstractID<S>& aid) {
     for (unsigned short i = 0; i < S;i++) {
@@ -166,9 +177,6 @@ std::ostream& operator <<(std::ostream& s, const AbstractID<S>& aid) {
     return s;
 }
    
-
-
-
 inline std::ostream& operator <<(std::ostream& s, const AbstractID<6u> aid) {
     static const char *hexnum = "0123456789ABCDEF";
     char buf[13];  

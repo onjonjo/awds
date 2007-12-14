@@ -22,23 +22,27 @@
 #include <awds/RateMonitor.h>
 
 namespace awds {
-
+    
+    /** \brief This class implement the routing functionality
+     *
+     *  \see awds::RTopology
+     */
     class AwdsRouting : public FlowRouting { 
     
     public:
-	bool verbose;
+	bool verbose; /**< enable verbose debug output */
 
-	basic * base;
+	basic * base; 
     
 	static const int UdpPort = 4921;
-	static const int period = BEACON_INTERVAL; /* beacon period in milliseconds */
-	int topoPeriod; /* topo period in milliseconds */
+	static const int period = BEACON_INTERVAL; /**< beacon period in milliseconds */
+	int topoPeriod; /**< topology propagtion period in milliseconds */
     
 	gea::Handle *udpSend;
 	gea::Handle *udpRecv;
 	gea::Blocker    blocker;
-	class RTopology * topology;
-	class FloodHistory *floodHistory;
+	class RTopology * topology; 
+	class FloodHistory *floodHistory; /**< history of recent flood packets */
 
 	//class RateMonitor *madwifiRateMonitor;
 

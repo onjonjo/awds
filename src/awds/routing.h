@@ -34,7 +34,7 @@ namespace awds {
 	 */
 	typedef void (*recv_callback)( BasePacket *p, void *data);
     
-	const NodeId       myNodeId; /// the node ID of this instance.
+	const NodeId       myNodeId; /**< the node ID of this instance. */
 
 	enum Metrics {
 	    TransmitDurationMetrics = 0,
@@ -49,7 +49,7 @@ namespace awds {
 	Routing(const NodeId& id) : 
 	    cryptoUnit(0),
 	    myNodeId(id),
-	    metrics(PacketLossMetrics)
+	    x_metrics(PacketLossMetrics)
 	{}
 	
 	/** desctructor */

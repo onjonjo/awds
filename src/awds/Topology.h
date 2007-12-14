@@ -25,7 +25,7 @@ namespace awds {
     class RTopology;
     
     
-    /** class that contains all topology information of the routing 
+    /** \biref class that contains all topology information of the routing 
      *
      */
     class RTopology { 
