@@ -1,6 +1,6 @@
 #!/bin/sh
 
-CONF_FILE=/etc/awds.conf
+CONF_FILE=@AWDS_CONF_DIR@/awds.conf
 [ -e $CONF_FILE ] && . $CONF_FILE
 
 
