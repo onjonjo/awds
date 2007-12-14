@@ -1,0 +1,43 @@
+<!DOCTYPE refentry PUBLIC "-//OASIS//DTD DocBook V4.1//EN" >
+<refentry>
+  <refentryinfo>
+    <date>20-11-2007</date>   
+  </refentryinfo>
+  <refmeta>
+    <refentrytitle><application>stop_awds</application></refentrytitle>
+    <manvolnum>8</manvolnum>
+  </refmeta>
+  <refnamediv>
+    <refname><application>stop_awds</application></refname>
+    <refpurpose>stop the AWDS daemon</refpurpose>
+  </refnamediv>
+  
+  <refsynopsisdiv>
+    
+    <cmdsynopsis>
+      <command>stop_awds</command>
+    </cmdsynopsis>
+  </refsynopsisdiv>
+  
+  <refsect1>
+    <title>DESCRIPTION</title>
+    <para>
+<command>stop_awds</command> stops the running AWDS daemon. Therefore, it looks in the pid file and 
+sends the KILL signal to the process. The pid file should have been specified in the 
+configuration file <filename>awds.conf</filename>.
+    </para>
+  </refsect1>
+
+  <refsect1>
+    <title>AUTHOR</title>
+    <para>Written by Andre Herms.</para>
+  </refsect1>
+  
+  <refsect1>
+    <title>SEE ALSO</title>
+    <para>
+The AWDS daemon is started with the <command>start_awds(8)</command> command.
+</para>
+  </refsect1>
+
+</refentry>
