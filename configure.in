@@ -25,7 +25,6 @@ fi)
 
 dnl check for GEA library
 
-
 dnl default values:
 GEAINC="-I/usr/include"	
 GEALIB="-L/usr/lib -lgea2-posix"
@@ -50,15 +49,20 @@ AC_ARG_WITH(gea,
 	;;
   esac ],
 [ if  test -f ${prefix}/include/gea/API.h -a -f ${prefix}/lib/libgea2-posix.so; then
-	  GEAINC="-I${prefix}/include"
-	  GEALIB="-L${prefix}/lib -lgea2-posix"
-	  GEALIBDIR="${prefix}/lib"
-	else 
-	  AC_MSG_RESULT(no)
-	  AC_ERROR(GEA not found)
-  fi
-  AC_MSG_RESULT(yes) ]
-)
+	GEAINC="-I${prefix}/include"
+	GEALIB="-L${prefix}/lib -lgea2-posix"
+	GEALIBDIR="${prefix}/lib"
+	AC_MSG_RESULT(found in $prefix)
+  elif  test -f /usr/include/gea/API.h -a -f /usr/lib/libgea2-posix.so; then
+	GEAINC="-I/usr/include"
+	GEALIB="-L/usr/lib -lgea2-posix"
+	GEALIBDIR="/usr/lib"
+	AC_MSG_RESULT(found in /usr)
+  else 
+	AC_MSG_RESULT(no)
+	AC_ERROR(GEA not found)
+  fi] )
+
 AC_SUBST(GEAINC)
 AC_SUBST(GEALIB)
 AC_SUBST(GEALIBDIR)
@@ -80,6 +84,7 @@ AC_CONFIG_FILES([Makefile
  src/Makefile
  src/crypto/Makefile
  scripts/Makefile
+ doc/Makefile
 ])
 AC_OUTPUT
 
