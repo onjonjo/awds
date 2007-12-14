@@ -8,22 +8,36 @@
 #include <gea/UdpHandle.h>
 
 namespace awds {
-
+    
+    /** \brief primary packet type 
+     *
+     *   There are four primary packet types in AWDS.
+     */ 
     enum PacketType {
-	PacketTypeBeacon  = 0,
-	PacketTypeFlood   = 1,
-	PacketTypeUnicast = 2,
-	PacketTypeForward = 3
+	PacketTypeBeacon  = 0, /**< The packet is a beacon packet. */ 
+	PacketTypeFlood   = 1, /**< The packet is used for flooding data. */
+	PacketTypeUnicast = 2, /**< The packet is used for transmitting unicast data. */
+	PacketTypeForward = 3  /**< The packet is used for unicast packets with a forwarding table */
     };
+
+    /** 
+     * \brief base data structure for representing packets.
+     * 
+     * The BasePacket class is used for holding the data of a packet.
+     */
 
     class BasePacket {
     
     public:
     
-	static const int MaxSize = 0x1000;
-	char buffer[MaxSize];
-	size_t size;
-	int refcount; 
+	static const int MaxSize = 0x1000; /**< The maximum number of bytes per packet */
+	char buffer[MaxSize]; /**< the buffer with the actual data */
+	size_t size;          /**< the number of bytes in the packet, including all headers */
+	/** the refcount is used for memory management.
+	 *  \see BasePacket::ref()
+	 *  \see BasePacket::unref()
+	 */
+	int refcount;         
     
     
 	NodeId dest;
@@ -39,7 +53,17 @@ namespace awds {
 	}
 	int receive(gea::Handle* h) { return (size = h->read(buffer, MaxSize)) ; }
     
+	/** \brief increase the reference counter.
+	 */
 	int ref()   { return ++refcount; }
+	
+	/** 
+	 * \brief decrease the reference counter.
+	 *
+	 * This method decreases the reference counter. When its value becomes zero,
+	 * the packet is automatically deallocated.
+	 * \see awds::BasePacket::ref()
+	 */
 	int unref() { 
 	    int ret; 
 	    assert(refcount > 0);
