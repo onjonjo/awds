@@ -1,0 +1,72 @@
+<!DOCTYPE refentry PUBLIC "-//OASIS//DTD DocBook V4.1//EN" >
+<refentry>
+  <refentryinfo>
+    <date>20-11-2007</date>   
+  </refentryinfo>
+  <refmeta>
+    <refentrytitle><application>start_awds</application></refentrytitle>
+    <manvolnum>8</manvolnum>
+  </refmeta>
+  <refnamediv>
+    <refname><application>start_awds</application></refname>
+    <refpurpose>start the AWDS daemon</refpurpose>
+  </refnamediv>
+  
+  <refsynopsisdiv>
+    
+    <cmdsynopsis>
+      <command>start_awds</command>
+      <arg choice="opt"><option>device</option></arg>
+      <arg choice="opt"><option>-N</option></arg>
+    </cmdsynopsis>
+  </refsynopsisdiv>
+  
+  <refsect1>
+    <title>DESCRIPTION</title>
+    <para>
+<command>start_awds</command> starts the  AWDS daemon. The configuration is read from 
+the configuration file <filename>awds.conf</filename>. 
+    </para>
+  </refsect1>
+
+  <refsect1>
+    <title>OPTIONS</title>
+    <variablelist>
+
+      <varlistentry>
+	<term><option>device</option></term>
+	<listitem>
+	  <para>
+use the given wireless network device for communication
+</para>
+	</listitem>
+      </varlistentry>
+      
+      <varlistentry>
+	<term><option>-N</option></term>
+	<listitem>
+	  <para>
+Don't run AWDS in daemon mode. All debug output will be directed to stdout. 
+</para>
+	</listitem>
+      </varlistentry>
+    
+    </variablelist>
+
+  </refsect1>
+
+
+  <refsect1>
+    <title>AUTHOR</title>
+    <para>Written by Andre Herms.</para>
+  </refsect1>
+  
+  <refsect1>
+    <title>SEE ALSO</title>
+    <para>
+The AWDS daemon is stop with the <command>stop_awds(8)</command> command.
+</para>
+  </refsect1>
+
+</refentry>
+
