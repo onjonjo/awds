@@ -6,6 +6,7 @@
 
 
 namespace awds {
+    
     /** \brief Interface class that provides basic communication mechanisms.
      */
     struct basic {
