@@ -8,7 +8,7 @@
 
 namespace awds {
     
-    /** \brief accessor class for flood packets 
+    /** \brief access class for flood packets 
      * 
      *  Use this class to access the content of a flood packet.
      *  It should be used the following way

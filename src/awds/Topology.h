@@ -25,7 +25,7 @@ namespace awds {
     class RTopology;
     
     
-    /** \biref class that contains all topology information of the routing 
+    /** \brief class that contains all topology information of the routing 
      *
      */
     class RTopology { 
@@ -46,16 +46,18 @@ namespace awds {
 	
 	class LinkList;
 	class AdjList;
-
+	
+	/** \brief class that describes a link in the topology
+	 */
 	class LinkQuality {
 	protected:
 	public:	    
 	    LinkQuality *counterpart; // pointer to the reverse LinkQuality in another NDescr
 
-	    NodeId neighbor;
+	    NodeId neighbor; /**< the endpoint of the link */
 	    
-	    link_quality_t quality; // unidirectional, received by topopackets
-	    unsigned long metric_weight; // calculated by metric bidirectional
+	    link_quality_t quality; /**< unidirectional quality, received by topo packets */
+	    unsigned long metric_weight; /**< calculated by metric bidirectional */
 
 	    LinkQuality &operator=(const LinkQuality& lq) {
 		counterpart   = lq.counterpart;
@@ -110,7 +112,8 @@ namespace awds {
 	    }
 	
 	};
-
+	
+	/** \brief list of neigbours */
 	class LinkList : public std::vector<LinkQuality> {
 	
 	  public:
@@ -119,22 +122,22 @@ namespace awds {
 	
 	};
 
-	
-    
+	/** \brief Struct that contains all information about a node in the topology.
+	 */
 	struct NDescr {
-	    LinkList linklist;
-	    NodeId nextHop; 
+	    LinkList linklist; /**< list of neighbours */
+	    NodeId nextHop;    
 	    NodeId prevHop; 
-	    gea::AbsTime validity;
+	    gea::AbsTime validity; /**< time of expiry */
 	
-	    unsigned long distance;
+	    unsigned long distance; /**< distance value used for dijkstra */
 	    
 	    /** The index is used for  certain graph algorithms. It is intended to
 	     *	be used by any external algorithm, so don't rely on its value. 
 	     */
 	    int index; 
 	    
-	    char nodeName[33];
+	    char nodeName[33]; /**< name of this node as propagated via topo packets */
 	
 	    NDescr() : linklist()
 	    {
@@ -151,7 +154,9 @@ namespace awds {
 	    virtual const LinkQuality *findLinkQuality(NodeId id) const;
 	    virtual ~NDescr();
 	};
-
+	
+	/** \brief class that represents the adjacency list of the topology graph 
+	 */
 	class AdjList : public std::map<NodeId, NDescr> {
 	public:
 	    friend bool operator==(std::pair<NodeId,NDescr> const &a,NodeId const &b);
@@ -164,7 +169,7 @@ namespace awds {
 	    bool find(NodeId const &from,NodeId const &to,LinkList::iterator &it);
 	    bool find(NodeId const &from,NodeId const &to) const;
 	    
-	    /** iterate over all nodes and assign an index */
+	    /** \brief iterate over all nodes and assign an index */
 	    void enumerateNodes() {
 		int idx = 0;
 		for (iterator i = begin(); i != end(); ++i)
@@ -176,14 +181,12 @@ namespace awds {
 	    adjList.enumerateNodes();
 	}
 	
-	//    typedef std::map<NodeId, NDescr> AdjList;
-	
-	AdjList adjList;
+	AdjList adjList; /**< the adjacency list of the graph */
 
-	bool   dirty; 
-	bool   locked;
+	bool   dirty;    /**< is the routing information outdated? */
+	bool   locked;   /**< When true, now topology updates are accepted */
 	
-	const NodeId myNodeId;
+	const NodeId myNodeId; /**< the node identifier of this instance */
 
 
 	Callback<std::string&> newDotTopology;
@@ -227,7 +230,7 @@ namespace awds {
 	void createRemoveMessages(const NodeId& node, const NDescr& nDescr );
 
 	AdjList::iterator getNodeEntry(const NodeId& id, gea::AbsTime t);
-        
+	
 	struct awds::Routing::NodesObserver *nodeObservers;
 	struct awds::Routing::LinksObserver *linkObserver;
     protected:
