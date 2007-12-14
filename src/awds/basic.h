@@ -2,27 +2,24 @@
 #define _BASIC_H__
 
 #include <awds/NodeId.h>
+#include <gea/Handle.h>
 
-namespace gea {
-    
-    class Handle;
-    
-}
 
 namespace awds {
-
-struct basic {
+    /** \brief Interface class that provides basic communication mechanisms.
+     */
+    struct basic {
     
-    NodeId BroadcastId;
-    NodeId MyId;
+	NodeId BroadcastId;
+	NodeId MyId;
     
-    gea::Handle *sendHandle;
-    gea::Handle *recvHandle;
+	gea::Handle *sendHandle;
+	gea::Handle *recvHandle;
     
-    virtual void setSendDest(const NodeId& id) = 0;
-    virtual void getRecvSrc(NodeId& id) = 0;
-    virtual ~basic() = 0;
-};
+	virtual void setSendDest(const NodeId& id) = 0;
+	virtual void getRecvSrc(NodeId& id) = 0;
+	virtual ~basic() = 0;
+    };
 
 }
 

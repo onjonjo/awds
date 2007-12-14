@@ -7,7 +7,9 @@
 #include <awds/BasePacket.h>
 
 namespace awds {
-
+    
+    /** \brief Inteface class for routing with flow tables.
+     */
     class FlowRouting : public Routing {
     public:	
 	typedef uint32_t FlowId;

@@ -4,6 +4,8 @@
 
 namespace awds {
     
+    /** \brief Access class for packets used with flow table routing.
+     */
     class FlowPacket : public SrcPacket {
     public:
 	

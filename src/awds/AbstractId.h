@@ -84,7 +84,8 @@ public:
 };
 
 
-
+/** \brief specialised version of the AbstraceId<> template for 6 bytes.
+ */
 template <>
 class AbstractID<6> {
     

@@ -17,6 +17,8 @@ using namespace awds;
 
 #define PORT 3334
 
+/** \brief Implementation of basic communication mechanisms ontop of UDP datagrams.
+ */
 struct UdpBasic : public basic {
 
     void init(const NodeId& myId) {
@@ -63,8 +65,6 @@ void UdpBasic::setSendDest(const NodeId& id) {
 
 
 void UdpBasic::getRecvSrc(NodeId& id) {
-    
-    
     
 }
 

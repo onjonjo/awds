@@ -43,3 +43,9 @@ namespace awds {
 }
 
 #endif // D__TTMetric
+/* This stuff is for emacs
+ * Local variables:
+ * mode:c++
+ * c-basic-offset: 4
+ * End:
+ */

@@ -14,9 +14,13 @@ namespace awds {
     
     /** \brief The access class for all packets that contain a source address.
      *
-     *  BasePacket *p = getPacketFromSomewhere();
-     *  SrcPacket srcP(*p);
-     *  NodeId src = srcP.getSrc();
+     *  \code
+     *
+     *  awds::BasePacket *p = getPacketFromSomewhere();
+     *  awds::SrcPacket srcP(*p);
+     *  awds::NodeId src = srcP.getSrc();
+     *
+     * \endcode
      */
     class SrcPacket {
 

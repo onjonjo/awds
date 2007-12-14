@@ -39,6 +39,8 @@ public:
 
 };
 
+/** \brief Implementation of basic communication mechanisms ontop of Ethernet raw socket.
+ */
 class RawBasic : public basic {
 
 public:

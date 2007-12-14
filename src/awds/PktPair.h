@@ -8,6 +8,9 @@
 
 
 namespace awds {
+  
+  /** \brief A class that implements the PktPair metric.
+   */
   class PktPair : public UCastMetric {
   protected:
 
@@ -76,3 +79,9 @@ namespace awds {
 
 
 #endif // D__PktPair
+/* This stuff is for emacs
+ * Local variables:
+ * mode:c++
+ * c-basic-offset: 4
+ * End:
+ */
