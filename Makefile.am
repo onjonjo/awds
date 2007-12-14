@@ -18,6 +18,8 @@ EXTRA_DIST = \
 	doc/awds.rules \
 	doc/exit_policy.txt \
 	doc/README.Debian \
-	doc/start_awds.8
+	doc/start_awds.sgml \
+	doc/stop_awds.dgml 
 
-man8_MANS = doc/start_awds.8
+
+
