@@ -26,6 +26,9 @@
 sends the KILL signal to the process. The pid file should have been specified in the 
 configuration file <filename>awds.conf</filename>.
     </para>
+
+    
+
   </refsect1>
 
   <refsect1>
