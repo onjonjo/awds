@@ -172,6 +172,10 @@ namespace awds {
 	    }
 	};
 	
+	void enumerateNodes() {
+	    adjList.enumerateNodes();
+	}
+	
 	//    typedef std::map<NodeId, NDescr> AdjList;
 	
 	AdjList adjList;
