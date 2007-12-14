@@ -7,6 +7,7 @@
 #include <ext/algorithm>
 
 #include <gea/API.h>
+#include <gea/gea_main.h>
 
 #include <gea/ObjRepository.h>
 #include <awds/Topology.h>
@@ -251,7 +252,9 @@ static bool cmp_nodeid_quality(const awds::RTopology::LinkQuality& q, const awds
     return q.neighbor < id;
 }
 
-RTopology::LinkQuality *RTopology::NDescr::findLinkQuality(NodeId id) {
+DLLEXPORT RTopology::NDescr::~NDescr() {}
+
+DLLEXPORT RTopology::LinkQuality *RTopology::NDescr::findLinkQuality(NodeId id) {
     
     LinkList::iterator i = 
 	std::lower_bound(linklist.begin(), linklist.end(), id, cmp_nodeid_quality);
@@ -262,7 +265,7 @@ RTopology::LinkQuality *RTopology::NDescr::findLinkQuality(NodeId id) {
     return &(*i);
 }
 
-const RTopology::LinkQuality *RTopology::NDescr::findLinkQuality(NodeId id) const {
+DLLEXPORT const RTopology::LinkQuality *RTopology::NDescr::findLinkQuality(NodeId id) const {
     
     LinkList::const_iterator i = 
 	std::lower_bound(linklist.begin(), linklist.end(), id, cmp_nodeid_quality);

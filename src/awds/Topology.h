@@ -128,7 +128,12 @@ namespace awds {
 	    gea::AbsTime validity;
 	
 	    unsigned long distance;
-	
+	    
+	    /** The index is used for  certain graph algorithms. It is intended to
+	     *	be used by any external algorithm, so don't rely on its value. 
+	     */
+	    int index; 
+	    
 	    char nodeName[33];
 	
 	    NDescr() : linklist()
@@ -142,8 +147,9 @@ namespace awds {
 	    }
 
 	    
-	    LinkQuality *findLinkQuality(NodeId id);
-	    const LinkQuality *findLinkQuality(NodeId id) const;
+	    virtual LinkQuality *findLinkQuality(NodeId id);
+	    virtual const LinkQuality *findLinkQuality(NodeId id) const;
+	    virtual ~NDescr();
 	};
 
 	class AdjList : public std::map<NodeId, NDescr> {
@@ -157,6 +163,13 @@ namespace awds {
 	    }
 	    bool find(NodeId const &from,NodeId const &to,LinkList::iterator &it);
 	    bool find(NodeId const &from,NodeId const &to) const;
+	    
+	    /** iterate over all nodes and assign an index */
+	    void enumerateNodes() {
+		int idx = 0;
+		for (iterator i = begin(); i != end(); ++i)
+		    i->second.index = idx++;
+	    }
 	};
 	
 	//    typedef std::map<NodeId, NDescr> AdjList;
