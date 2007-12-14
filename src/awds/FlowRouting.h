@@ -9,6 +9,7 @@
 namespace awds {
     
     /** \brief Inteface class for routing with flow tables.
+     *  \ingroup awdsrouting_mod
      */
     class FlowRouting : public Routing {
     public:	

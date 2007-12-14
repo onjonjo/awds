@@ -22,10 +22,15 @@
 #define ETHERTYPE_AWDS 0x8334
 
 
+/** \defgroup rawbasic_mod
+ *  \brief Basic I/O via raw Ethernet frames. 
+ *  
+ *  Use this basic module to use raw Ethernet frames for transport of AWDS packets. 
+ */
+
 using namespace awds;
 
 class RawBasic;
-
 
 class RawHandle : public gea::UnixFdHandle {
     
@@ -39,7 +44,8 @@ public:
 
 };
 
-/** \brief Implementation of basic communication mechanisms ontop of Ethernet raw socket.
+/** \brief Implementation of basic communication mechanisms on top of Ethernet raw socket.
+ *  \ingroup rawbasic_mod
  */
 class RawBasic : public basic {
 

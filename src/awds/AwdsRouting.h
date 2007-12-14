@@ -24,6 +24,7 @@
 namespace awds {
     
     /** \brief This class implement the routing functionality
+     *  \ingroup awdsrouting_mod
      *
      *  \see awds::RTopology
      */

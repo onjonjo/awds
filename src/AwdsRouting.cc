@@ -449,7 +449,8 @@ void awds::AwdsRouting::recv_flood(BasePacket *p ) {
 	    itr->second.first(p,itr->second.second);
 	    
 	} else {
-	    GEA.dbg() << "unknown Flood Type " << flood.getFloodType() << std::endl;
+	    if (verbose)
+		GEA.dbg() << "unknown Flood Type " << flood.getFloodType() << std::endl;
 	}
     }
     

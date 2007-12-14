@@ -18,10 +18,18 @@ using namespace gea;
 using namespace std;
 using namespace awds;
 
-/** 
+/** \defgroup topowatch_mod
+ *  \brief Generate XML of topology changes.
+ *
+ * 
  * this module provides a way of observing changes in the local topology.
  * Therfore, it creates a TCP server that outputs a description 
  * of the modifications. \
+ */
+
+
+/** \biref object for observing the AWDS topology. 
+ *  \ingroup topowatch_mod
  */
 class TopoWatch {
 

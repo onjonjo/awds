@@ -4,13 +4,13 @@
 #include <awds/Metric.h>
 
 namespace awds {
-    
+
     /** \brief class that implements the ETX metric/
      */
     class EtxMetric : public Metric {
     protected:
 	virtual RTopology::link_quality_t my_get_quality(NodeDescr &ndescr);
-    
+
 	virtual unsigned long my_calculate(RTopology::link_quality_t forward,RTopology::link_quality_t backward);
 
 	double scale;
@@ -18,7 +18,7 @@ namespace awds {
     public:
 	EtxMetric(Routing *r);
 	virtual ~EtxMetric();
-    
+
     };
 
 }
