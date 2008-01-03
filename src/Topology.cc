@@ -488,56 +488,7 @@ void RTopology::feed(const TopoPacket& p) {
 		       << getNameOfNode(src) << "\" />\n";
 
     }
-    /*
 
-	      if (!newXmlTopologyDelta.empty() || linkObserver) {
-
-
-	      for (unsigned i = 0; i < linklist.size(); ++i) {
-
-	      bool found = false;
-	      for (unsigned j = 0; j < old_linklist.size(); ++j) {
-	      if (linklist[i] == old_linklist[j]) {
-	      found = true;
-	      if (linklist[i].metric_weight != old_linklist[j].metric_weight) {
-	      ostringstream qs;
-	      qs << "  <modify_edge from=\"" << src << "\" to=\""
-	      << getNodeId(linklist[i]) << "\"> <quality value=\""
-	      << linklist[i].get_percentage() << "%\" /></modify_edge>\n";
-	      deltaQ += qs.str();
-	      }
-	      break;
-	      }
-	      }
-
-	      if (!found) {
-	      // this is a new edge...
-	      ostringstream es;
-	      es << "  <add_edge from=\"" << src << "\" to=\""
-	      << getNodeId( linklist[i] ) << "\"> <quality value=\""
-	      << linklist[i].get_percentage() << "%\" /></add_edge>\n";
-	      deltaN += es.str();
-	      this->sendLinkAdded(src, getNodeId(linklist[i]));
-	      }
-	      }
-
-	      for (unsigned i = 0; i < old_linklist.size(); ++i) {
-	      bool found = false;
-	      for (unsigned j = 0; j < linklist.size(); ++j)
-	      if (linklist[j] == old_linklist[i]) {
-	      found = true;
-	      break;
-	      }
-	      if (!found) {
-	      ostringstream ns;
-	      ns << "  <remove_edge from=\"" << src
-	      << "\" to=\"" << getNodeId(old_linklist[i]) << "\"/>\n";
-	      deltaN += ns.str();
-	      this->sendLinkRemoved(src, getNodeId(old_linklist[i])  );
-	      }
-	      }
-
-    */
     if ( xmlDeltaStream.str().size() != 0 ) {
 	ostringstream deltaS;
 	deltaS.precision(9);
