@@ -26,6 +26,7 @@ pkglib_LTLIBRARIES = \
 	signaler.la \
 	ttmetric.la \
 	pktpair.la \
+	src_filter.la \
 	traffic.la
 
 #	tapiface_crypto.la \
@@ -174,6 +175,10 @@ aesccm_la_LDFLAGS  = -module  -avoid-version -export-symbols-regex gea_main
 daemon_la_SOURCES = debug_cmd.cc
 daemon_la_CPPFLAGS = -DMODULE_NAME=daemon -fvisibility=hidden
 daemon_la_LDFLAGS  = -module  -avoid-version -export-symbols-regex gea_main
+
+src_filter_la_SOURCES = SrcFilter.cc
+src_filter_la_CPPFLAGS = -DMODULE_NAME=daemon -fvisibility=hidden
+src_filter_la_LDFLAGS  = -module  -avoid-version -export-symbols-regex gea_main
 
 
 awds_static_SOURCES = awds.cc
