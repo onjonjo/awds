@@ -912,7 +912,7 @@ bool awds::RTopology::getNodeByName(awds::NodeId& id, const char *name) const {
 
 	for (int i = 0; i < 6; ++i) {
 	    unsigned v;
-	    int ret = sscanf(p, "%2X", &v);
+	    int ret = sscanf(p + (2*i), "%2X", &v);
 	    if (ret != 1) {
 		parse_success = false;
 		break;
