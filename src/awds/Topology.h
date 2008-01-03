@@ -273,8 +273,10 @@ namespace awds {
 	return lq.neighbor;
     }
 
-
-}
+    
+    typedef RTopology Topology; // for migrating the class name.
+    
+} // end of namespace awds
 
 
 
