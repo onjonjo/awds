@@ -170,9 +170,9 @@ namespace awds {
 	    bool find(NodeId const &from,NodeId const &to) const;
 
 	    /** \brief iterate over all nodes and assign an index */
-	    void enumerateNodes() {
+	    inline void enumerateNodes() {
 		int idx = 0;
-		for (iterator i = begin(); i != end(); ++i)
+		for (AdjList::iterator i = this->begin(); i != this->end(); ++i)
 		    i->second.index = idx++;
 	    }
 	};
