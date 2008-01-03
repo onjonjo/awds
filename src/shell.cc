@@ -27,6 +27,7 @@ using namespace awds;
 class TcpShell;
 
 class TcpShellClient : public ShellClient {
+public:
     int fd;
     struct sockaddr_in peer_addr;
 #define CMD_BUF_MAX 1024
@@ -283,7 +284,8 @@ void TcpShellClient::read_client_data(gea::Handle *h, gea::AbsTime t, void *data
 	int ret;
 	ret = h->read(&self->cmd_buf[self->cmd_buf_len], CMD_BUF_MAX-self->cmd_buf_len);
 	if (ret <= 0) {
-	    GEA.dbg() << "closing shell connection "  << inet_ntoa(self->peer_addr.sin_addr) << ":" << ntohs(self->peer_addr.sin_port) << endl;
+	    GEA.dbg() << "closing shell connection "  
+		      << inet_ntoa(self->peer_addr.sin_addr) << ":" << ntohs(self->peer_addr.sin_port) << endl;
 	    delete h;
 	    close (self->fd);
 
@@ -363,20 +365,24 @@ int test(ShellClient &sc, void *data, int argc, char **argv) {
     return 0;
 }
 
+
+int exit_cmd(ShellClient &sc, void *data, int argc, char **argv) {
+    shutdown(static_cast<TcpShellClient&>(sc).fd, SHUT_RD);
+    *sc.sockout << "Good bye!" << endl;
+    return 0;
+}
+
+
+
 GEA_MAIN_2(shell, argc, argv)
 {
 
     ObjRepository& rep = ObjRepository::instance();
-    //RTopology *topology = (RTopology *)rep.getObj("topology");
-    //if (!topology) {
-    //    GEA.dbg() << "cannot find object 'topology' in repository" << endl;
-    //    return -1;
-    //}
-
 
     Shell *sh = new TcpShell();
     //    sh->add_command("test", test, NULL, "shell function example", "shell function example long help");
-
+    sh->add_command("exit", exit_cmd, 0, "close this shell", "close the connection of this shell");
+    
     rep.insertObj("shell", "Shell", (void*)sh);
 
     return 0;
