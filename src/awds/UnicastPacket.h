@@ -25,7 +25,6 @@ namespace awds {
 	static const size_t OffsetUcType     = OffsetTTL     + 1;
 	static const size_t UnicastPacketEnd = OffsetUcType  + 1;
 
-
 	UnicastPacket(BasePacket& p) : SrcPacket(p) {
 	    packet.setType(PacketTypeUnicast);
 	}

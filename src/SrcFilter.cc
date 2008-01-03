@@ -4,6 +4,7 @@
 #include <gea/ObjRepository.h>
 
 #include <awds/SrcPacket.h>
+#include <awds/Flood.h>
 #include <awds/ext/Shell.h>
 
 using namespace std;
@@ -20,8 +21,21 @@ SrcFilter::~SrcFilter()
 
 bool SrcFilter::check_packet(awds::BasePacket *p)
 {
-    SrcPacket srcP(*p);
-    Rules::const_iterator itr = rules.find(srcP.getSrc());
+    NodeId src;
+    
+    switch (p->getType()) {
+    case PacketTypeFlood: 
+	src = Flood(*p).getLastHop();
+	break;
+    case PacketTypeBeacon: 
+	src = SrcPacket(*p).getSrc();
+	break;
+    case PacketTypeUnicast: // fall through
+    case PacketTypeForward: 
+	return true; // we cannot filter unicast and flow packets.
+    }
+    
+    Rules::const_iterator itr = rules.find(src);
     if (itr != rules.end())
 	return itr->second;
     else
