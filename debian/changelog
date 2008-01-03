@@ -1,3 +1,10 @@
+awds (7.2) unstable; urgency=low
+
+  * ported to GEA 2.3
+  * 
+
+ -- Andre Herms <aherms@ivs.cs.uni-magdeburg.de>  Sat, 15 Dec 2007 13:16:42 +0100
+
 awds (7.1) unstable; urgency=low
 
   * minimized visibility of symbols in modules

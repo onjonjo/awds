@@ -1,4 +1,4 @@
-SUBDIRS = src scripts
+SUBDIRS = src scripts doc
 
 EXTRA_DIST = \
 	debian/awds.conffiles\
