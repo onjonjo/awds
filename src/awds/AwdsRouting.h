@@ -19,7 +19,9 @@
 #include <awds/NodeId.h>
 #include <awds/beacon.h>
 #include <awds/settings.h>
-#include <awds/RateMonitor.h>
+// #include <awds/RateMonitor.h>
+
+#include <awds/Firewall.h>
 
 namespace awds {
     
@@ -35,22 +37,24 @@ namespace awds {
 
 	basic * base; 
     
-	static const int UdpPort = 4921;
+	//static const int UdpPort = 4921;
 	static const int period = BEACON_INTERVAL; /**< beacon period in milliseconds */
 	int topoPeriod; /**< topology propagtion period in milliseconds */
     
-	gea::Handle *udpSend;
-	gea::Handle *udpRecv;
-	gea::Blocker    blocker;
-	class RTopology * topology; 
+	gea::Handle *udpSend; /**< for sending packets */
+	gea::Handle *udpRecv; /**< for receiving packets */
+	gea::Blocker    blocker; 
+	class RTopology * topology;  ///< for storing the topology
 	class FloodHistory *floodHistory; /**< history of recent flood packets */
-
-	//class RateMonitor *madwifiRateMonitor;
-
-
+	
+	class awds::Firewall *firewall; /**< used for packet filtering */
+	
 	AwdsRouting(basic *base);
+	
+	/** \brief destructor */
 	virtual ~AwdsRouting();
- 
+	
+	/** get the maximum transfer unit */
 	virtual size_t getMTU();
     
    

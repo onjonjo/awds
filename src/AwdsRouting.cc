@@ -28,7 +28,7 @@ using namespace gea;
 awds::AwdsRouting::AwdsRouting(basic *base) :
     FlowRouting(base),
     verbose(false),
-    //    madwifiRateMonitor(0),
+    firewall(0), // no firewall by default.
     beaconSeq(0),
     beaconPeriod((double)(this->period) / 1000.),
     nextBeacon( gea::AbsTime::now() + beaconPeriod),
@@ -42,14 +42,7 @@ awds::AwdsRouting::AwdsRouting(basic *base) :
     this->topoPeriod = TOPO_INTERVAL;
 
     GEA.dbg() << "let's go!" << endl;
-    //     this->udpSend = new gea::UdpHandle( gea::UdpHandle::Write,
-    //					gea::UdpAddress(UdpPort /*port*/,
-    //							gea::UdpAddress::IP_BROADCAST
-    //							/*ip*/ ));
-
-    //     this->udpRecv = new gea::UdpHandle(gea::UdpHandle::Read,
-    //				       gea::UdpAddress(UdpPort /*port*/,
-    //						       gea::UdpAddress::IP_ANY /*ip*/ ));
+ 
     this->udpSend = base->sendHandle;
     this->udpRecv = base->recvHandle;
 
@@ -162,7 +155,7 @@ void awds::AwdsRouting::recv_packet(gea::Handle *h, gea::AbsTime t, void *data) 
 	BasePacket *p = new BasePacket();
 
 	int ret = p->receive(h);
-
+	
 	if (ret >= 0 && SrcPacket(*p).getSrc() != self->myNodeId)
 	    switch (p->getType()) {
 	    case PacketTypeBeacon:  self->recv_beacon(p);    break;
@@ -796,19 +789,9 @@ GEA_MAIN_2(awdsrouting, argc, argv)
     REP_INSERT_OBJ(awds::AwdsRouting *, awdsRouting, awdsRouting);
     REP_INSERT_OBJ(awds::Routing *,     routing,     awdsRouting);
     REP_INSERT_OBJ(awds::RTopology *,   topology,    awdsRouting->topology);
-
-    //    rep.insertObj("awdsRouting", "AwdsRouting", awdsRouting);
-    // rep.insertObj("topology","Topology", awdsRouting->topology);
-
-    // RateMonitor *rateMonitor = (RateMonitor *)rep.getObj("rateMonitor");
-    //     REP_MAP_OBJ(awds::RateMonitor *, rateMonitor);
-    //     if (rateMonitor) {
-    //	awdsRouting->madwifiRateMonitor = rateMonitor;
-    //	GEA.dbg() << "adding transmission duration metrics of rate module" << endl;
-    //	awdsRouting->metrics = Routing::TransmitDurationMetrics;
-    //	//	rateMonitor->update();
-    //     }
-
+    REP_INSERT_OBJ(awds::Firewall **,   firewall_pp, &(awdsRouting->firewall) );
+    
+    
     if ( (argc >= 3) && (!strcmp(argv[1], "--name") ) ) {
 	strncpy(awdsRouting->topology->nodeName, argv[2], 32);
     }

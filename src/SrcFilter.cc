@@ -107,7 +107,13 @@ int SrcFilter::cmd_filter(awds::ShellClient &sc, void *data, int argc, char **ar
 
 GEA_MAIN_2(src_filter, argc, argv) {
 
-
+    REP_MAP_OBJ(awds::Firewall **, firewall_pp);
+    
+    if (!firewall_pp) {
+	GEA.dbg() << "cannot find object 'firewall_pp' in object repository" << endl;
+	return 1;
+    }
+    
     REP_MAP_OBJ(awds::RTopology *, topology);
     REP_MAP_OBJ(awds::Shell *, shell);
 
@@ -119,7 +125,9 @@ GEA_MAIN_2(src_filter, argc, argv) {
     GEA.dbg() << "activating filter" << endl;
 
     SrcFilter *srcFilter = new SrcFilter(topology);
-
+    
+    *firewall_pp = srcFilter; // plug in the firewall;
+    
     if (argc > 1) {
 	srcFilter->addRules(argc-1, argv + 1, GEA.dbg() );
 	srcFilter->dumpRules(GEA.dbg());

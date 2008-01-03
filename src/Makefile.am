@@ -151,7 +151,7 @@ aesccm_la_LIBADD = -lgea2
 endif
 
 aescrypt.mmx.o: crypto/gladman/aescrypt.mmx.asm
-	nasm -O2 -felf crypto/gladman/aescrypt.mmx.asm -o aescrypt.mmx.o
+	nasm -Ox -felf crypto/gladman/aescrypt.mmx.asm -o aescrypt.mmx.o
 
 
 aesccm_la_SOURCES = \
