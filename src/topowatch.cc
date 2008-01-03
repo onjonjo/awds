@@ -70,7 +70,7 @@ public:
     {
 	
 	createSocket();
-	lHandle = new UnixFdHandle(l_socket, ShadowHandle::Read);
+	lHandle = new UnixFdHandle(l_socket, gea::PosixModeRead);
 	
 	GEA.waitFor(lHandle, AbsTime::now() + Duration(12.),
 		    accept_connection, (void *)this);
@@ -159,7 +159,7 @@ void TopoWatch::accept_connection(gea::Handle *h, gea::AbsTime t, void *data) {
 	//	write(client_fd, "ja\n", 4); 
 	
 	// close(client_fd);
-	UnixFdHandle *fdHandle = new UnixFdHandle(client_fd, ShadowHandle::Read);
+	UnixFdHandle *fdHandle = new UnixFdHandle(client_fd, gea::PosixModeRead);
 	self->clients[client_fd] = ClientDescr(client_fd, fdHandle);
 	GEA.waitFor(fdHandle, t + Duration(10.), read_client_data, data );
     }

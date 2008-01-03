@@ -108,7 +108,7 @@ TcpShell::TcpShell()
 	return;
     }
     
-    lHandle = new UnixFdHandle(l_socket, ShadowHandle::Read);
+    lHandle = new UnixFdHandle(l_socket, gea::PosixModeRead);
     
     add_command("help", help, this, "print the help for a command", HELP);
     //    add_command("watch", watch, this, "repeat the execution of a program", NULL);
@@ -229,7 +229,7 @@ void TcpShell::accept_connection(gea::Handle *h, gea::AbsTime t, void *data) {
 		  << std::endl;
 	
 	
-	UnixFdHandle *fdHandle = new UnixFdHandle(client_fd, ShadowHandle::Read);
+	UnixFdHandle *fdHandle = new UnixFdHandle(client_fd, gea::PosixModeRead);
 	self->clients[client_fd] = TcpShellClient(self, client_fd, fdHandle, shellout, peer_addr);
 	//implicit:
 	self->clients[client_fd].prompt(true);

@@ -135,7 +135,7 @@ public:
     
 RawHandle::RawHandle( RawBasic& basic, bool readMode) :
     UnixFdHandle( basic.raw_socket, 
-		  readMode ? gea::ShadowHandle::Read : gea::ShadowHandle::Write ),
+		  readMode ? gea::PosixModeRead : gea::PosixModeWrite ),
     basic(basic)
 {
     

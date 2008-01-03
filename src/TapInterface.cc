@@ -21,7 +21,7 @@ void TapInterface::init(const char *dev)
     setIfaceHwAddress(routing->myNodeId);
     setIfaceMTU(routing->getMTU());
 	
-    tapHandle = new gea::UnixFdHandle(this->fd, gea::ShadowHandle::Read);
+    tapHandle = new gea::UnixFdHandle(this->fd, gea::PosixModeRead);
 	
     GEA.waitFor(tapHandle, gea::AbsTime::now() + gea::Duration(10.),
 		tap_recv, (void *)this);
