@@ -43,6 +43,9 @@
 ; the parent application uses floating point instructions, then FPU_USED has
 ; to be defined below.
 
+    section .note.GNU-stack use32
+    ; we add this to make lintian happy.
+
     section .text use32
 
 ; aes_rval aes_encrypt(const unsigned char in_blk[],
