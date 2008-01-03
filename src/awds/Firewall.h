@@ -16,7 +16,7 @@ namespace awds {
 	 *  \param p the packet to check.
 	 *  \return true, if accepted. false otherwise.
 	 */
-	virtual bool check_packet(const BasePacket *p) = 0;
+	virtual bool check_packet(BasePacket *p) = 0;
 	virtual ~Firewall() {}
     };
 

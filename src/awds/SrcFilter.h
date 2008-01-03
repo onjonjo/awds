@@ -55,7 +55,7 @@ namespace awds {
 	 *  \param p the packet to check.
 	 *  \return true, if accepted. false otherwise.
 	 */
-	virtual bool check_packet(const awds::BasePacket *p);
+	virtual bool check_packet( awds::BasePacket *p);
 
 	/** destructor */
 	virtual ~SrcFilter();

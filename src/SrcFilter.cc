@@ -3,6 +3,7 @@
 #include <gea/API.h>
 #include <gea/ObjRepository.h>
 
+#include <awds/SrcPacket.h>
 #include <awds/ext/Shell.h>
 
 using namespace std;
@@ -17,9 +18,14 @@ SrcFilter::SrcFilter(awds::Topology *topology) :
 SrcFilter::~SrcFilter()
 {}
 
-bool SrcFilter::check_packet(const awds::BasePacket *p)
+bool SrcFilter::check_packet(awds::BasePacket *p)
 {
-    return default_policy;
+    SrcPacket srcP(*p);
+    Rules::const_iterator itr = rules.find(srcP.getSrc());
+    if (itr != rules.end())
+	return itr->second;
+    else
+	return default_policy;
 }
 
 int SrcFilter::addRules(int argc, const char *const *argv, std::ostream& os) {
