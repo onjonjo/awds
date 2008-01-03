@@ -34,9 +34,9 @@ class TcpShellClient : public ShellClient {
 #define CMD_IFS " \t\r\n"
     int cmd_buf_len;
     char cmd_buf[CMD_BUF_MAX];
-    
+
     TcpShell *shell;
-    
+
 protected:
     friend class TcpShell;
     void prompt(bool wait);
@@ -44,15 +44,15 @@ protected:
 public:
 
     TcpShellClient(TcpShell *pa, int fd, gea::UnixFdHandle *_sockin, ostream *_sockout,
-   		struct sockaddr_in peer) : 
-    	ShellClient(_sockin, _sockout),
-	fd(fd), 
+		struct sockaddr_in peer) :
+	ShellClient(_sockin, _sockout),
+	fd(fd),
 	peer_addr(peer),
 	cmd_buf_len(0),
-        shell(pa)
+	shell(pa)
     {
     }
-    
+
     TcpShellClient() :
 	cmd_buf_len(0)
     {}
@@ -78,16 +78,16 @@ class TcpShell : public Shell {
     static int help(ShellClient &sc, void *data, int argc, char **argv);
     static int watch(ShellClient &sc, void *data, int argc, char **argv);
 
-public:    
+public:
     map<int, TcpShellClient> clients;
 
     TcpShell();
 
-    
+
     void add_command(const string name, shell_command_fn *command,
-   		void *data, const char *descr, const char *help);
+		void *data, const char *descr, const char *help);
     ShellCommand *get_command(string name);
-    
+
 };
 
 
@@ -107,31 +107,31 @@ TcpShell::TcpShell()
 	GEA.dbg() << "cannot create TCP socket on port " << PORT << endl;
 	return;
     }
-    
+
     lHandle = new UnixFdHandle(l_socket, gea::PosixModeRead);
-    
+
     add_command("help", help, this, "print the help for a command", HELP);
     //    add_command("watch", watch, this, "repeat the execution of a program", NULL);
     GEA.dbg() << "TcpShell listening..." << endl;
     GEA.waitFor(lHandle, AbsTime::now() + Duration(12.),
 		accept_connection, (void *)this);
-    
+
 }
 
 bool  TcpShell::createSocket() {
-	
+
     struct sockaddr_in addr;
     socklen_t socklen;
     int ret;
 
-	
+
     l_socket = socket(PF_INET, SOCK_STREAM, 0);
-	
+
     addr.sin_family = AF_INET;
     addr.sin_port = htons(PORT);
     addr.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
     socklen = sizeof( struct sockaddr_in);
-	
+
     int one = 1;
     ret = setsockopt(l_socket, SOL_SOCKET,  SO_REUSEADDR, &one, sizeof(int) );
     if (ret != 0) {
@@ -144,16 +144,16 @@ bool  TcpShell::createSocket() {
 	close(l_socket);
 	return false;
     }
-	
+
     ret = listen(l_socket, 4);
     if (ret != 0) {
 	close(l_socket);
 	return false;
     }
-    
-        
+
+
     return true;
-	
+
 }
 
 void TcpShell::add_command(const string name, shell_command_fn *command,
@@ -168,7 +168,7 @@ ShellCommand *TcpShell::get_command(string name) {
 
     map<string, ShellCommand>::iterator cmd = commands.find(name);
     if (cmd != commands.end())
-   	 return &cmd->second;
+	 return &cmd->second;
     else return NULL;
 }
 
@@ -199,49 +199,49 @@ int TcpShell::watch(ShellClient &cl, void *data, int argc, char **argv) {
     //    TcpShell *self = static_cast<TcpShell*>(data);
     return 0;
     if (argc > 1) {
-        while (cl.state == ShellClient::CS_Idle) {
+	while (cl.state == ShellClient::CS_Idle) {
 	    cl.exec(argc-1, &argv[1]);
 	}
     } else {
-    	*cl.sockout << "watch [command [args]]" << endl;
+	*cl.sockout << "watch [command [args]]" << endl;
 	return 1;
     }
     return 0;
 }
 
 void TcpShell::accept_connection(gea::Handle *h, gea::AbsTime t, void *data) {
-    
+
     TcpShell * self = static_cast<TcpShell *>(data);
-    
+
     if (h->status == Handle::Ready) {
 
 	struct sockaddr_in peer_addr;
 	socklen_t addr_len = sizeof(struct sockaddr_in);
-	
+
 	int client_fd = accept(self->l_socket, (struct sockaddr *)&peer_addr, &addr_len);
-	
+
 	ostream *shellout = new ostream(new UnixFdStreamBuf(client_fd));
 	*shellout << "Welcome to localhost!" << endl;
 	shellout->flush();
-	
-	GEA.dbg() << "new shell:" << inet_ntoa(peer_addr.sin_addr) 
+
+	GEA.dbg() << "new shell:" << inet_ntoa(peer_addr.sin_addr)
 		  << ":" << ntohs(peer_addr.sin_port)
 		  << std::endl;
-	
-	
+
+
 	UnixFdHandle *fdHandle = new UnixFdHandle(client_fd, gea::PosixModeRead);
 	self->clients[client_fd] = TcpShellClient(self, client_fd, fdHandle, shellout, peer_addr);
 	//implicit:
 	self->clients[client_fd].prompt(true);
     }
-    
+
     GEA.waitFor(h, t + Duration(12.3), accept_connection, data);
-    
+
 }
 
 int TcpShellClient::exec(int argc, char **argv) {
     if ((argc > 0) && argv[0] && *argv[0]) {
-    	ShellCommand *sc = shell->get_command(argv[0]);
+	ShellCommand *sc = shell->get_command(argv[0]);
 	if (!sc) {
 	    *sockout << "Illegal command '" << argv[0] << "'! Use 'help'." << endl;
 	} else if (sc->command) {
@@ -266,7 +266,7 @@ bool TcpShellClient::parse_command(char *buf, int len) {
     char *strtrtr;
     argv[argc] = strtok_r(buf, CMD_IFS, &strtrtr);
     while ((argc < CMD_PARAM_MAX-1) && argv[argc] != NULL) {
-    	//GEA.dbg() << "arg " << argc << ": " << argv[argc] << endl;
+	//GEA.dbg() << "arg " << argc << ": " << argv[argc] << endl;
 	argc++;
 	argv[argc] = strtok_r(NULL, CMD_IFS, &strtrtr);
     }
@@ -277,7 +277,7 @@ bool TcpShellClient::parse_command(char *buf, int len) {
 
 void TcpShellClient::read_client_data(gea::Handle *h, gea::AbsTime t, void *data) {
     TcpShellClient *self = static_cast<TcpShellClient *>(data);
-    
+
     if (h->status == Handle::Ready) {
 
 	int ret;
@@ -286,12 +286,12 @@ void TcpShellClient::read_client_data(gea::Handle *h, gea::AbsTime t, void *data
 	    GEA.dbg() << "closing shell connection "  << inet_ntoa(self->peer_addr.sin_addr) << ":" << ntohs(self->peer_addr.sin_port) << endl;
 	    delete h;
 	    close (self->fd);
-	    
+
 	    if (self->state == CS_Blocked) {
 		// unregister callback
-	    	assert(!"Shell connection died in progress");
+		assert(!"Shell connection died in progress");
 	    }
-	    
+
 	    //XXX: cross layer
 	    self->shell->clients.erase(self->fd);
 	    return;
@@ -320,9 +320,9 @@ void TcpShellClient::read_client_data(gea::Handle *h, gea::AbsTime t, void *data
     } else {
 	// XXX: timeout handling
     }
-    
+
     if (self->state == CS_Idle) {
-	GEA.waitFor(h, t + Duration(120.), read_client_data, data); 
+	GEA.waitFor(h, t + Duration(120.), read_client_data, data);
     }
 }
 
@@ -364,21 +364,21 @@ int test(ShellClient &sc, void *data, int argc, char **argv) {
 }
 
 GEA_MAIN_2(shell, argc, argv)
-{    
+{
 
     ObjRepository& rep = ObjRepository::instance();
     //RTopology *topology = (RTopology *)rep.getObj("topology");
     //if (!topology) {
-    //    GEA.dbg() << "cannot find object 'topology' in repository" << endl; 
+    //    GEA.dbg() << "cannot find object 'topology' in repository" << endl;
     //    return -1;
     //}
-    
+
 
     Shell *sh = new TcpShell();
     //    sh->add_command("test", test, NULL, "shell function example", "shell function example long help");
 
     rep.insertObj("shell", "Shell", (void*)sh);
-  
+
     return 0;
 }
 
