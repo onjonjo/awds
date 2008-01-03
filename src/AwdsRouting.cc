@@ -168,7 +168,6 @@ void awds::AwdsRouting::recv_packet(gea::Handle *h, gea::AbsTime t, void *data) 
 		self->recv_unicast(p);
 		break;
 	    case PacketTypeForward:
-		p->ref(); // prevent double unref!, by sendFlowPacket and 3 lines later
 		self->sendFlowPacket(p); break;
 	    }
 	p->unref();
@@ -741,13 +740,13 @@ int awds::AwdsRouting::sendFlowPacket(BasePacket *p) {
 
     assert(p->getType() == PacketTypeForward);
 
-    FlowPacket flowP(*p);
-
+    awds::FlowPacket flowP(*p);
+    
     if (flowP.getFlowDest() == myNodeId) {
 	// I'm the destination node
-	FlowReceiverMap::iterator itr = flowReceiverMap.find(flowP.getFlowId());
+	FlowReceiverMap::iterator itr = flowReceiverMap.find(flowP.getFlowType());
 	if (itr == flowReceiverMap.end()) {
-	    GEA.dbg() << "received flow, but there's no handler registered" << endl;
+	    GEA.dbg() << "received flow type " << flowP.getFlowType() << ", but there's no handler registered" << endl;
 	    return 0;
 	}
 	itr->second.receiver(p, itr->second.data);
@@ -765,8 +764,6 @@ int awds::AwdsRouting::sendFlowPacket(BasePacket *p) {
     if (ret < 0) {
 	GEA.dbg() << "There was an error while sending a packet to " << citr->second << endl;
     }
-
-    p->unref();
 
     return 0;
 }
@@ -787,6 +784,7 @@ GEA_MAIN_2(awdsrouting, argc, argv)
     AwdsRouting* awdsRouting = new AwdsRouting(base);
 
     REP_INSERT_OBJ(awds::AwdsRouting *, awdsRouting, awdsRouting);
+    REP_INSERT_OBJ(awds::FlowRouting *, flowRouting, awdsRouting);
     REP_INSERT_OBJ(awds::Routing *,     routing,     awdsRouting);
     REP_INSERT_OBJ(awds::RTopology *,   topology,    awdsRouting->topology);
     REP_INSERT_OBJ(awds::Firewall **,   firewall_pp, &(awdsRouting->firewall) );
