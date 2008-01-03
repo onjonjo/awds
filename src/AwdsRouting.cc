@@ -156,7 +156,10 @@ void awds::AwdsRouting::recv_packet(gea::Handle *h, gea::AbsTime t, void *data) 
 
 	int ret = p->receive(h);
 	
-	if (ret >= 0 && SrcPacket(*p).getSrc() != self->myNodeId)
+	if ( (!self->firewall || self->firewall->check_packet(p) ) &&
+	     ret >= 0 && 
+	     SrcPacket(*p).getSrc() != self->myNodeId )
+	    
 	    switch (p->getType()) {
 	    case PacketTypeBeacon:  self->recv_beacon(p);    break;
 	    case PacketTypeFlood:   self->recv_flood(p);     break;
