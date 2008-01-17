@@ -577,7 +577,7 @@ void awds::AwdsRouting::recv_unicast(BasePacket *p) {
     p->setDest(nextHop);
     p->ref();
     GEA.waitFor(this->udpSend,
-		GEA.lastEventTime + gea::Duration(12.2),
+		GEA.lastEventTime + gea::Duration(1.2),
 		send_unicast,
 		new std::pair<BasePacket *,AwdsRouting *>(p,this) );
 
@@ -587,24 +587,28 @@ void awds::AwdsRouting::recv_unicast(BasePacket *p) {
 
 void awds::AwdsRouting::send_unicast(gea::Handle *h, gea::AbsTime t, void *data) {
 
-    if (h->status != gea::Handle::Ready) {
-	GEA.dbg() << "ERROR: transmission timed out" << endl;
-    }
-
     std::pair<BasePacket *,AwdsRouting *>* xdata = ( std::pair<BasePacket *,AwdsRouting *>* )data;
     BasePacket *p = xdata->first;
     AwdsRouting *self = xdata->second;
 
-    UnicastPacket uniP(*p);
-    NodeId dest = uniP.getNextHop();
-    self->base->setSendDest( dest );
 
-    int ret = p->send(h);
-    if (ret < 0) {
-	GEA.dbg() << "There was an error while sending a packet to " << dest << endl;
+    if (h->status != gea::Handle::Ready) {
+	
+	GEA.dbg() << "ERROR: transmission timed out" << endl;
+    
+    } else {
+	// (h->status == gea::Handle::Ready)
+	
+	UnicastPacket uniP(*p);
+	NodeId dest = uniP.getNextHop();
+	self->base->setSendDest( dest );
+
+	int ret = p->send(h);
+	if (ret < 0) {
+	    GEA.dbg() << "There was an error while sending a packet to " << dest << endl;
+	}
+	self->base->setSendDest( self->base->BroadcastId );
     }
-    self->base->setSendDest( self->base->BroadcastId );
-
     p->unref();
 
     delete xdata;
