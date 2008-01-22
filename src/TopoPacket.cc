@@ -52,7 +52,7 @@ void TopoPacket::setNeigh(AwdsRouting *awdsRouting) {
     
     packet.buffer[OffsetNumLinks] = (char)n;
     packet.size = 
-	OffsetLinks + (NodeId::size + 1) * (size_t)(n*sizeof(RTopology::link_quality_t)) 
+	OffsetLinks + (NodeId::size + sizeof(RTopology::link_quality_t)) * (size_t) n
 	+ len+1 /* the station name */;
     
     //  assert(getNumLinks() == n);
