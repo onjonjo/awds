@@ -1,3 +1,9 @@
+awds (7.3) unstable; urgency=low
+
+  * some bugfixes
+
+ -- Andre Herms <aherms@ivs.cs.uni-magdeburg.de>  Tue, 22 Jan 2008 14:07:46 +0100
+
 awds (7.2) unstable; urgency=low
 
   * ported to GEA 2.3

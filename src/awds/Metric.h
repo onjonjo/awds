@@ -79,12 +79,15 @@ namespace awds {
 	 */
 	unsigned long calculate(RTopology::LinkList::iterator &it) {
 	    RTopology::link_quality_t f,b;
-	    if (it->get_qualities(f,b)) {
-		unsigned long mw(my_calculate(f,b));
-		it->set_metric_weight(mw);
-		return mw;
-	    }
-	    return std::numeric_limits<unsigned long>::max();
+	    unsigned long mw = std::numeric_limits<unsigned long>::max();
+	    
+	    if (it->get_qualities(f,b)) 
+		mw = my_calculate(f,b);
+	    
+	    mw = std::min(mw, std::numeric_limits<unsigned long>::max() / 1024U);
+	    
+	    it->set_metric_weight(mw);
+	    return mw;
 	}
 
     };

@@ -346,13 +346,6 @@ void RTopology::feed(const TopoPacket& p) {
 	linklist[i].neighbor = node;
 	linklist[i].quality  = q;
 
-	//	LinkList::iterator it = linklist.insert( LinkQuality(node,q), adjList, src);
-	// metric->calculate(it);
-
-
-	// set validity of referenced nodes to the validity of this topo packet.
-	// This way a node does not become invalid as long as it is referenced by others.
-
     }
 
     assert(linklist.size() == n);
@@ -381,6 +374,8 @@ void RTopology::feed(const TopoPacket& p) {
 	    LinkQuality *counterpart = nDescr.findLinkQuality(src);
 	    // the counterpart might be 0, but this is handled by set_counterpart()
 	    itr_new->set_counterpart(counterpart);
+
+	    metric->calculate(itr_new);
 
 	    //---- xml diff output is generated here.
 
@@ -420,6 +415,7 @@ void RTopology::feed(const TopoPacket& p) {
 	    this->sendLinkAdded(src, itr_new->neighbor);
 	    links_have_changed = true;
 	    dirty  = true;
+	    metric->calculate(itr_new);
 
 	    if (src == myNodeId) {
 		metric->addNode(node);
@@ -461,7 +457,6 @@ void RTopology::feed(const TopoPacket& p) {
 	}
 
     }
-
 
 
     if (src == myNodeId) {
@@ -693,7 +688,15 @@ void RTopology::calcRoutes() {
 	    if (itr2 == adjList.end() ) continue;
 
 	    NDescr& neigh = itr2->second;
+
+	    if ( ndescr.linklist[i].metric_weight <= 0 ) {
+		GEA.dbg() << "link " << nearest->first << " -> " << getNodeId( ndescr.linklist[i])
+			  << " has weight " << ndescr.linklist[i].metric_weight << endl;
+
+	    }
+
 	    assert( ndescr.linklist[i].metric_weight > 0 ); // no negative wiehgts or zero allowed!
+
 	    unsigned newDist = ndescr.distance + (unsigned)(ndescr.linklist[i].metric_weight);
 	    if (newDist < neigh.distance) {
 

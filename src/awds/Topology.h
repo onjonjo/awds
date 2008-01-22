@@ -75,13 +75,18 @@ namespace awds {
 		*this = lq;
 	    }
 
-	    LinkQuality():counterpart(0),quality(0),metric_weight(0) {}
+	    LinkQuality(): 
+		counterpart(0),
+		quality(0),
+		metric_weight(0) 
+	    {}
 
 	    LinkQuality(NodeId n, link_quality_t w):
 		counterpart(0),
 		neighbor(n),
 		quality(w),
-		metric_weight(0) {}
+		metric_weight(0) 
+	    {}
 
 	    void remove_reference() {
 		if (counterpart) {
@@ -100,7 +105,7 @@ namespace awds {
 
 	    double get_percentage() const {
 		double v(quality);
-		v = 100.0*((double)max_quality() - quality)/(double)max_quality();
+		v = 100.0 * ((double)max_quality() - quality)/(double)max_quality();
 		return v;
 	    }
 
