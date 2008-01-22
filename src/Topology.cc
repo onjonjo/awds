@@ -693,7 +693,7 @@ void RTopology::calcRoutes() {
 	    if (itr2 == adjList.end() ) continue;
 
 	    NDescr& neigh = itr2->second;
-	    //	    assert(ndescr.qList[i] <= 64U); // no negative edges allowed
+	    assert( ndescr.linklist[i].metric_weight > 0 ); // no negative wiehgts or zero allowed!
 	    unsigned newDist = ndescr.distance + (unsigned)(ndescr.linklist[i].metric_weight);
 	    if (newDist < neigh.distance) {
 
