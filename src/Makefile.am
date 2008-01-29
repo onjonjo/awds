@@ -113,13 +113,13 @@ topolock_la_LDFLAGS = $(module_flags)
 topolock_la_CPPFLAGS = -DMODULE_NAME=topolock $(COMMON_CPPFLAGS)
 topolock_la_LIBADD  = -lgea2
 
-etxmetric_la_SOURCES = Metric.h EtxMetric.h EtxMetric.cc
+etxmetric_la_SOURCES = awds/Metric.h awds/EtxMetric.h EtxMetric.cc
 etxmetric_la_LDFLAGS = $(module_flags)
 etxmetric_la_CPPFLAGS = -DMODULE_NAME=etxmetric $(COMMON_CPPFLAGS)
 etxmetric_la_LIBADD = -lgea2
 
-rttmetric_la_SOURCES = Metric.h UCMetricPacket.h UCMetricPacket.cc ExtMetric.h \
-	ExtMetric.cc UCastMetric.h UCastMetric.cc RTTMetric.h RTTMetric.cc
+rttmetric_la_SOURCES = awds/Metric.h awds/UCMetricPacket.h UCMetricPacket.cc awds/ExtMetric.h \
+	ExtMetric.cc awds/UCastMetric.h UCastMetric.cc awds/RTTMetric.h RTTMetric.cc
 rttmetric_la_LDFLAGS  = $(module_flags)
 rttmetric_la_CPPFLAGS = -DMODULE_NAME=rttmetric $(COMMON_CPPFLAGS)
 rttmetric_la_LIBADD   = -lgea2
@@ -136,18 +136,20 @@ EXTRA_PROGRAMS =  awds_static
 #gea2mad_la_CPPFLAGS = -I/scratch/wienoebs/awds/ns2-gea/ns-2 -I/usr/include/tcl8.4
 #gea2mad_la_LDFLAGS = $(module_flags)
 
-ttmetric_la_SOURCES = Metric.h UCMetricPacket.h UCMetricPacket.cc ExtMetric.h ExtMetric.cc UCastMetric.h UCastMetric.cc TTMetric.h TTMetric.cc
+ttmetric_la_SOURCES = awds/Metric.h awds/UCMetricPacket.h UCMetricPacket.cc awds/ExtMetric.h \
+	ExtMetric.cc awds/UCastMetric.h UCastMetric.cc awds/TTMetric.h TTMetric.cc
 ttmetric_la_LDFLAGS = $(module_flags)
 ttmetric_la_CPPFLAGS = -DMODULE_NAME=ttmetric $(COMMON_CPPFLAGS)
 ttmetric_la_LIBADD   = -lgea2
 
-pktpair_la_SOURCES = Metric.h UCMetricPacket.h UCMetricPacket.cc ExtMetric.h ExtMetric.cc UCastMetric.h UCastMetric.cc PktPair.h PktPair.cc
+pktpair_la_SOURCES = awds/Metric.h awds/UCMetricPacket.h UCMetricPacket.cc awds/ExtMetric.h \
+	ExtMetric.cc awds/UCastMetric.h UCastMetric.cc awds/PktPair.h PktPair.cc
 pktpair_la_LDFLAGS = $(module_flags)
 pktpair_la_CPPFLAGS = -DMODULE_NAME=pktpair $(COMMON_CPPFLAGS)
 pktpair_la_LIBADD   = -lgea2
 
 
-traffic_la_SOURCES  = Traffic.h Traffic.cc
+traffic_la_SOURCES  = awds/Traffic.h Traffic.cc
 traffic_la_LDFLAGS  = $(module_flags)
 traffic_la_CPPFLAGS = -DMODULE_NAME=traffic $(COMMON_CPPFLAGS)
 traffic_la_LIBADD   = -lgea2

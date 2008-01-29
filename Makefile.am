@@ -19,7 +19,13 @@ EXTRA_DIST = \
 	doc/exit_policy.txt \
 	doc/README.Debian \
 	doc/start_awds.sgml \
-	doc/stop_awds.dgml 
+	doc/stop_awds.sgml \
+	awds.spec awds.spec.in
+
+
+
+awds.spec: version.m4 awds.spec.in 
+	m4 $^ > $@
 
 
 

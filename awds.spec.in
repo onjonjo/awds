@@ -1,0 +1,65 @@
+%define name awds
+%define version MAJOR_VERSION_NUMBER.MINOR_VERSION_NUMBER
+
+Name: %{name}
+Version: %{version}
+Release: 1
+Summary: AWDS - A multi-hop routing for wireless ad-hoc networks
+Group: System/Networking
+URL: http://awds.berlios.de
+Buildroot: /var/tmp/%{name}-buildroot
+Source: http://schiess.mich.tot/%{name}-%{version}.tar.gz
+License: LGPL
+#BuildRequires: zlib-devel gcc >= 3.0-0 gcc-c++ >= 3.0-0 gea >= 2.1
+
+%description
+ This package contains the multi-hop rounting AWDS. It creates a
+ virtual network interface on all participating stations that are 
+ logically connected like a switched Ethernet. Thus, all high-level 
+ protocols like IPv4, IPv6, DHCP, ARP, etc. can be used without any
+ modifications. Furthermore, the virtual interface can be bridged with 
+ other devices to integrate the virtual network in an existing infrastructure.
+
+
+%define debug_package %{nil}
+
+%prep
+%setup -q -n %{name}-%{version}
+
+%build
+./configure --prefix=%{_prefix} --exec_prefix=%{_exec_prefix} --infodir=%{_infodir} --sysconfdir=%{_sysconfdir} --enable-mmx --disable-debug
+make
+
+%install
+rm -rf $RPM_BUILD_ROOT
+mkdir -p $RPM_BUILD_ROOT
+mkdir -p $RPM_BUILD_ROOT/etc/awds.d
+make DESTDIR=$RPM_BUILD_ROOT install
+
+%clean
+rm -rf $RPM_BUILD_ROOT
+
+%files
+%defattr(-,root,root)
+%{_exec_prefix}/lib/awds/*.so
+%{_prefix}/sbin/start_awds
+%{_prefix}/sbin/stop_awds
+%{_mandir}/man8/
+%{_sysconfdir}/awds.conf
+%{_sysconfdir}/awds.key
+
+%package devel
+Summary: AWDS development stuff
+Group: Development/Networking
+
+%description devel 
+Development files for AWDS.
+
+%files devel 
+%defattr(-,root,root)
+%{_exec_prefix}/lib/awds/*.la
+%{_exec_prefix}/lib/awds/*.a
+%{_prefix}/include/awds
+
+
+

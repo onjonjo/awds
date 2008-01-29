@@ -1,5 +1,5 @@
 
-EXTRA_DIST = start_awds.in stop_awds awds.conf awds.key
+EXTRA_DIST = start_awds.in stop_awds.in awds.conf.in awds.key
 sbin_SCRIPTS = start_awds stop_awds
 
 sysconf_DATA = awds.conf awds.key

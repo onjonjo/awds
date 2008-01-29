@@ -1,2 +1,2 @@
-m4_define([MAJOR_VERSION_NUMBER], [7])
-m4_define([MINOR_VERSION_NUMBER], [2])
+define(MAJOR_VERSION_NUMBER, 7)dnl
+define(MINOR_VERSION_NUMBER, 3)dnl
