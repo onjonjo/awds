@@ -60,6 +60,7 @@ awdsrouting_la_SOURCES =  \
 	FloodHistory.cc \
 	Topology.cc \
 	TopoPacket.cc \
+	SendQueue.cc \
 	awds/sqrt_int.h sqrt_int.c
 
 

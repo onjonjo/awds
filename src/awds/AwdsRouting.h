@@ -21,6 +21,8 @@
 #include <awds/settings.h>
 // #include <awds/RateMonitor.h>
 
+#include <awds/SendQueue.h>
+
 #include <awds/Firewall.h>
 
 namespace awds {
@@ -48,6 +50,7 @@ namespace awds {
 	class FloodHistory *floodHistory; /**< history of recent flood packets */
 	
 	class awds::Firewall *firewall; /**< used for packet filtering */
+	SendQueue sendq;
 	
 	AwdsRouting(basic *base);
 	
@@ -63,9 +66,6 @@ namespace awds {
     
 	static void trigger_topo(gea::Handle *h, gea::AbsTime t, void *data); 
   
-
-	static void repeat_flood(gea::Handle *h, gea::AbsTime t, void *data); 
-	static void send_unicast(gea::Handle *h, gea::AbsTime t, void *data);
 
 	/** convert a node id to a unique name
 	 *  This method implements the abstact version in awds::Routing
