@@ -10,7 +10,8 @@ grep -q tun /proc/modules || find /lib/modules/$(uname -r) -name tun.*o -exec in
 
 # use this for early detection of wrong configured stack:
 export LD_BIND_NOW=1
-export LD_LIBRARY_PATH=$MODULES_DIR
+test -n "$LD_LIBRARY_PATH" && LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:
+export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}$MODULES_DIR
 
 cd $(dirname $0)
 

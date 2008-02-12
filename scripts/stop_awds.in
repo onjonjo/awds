@@ -6,7 +6,8 @@ CONF_FILE=@AWDS_CONF_DIR@/awds.conf
 
 # use this for early detection of wrong configured stack:
 export LD_BIND_NOW=1
-export LD_LIBRARY_PATH=/usr/lib/awds
+test -n "$LD_LIBRARY_PATH" && LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:
+export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}@AWDS_MOD_DIR@
  
 cd $(dirname $0)
 
