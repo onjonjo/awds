@@ -80,6 +80,9 @@ esac],[aes_mmx=false])
 AM_CONDITIONAL(AES_MMX, test x$aes_mmx = xtrue)
 
 
+AC_CHECK_PROGS(DB2MAN, docbook2man, notfound)
+AM_CONDITIONAL(CREATE_MANPAGE, test x$DB2MAN != xnotfound)
+
 AC_CONFIG_FILES([Makefile
  src/Makefile
  src/crypto/Makefile
