@@ -56,7 +56,8 @@ then
     iwpriv $DEVICE 2>&1 | grep -q uapsd && iwpriv $DEVICE uapsd 0
 fi
 
-AWDS_EXTENSIONS=''
+# Files in /etc/awds.d/ or other scripts can utilize the AWDS_EXTENSIONS
+# environment variable to also load other gea modules when starting awds.
 if [ -d /etc/awds.d ]
 then
     FILES=$(find /etc/awds.d/ -xtype f | sort )
