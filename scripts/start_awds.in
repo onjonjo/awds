@@ -1,7 +1,7 @@
 #!/bin/sh
 
 CONF_DIR=@AWDS_CONF_DIR@
-MODULES_DIR=@AWDS_MOD_DIR@ 
+MODULES_DIR=@AWDS_MOD_DIR@
 
 CONF_FILE=$CONF_DIR/awds.conf
 [ -e $CONF_FILE ] && . $CONF_FILE
@@ -27,7 +27,7 @@ DEVICE=${1:-$AUTODEV}
 
 AESCCM=''
 if [ x$USE_ENCRYPTION = xyes ]
-then 
+then
 AESCCM="aesccm.so -k $KEY_FILE"
 fi
 
@@ -50,7 +50,7 @@ then
     iwconfig $DEVICE mode ad-hoc channel $DEV_WIRELESS_CHANNEL essid $DEV_WIRELESS_ESSID
     ifconfig $DEVICE mtu 2000
     ifconfig $DEVICE up
-    
+
     # madwifi bug workaround:
     # set uapsd option to zero, if available
     iwpriv $DEVICE 2>&1 | grep -q uapsd && iwpriv $DEVICE uapsd 0
@@ -84,4 +84,3 @@ $AWDS_TOPO
 topolock.so
 $AWDS_EXTENSIONS
 END
-

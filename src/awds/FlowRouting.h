@@ -7,19 +7,19 @@
 #include <awds/BasePacket.h>
 
 namespace awds {
-    
+
     /** \brief Inteface class for routing with flow tables.
      *  \ingroup awdsrouting_mod
      */
     class FlowRouting : public Routing {
-    public:	
+    public:
 	typedef uint32_t FlowId;
-	
-	typedef void (*FlowReceiver)(BasePacket *p, void *data);
-    
 
-	FlowRouting(basic *basic) : 
-	    Routing(basic->MyId) 
+	typedef void (*FlowReceiver)(BasePacket *p, void *data);
+
+
+	FlowRouting(basic *basic) :
+	    Routing(basic->MyId)
 	{}
 
 	virtual int  addForwardingRule(FlowId flowid, NodeId nextHop) = 0;
@@ -29,9 +29,9 @@ namespace awds {
 	virtual int addFlowReceiver(FlowId flowid, FlowReceiver, void *data) = 0;
 	virtual int delFlowReceiver(FlowId) = 0;
 
-	virtual BasePacket *newFlowPacket(FlowId flowid) = 0; 
+	virtual BasePacket *newFlowPacket(FlowId flowid) = 0;
 	virtual int sendFlowPacket(BasePacket *p) = 0;
-	
+
 	virtual ~FlowRouting() {}
     };
 }

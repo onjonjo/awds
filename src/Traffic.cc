@@ -30,7 +30,7 @@ void awds::Traffic::send(int pCount,int pSize,NodeId d) {
     if (debug) {
       GEA.dbg() << gea::AbsTime::now()-start << " Traffic: destination not reachable, going to wait for 10 seconds" << std::endl;
       std::cout << static_cast<AwdsRouting*>(routing)->topology->getAdjString() << std::endl;
-    }    
+    }
     GEA.waitFor(&blocker,
 		gea::AbsTime::now()+10,
 		&Traffic::wait,
@@ -49,7 +49,7 @@ void awds::Traffic::send(int pCount,int pSize,NodeId d) {
   tp.setSeq(count);
   count++;
   lastcount = count;
-  
+
   UnicastPacket uniP(*p);
   uniP.setUcDest(dest);
   uniP.packet.size = packetSize;
@@ -72,7 +72,7 @@ void awds::Traffic::on_wait(gea::Handle *h,gea::AbsTime t) {
       send(0,0,NodeId(0));
     }
   } else {
-    if (routing->isReachable(dest)) {      
+    if (routing->isReachable(dest)) {
       send_reply(dest);
     } else {
       std::cout << "waiting" << std::endl;
@@ -98,7 +98,7 @@ void awds::Traffic::send_reply(NodeId dest) {
   UnicastPacket uniP(*rp);
   uniP.setUcDest(dest);
   rp->setDest(dest);
-  routing->sendUnicast(rp);	      
+  routing->sendUnicast(rp);
 }
 
 void awds::Traffic::on_recv(BasePacket *p) {
@@ -131,7 +131,7 @@ void awds::Traffic::on_recv(BasePacket *p) {
       NodeId src(TrafficPacket(*p).getSrc());
       //      GEA.dbg() << "respond to:" << (int) src<< std::endl;
 
-      if (routing->isReachable(src)) {      
+      if (routing->isReachable(src)) {
 	send_reply(src);
       } else {
 	std::cout << "waiting" << std::endl;
@@ -147,16 +147,16 @@ void awds::Traffic::on_recv(BasePacket *p) {
 
 extern "C"
 #ifdef PIC
-int gea_main(int argc, const char  * const * argv) 
+int gea_main(int argc, const char  * const * argv)
 #else
-int awdsRouting_gea_main(int argc, const char  * const *argv) 
+int awdsRouting_gea_main(int argc, const char  * const *argv)
 #endif
 
 {
   ObjRepository& rep = ObjRepository::instance();
   AwdsRouting *routing = (AwdsRouting *)rep.getObj("awdsRouting");
   if (!routing) {
-    GEA.dbg() << "cannot find object 'routing' in repository" << std::endl; 
+    GEA.dbg() << "cannot find object 'routing' in repository" << std::endl;
     return -1;
   }
 

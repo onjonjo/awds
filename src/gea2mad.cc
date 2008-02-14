@@ -23,9 +23,9 @@ double awds::gea2mad::getTT(int id) {
 
 extern "C"
 #ifdef PIC
-int gea_main(int argc, const char  * const * argv) 
+int gea_main(int argc, const char  * const * argv)
 #else
-int awdsRouting_gea_main(int argc, const char  * const *argv) 
+int awdsRouting_gea_main(int argc, const char  * const *argv)
 #endif
 {
   ObjRepository& rep = ObjRepository::instance();

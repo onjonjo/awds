@@ -7,26 +7,26 @@
 #include <awds/NodeId.h>
 
 namespace awds{
-    
+
     /** \brief data structure to remember and lookup the recent flood packets
      */
     class FloodHistory {
 
     public:
-	
+
 	/** \brief an entry in the flood history */
-	struct Entry { 
+	struct Entry {
 	    NodeId id;
 	    u_int16_t seq;
 	};
 
 
 	size_t size; ///< how many packets to remember
-	size_t start, end; 
+	size_t start, end;
 
 	Entry *hist;
 
-	FloodHistory() : 
+	FloodHistory() :
 	    size(0x80)  // this is a reasonable value
 	{
 	    start = 0;

@@ -3,7 +3,7 @@
 
 
 enum FloodType {
-    
+
     FloodTypeTopo = 0,
     FloodTypeMCast,
     FloodTypePrivate

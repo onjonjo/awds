@@ -6,17 +6,17 @@
 namespace awds {
 
     /** \brief type for representing an address of a station
-     * 
+     *
      *   An AWDS node identifier is used to store a unique identifier of a station.
      *   When using the RawBasic interface, the MAC address of the wireless interface
-     *   is used. Therefore, it must be at least 6 bytes wide. 
+     *   is used. Therefore, it must be at least 6 bytes wide.
      *
      *   When used with the UdpBasic interface, the topmost bytes will be zero.
      *   \see basic::MyId
      *   \see Routing::myNodeId
      */
-    typedef AbstractID<6> NodeId; 
-    
+    typedef AbstractID<6> NodeId;
+
 }
 
 #endif //NODEID_H__

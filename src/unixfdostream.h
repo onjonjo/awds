@@ -47,19 +47,19 @@
 #include <iostream>
 
 class UnixFdStreamBuf : public  std::basic_streambuf<char> {
-  
+
     static const size_t bufSize = 256;
     char buffer[bufSize + 1]; // one additional character for  overflow ...
-  
+
     const int fd;
-  
+
 public:
     UnixFdStreamBuf(int fd) : std::basic_streambuf<char>(),
 			      fd(fd)
     {
 	setp(buffer, buffer + bufSize);
     };
-  
+
     // write out any data in the out buffer, and write c as well if c!=eof()
     virtual int_type overflow (int_type c) {
 	//		cout << "overflow called: " << c << endl;
@@ -81,33 +81,33 @@ public:
 	    }
 
 	    char_type *wp = pbase();
-	    
+
 	    if ( ! writeSomeBytes(wp, count) )
 		return traits_type::eof();
-	    
+
 	    // reset output buffer to empty state
 	    setp(buffer, buffer+bufSize);
 	}
 	return traits_type::not_eof(c);
     }
 
-  
+
     virtual int sync() {
 	if( overflow(traits_type::eof()) == traits_type::eof() )
 	    return -1;
 	return 0;
     }
-  
+
 protected:
-    
+
     virtual bool writeSomeBytes(const char *data, int count) {
 	int ret;
-	
+
 	do {
 	    do {
 	    ret = ::write( this->fd, data, count);
 	    } while (ret == -1 && errno == EINTR);
-	    
+
 	    if( ret > 0 ) {
 		count -= ret;
 		assert(count >= 0);

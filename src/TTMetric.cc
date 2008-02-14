@@ -9,7 +9,7 @@ using namespace awds;
 using namespace std;
 using namespace gea;
 
-awds::TTMetric::TTMetric(awds::Routing *r):UCastMetric(r),interval(1),debug(false),packetSize(800) {  
+awds::TTMetric::TTMetric(awds::Routing *r):UCastMetric(r),interval(1),debug(false),packetSize(800) {
 }
 
 awds::TTMetric::~TTMetric() {
@@ -24,17 +24,17 @@ awds::TTMetric::start() {
 }
 
 
-awds::RTopology::link_quality_t 
+awds::RTopology::link_quality_t
 awds::TTMetric::my_get_quality(NodeDescr &ndescr) {
   //  std::cout << "TTraw: " << g2m->getTT(ndescr.id) << std::endl;
-  RTopology::link_quality_t ret = 
+  RTopology::link_quality_t ret =
     std::min( (RTopology::link_quality_t)(g2m->getTT(ndescr.id)  * RTopology::max_quality()),
 	      RTopology::max_quality());
   ttData[ndescr.id].tt = ret;
   return ret;
 }
 
-unsigned long 
+unsigned long
 awds::TTMetric::my_calculate(awds::RTopology::link_quality_t forward,
 			      awds::RTopology::link_quality_t backward) {
   return forward;
@@ -46,12 +46,12 @@ awds::TTMetric::update() {
 }
 
 
-void 
+void
 awds::TTMetric::addNode(NodeId &nodeId) {
   ttData[nodeId].active = true;
 }
 
-void 
+void
 awds::TTMetric::begin_update() {
   TTData::iterator it(ttData.begin());
   while (it != ttData.end()) {
@@ -60,7 +60,7 @@ awds::TTMetric::begin_update() {
   }
 }
 
-void 
+void
 awds::TTMetric::end_update() {
   TTData::iterator it(ttData.begin());
   while (it != ttData.end()) {
@@ -73,7 +73,7 @@ awds::TTMetric::end_update() {
 }
 
 
-std::string 
+std::string
 awds::TTMetric::get_values() {
   std::ostringstream r;
   r << "TTMetric for: " << (unsigned long) routing->myNodeId << std::endl;
@@ -89,7 +89,7 @@ awds::TTMetric::get_values() {
   return r.str();
 }
 
-void 
+void
 awds::TTMetric::on_wait(gea::Handle *h,gea::AbsTime t) {
   TTData::iterator oldest (ttData.begin());
   TTData::iterator it(ttData.begin());
@@ -120,27 +120,27 @@ awds::TTMetric::on_wait(gea::Handle *h,gea::AbsTime t) {
 
 extern "C"
 #ifdef PIC
-int gea_main(int argc, const char  * const * argv) 
+int gea_main(int argc, const char  * const * argv)
 #else
-int awdsRouting_gea_main(int argc, const char  * const *argv) 
+int awdsRouting_gea_main(int argc, const char  * const *argv)
 #endif
 
 {
   ObjRepository& rep = ObjRepository::instance();
   AwdsRouting *routing = (AwdsRouting *)rep.getObj("awdsRouting");
   if (!routing) {
-    GEA.dbg() << "cannot find object 'routing' in repository" << std::endl; 
+    GEA.dbg() << "cannot find object 'routing' in repository" << std::endl;
     return -1;
   }
   gea2mad *g2m = (gea2mad *)rep.getObj("gea2mad");
   if (!g2m) {
-    GEA.dbg() << "cannot find object 'gea2mad' in repository" << std::endl; 
+    GEA.dbg() << "cannot find object 'gea2mad' in repository" << std::endl;
     return -1;
   }
   delete routing->topology->metric;
   TTMetric *tt(new TTMetric(routing));
   routing->topology->metric = tt;
-  
+
   tt->g2m = g2m;
 
   for (int i(1);i<argc;++i) {

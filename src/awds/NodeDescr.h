@@ -23,42 +23,42 @@ struct NodeDescr {
 
     static const int LostTrigger = 8;
     static bool verbose;
-   
+
     NodeId id;                    /// ID of the node
-    BasePacket *lastBeacon;       /// pointer to the last received beacon 
+    BasePacket *lastBeacon;       /// pointer to the last received beacon
     gea::AbsTime lastBeaconTime;  /// when was the last beacon received
     gea::Duration beaconInterval; /// beacon interval of the node.
     //    unsigned long beaconHist;
     u_int32_t beaconHist;         /// bitfield of the last received/lost beacons
     bool active;                  /// is this an active (good recieved) node
     bool mpr;			  /// is this a MPR node
-    
+
     void updateActive( /* gea::AbsTime t */) {
-	
+
 	const bool last12received = (beaconHist > 0xFFF00000UL);
 	const bool last4lost      = (beaconHist < 0x08000000UL );
-	const bool lastBeacon2old = (lastBeaconTime < 
-				     GEA.lastEventTime - gea::Duration( (double)beaconInterval 
+	const bool lastBeacon2old = (lastBeaconTime <
+				     GEA.lastEventTime - gea::Duration( (double)beaconInterval
 									* (double)LostTrigger) );
-	if ( !active && !lastBeacon2old && last12received) { 
+	if ( !active && !lastBeacon2old && last12received) {
 	    active = true;
 	    if (verbose) {
-		GEA.dbg() << "neighbor " 
-			  << Beacon(*lastBeacon).getSrc() << " became active" << std::endl; 
+		GEA.dbg() << "neighbor "
+			  << Beacon(*lastBeacon).getSrc() << " became active" << std::endl;
 	    }
 	} else if (  active && ( last4lost || lastBeacon2old ) )  {
 	    active = false;
 	    if (verbose) {
-		GEA.dbg() << "neighbor " 
-			  << Beacon(*lastBeacon).getSrc() << " became inactive " 
+		GEA.dbg() << "neighbor "
+			  << Beacon(*lastBeacon).getSrc() << " became inactive "
 			  << ( last4lost ? "(last 4 beacon lost)" : "(last beacon too old)")
-			  << std::endl; 
+			  << std::endl;
 	    }
-	} 
+	}
     }
-    
+
     bool isGood() {
-	updateActive(); 
+	updateActive();
 	return active;
     }
 
@@ -76,10 +76,10 @@ struct NodeDescr {
 	}
 	return isGood();
     }
-    
+
     bool isTooOld() {
 	return lastBeaconTime + (beaconInterval * 32)  < GEA.lastEventTime;
-	
+
     }
 
     NodeDescr() : beaconInterval(0.) {}
@@ -96,7 +96,7 @@ struct NodeDescr {
 
     unsigned char quality() const {
 	unsigned long x = beaconHist;
-	
+
 	unsigned char  n = 0;
 	/*
 	** The loop will execute once for each bit of x set, this is in average
@@ -107,7 +107,7 @@ struct NodeDescr {
 		++n;
 	    } while (0 != (x = x&(x-1)));
 	}
-	
+
 	assert(n > 0);
 	return n;
     }

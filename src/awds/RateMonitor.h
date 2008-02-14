@@ -8,7 +8,7 @@ namespace awds {
 /** abstact base class for rate-base routing metrics */
 class RateMonitor {
 public:
-    
+
     virtual void update()=0;
     virtual int  getTT(const NodeId& id) = 0;
     virtual ~RateMonitor() {}

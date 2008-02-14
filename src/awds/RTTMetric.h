@@ -6,7 +6,7 @@
 #include <string>
 
 namespace awds {
-    
+
     /** \brief A class that implements the RTT metric.
      */
     class RTTMetric : public UCastMetric {
@@ -38,11 +38,11 @@ namespace awds {
 	virtual ~RTTMetric();
 	virtual void on_recv(BasePacket *p);
 	virtual void on_wait(gea::Handle *h,gea::AbsTime t);
-    
+
 	void go_history() {
 	    history = new History;
 	}
-    
+
 	void start();
 
 	virtual void addNode(NodeId &nodeId);

@@ -4,25 +4,25 @@
 #include <awds/UnicastPacket.h>
 
 namespace awds {
-    
+
     class TraceUcPacket : public UnicastPacket {
-	
-    public: 
+
+    public:
 	static const size_t OffsetTraceEnd = UnicastPacket::UnicastPacketEnd;
 	static const size_t TraceUcPacketEnd = OffsetTraceEnd + 2;
-	
+
 	TraceUcPacket(BasePacket& p) : UnicastPacket(p) {
-	    
+
 	}
 
 	void setTracePointer(size_t offset) {
 	    toArray<u_int16_t>(offset, packet.buffer + OffsetTraceEnd);
 	}
-	
+
 	size_t getTracePointer() const {
 	    return fromArray<u_int16_t>(packet.buffer + OffsetTraceEnd);
 	}
-	
+
 	bool appendNode(const NodeId& id) {
 	    size_t offset = getTracePointer();
 
@@ -31,14 +31,14 @@ namespace awds {
 
 	    id.toArray(packet.buffer + offset);
 	    setTracePointer(offset + NodeId::size);
-	    GEA.dbg() << "appending " << id 
+	    GEA.dbg() << "appending " << id
 		      << " tp=" << (offset + NodeId::size)
 				      << std::endl;
 	    return true;
 	}
-	
-	
-	
+
+
+
     };
 }
 

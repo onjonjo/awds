@@ -32,28 +32,28 @@ public:
     int fd;
     char devname[IFNAMSIZ+1];
     //    NodeId devMac;
-    
+
     gea::UnixFdHandle *tapHandle;
     Routing *routing;
-    
+
     TapInterface(Routing *routing);
-    
+
     virtual ~TapInterface() {}
-    
+
     virtual void init(const char*dev);
-    
+
     virtual bool setIfaceHwAddress(const NodeId& id);
-    
+
     bool setIfaceMTU(int mtu);
     bool createDevice(const char *dev);
-    
+
     static void tap_recv(gea::Handle *h, gea::AbsTime t, void *data);
     static void recv_unicast  ( BasePacket *p, void *data);
     static void recv_broadcast( BasePacket *p, void *data);
-    
+
     /** detemine the routing node ID for the given MAC address.
      *  \param mac pointer to 6 chars with the MAC address
-     *  \praram id reference to a NodeID variable. If a valid destination id is found, 
+     *  \praram id reference to a NodeID variable. If a valid destination id is found,
      *             it is stored here.
      *  \returns true, if id was found, false otherwise (means broadcast).
      */
@@ -63,8 +63,8 @@ public:
      *  this is not used in the basic tap awdsRoutingace
      */
     virtual void   storeSrcAndMac(const NodeId &id, const char *bufO, gea::AbsTime t);
-    
-    
+
+
 };
 }
 

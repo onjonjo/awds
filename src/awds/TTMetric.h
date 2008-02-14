@@ -12,7 +12,7 @@ namespace awds {
       int tt;
       bool active;
       gea::AbsTime lastsend;
-      
+
       NodeData():tt( RTopology::max_quality()),active(true),lastsend(0) {
       }
     };

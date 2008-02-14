@@ -18,9 +18,9 @@ RTopology::link_quality_t awds::EtxMetric::my_get_quality(NodeDescr &ndescr) {
   // highest value is worst value!
   return q * (RTopology::max_quality() / 32);
 }
-    
+
 unsigned long awds::EtxMetric::my_calculate(RTopology::link_quality_t forward,
-					    RTopology::link_quality_t backward) 
+					    RTopology::link_quality_t backward)
 {
   forward /= (RTopology::max_quality() / 32U);
   backward /= (RTopology::max_quality() / 32U);
@@ -34,7 +34,7 @@ unsigned long awds::EtxMetric::my_calculate(RTopology::link_quality_t forward,
 awds::EtxMetric::EtxMetric(Routing *r):Metric(r) {
   scale = std::numeric_limits<unsigned long>::max()/1024;
 }
- 
+
 awds::EtxMetric::~EtxMetric() {
 }
 
@@ -43,7 +43,7 @@ GEA_MAIN_2(etxmetric, argc, argv)
   ObjRepository& rep = ObjRepository::instance();
   AwdsRouting *routing = (AwdsRouting *)rep.getObj("awdsRouting");
   if (!routing) {
-    GEA.dbg() << "cannot find object 'routing' in repository" << std::endl; 
+    GEA.dbg() << "cannot find object 'routing' in repository" << std::endl;
     return -1;
   }
   delete routing->topology->metric;

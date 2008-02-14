@@ -12,13 +12,13 @@ PktPair::PktPair(Routing *r):
   debug(false),
   alpha(1),
   packetSize(800),
-  bufferSize(0) 
+  bufferSize(0)
 {}
 
 PktPair::~PktPair() {
 }
 
-RTopology::link_quality_t PktPair::my_get_quality(NodeDescr &ndescr) 
+RTopology::link_quality_t PktPair::my_get_quality(NodeDescr &ndescr)
 {
   RTopology::link_quality_t ret = RTopology::max_quality();
   Nodes::iterator it(nodes.find(ndescr.id));
@@ -68,7 +68,7 @@ awds::PktPair::start() {
 
 void PktPair::on_recv(BasePacket *p) {
   const AbsTime t = GEA.lastEventTime;
-  
+
   UCMetricPacket mp(*p);
   NodeId sender(mp.getSrc());
   if (debug) {
@@ -170,7 +170,7 @@ GEA_MAIN_2(pktpair, argc, argv)
   ObjRepository& rep = ObjRepository::instance();
   AwdsRouting *routing = (AwdsRouting *)rep.getObj("awdsRouting");
   if (!routing) {
-    GEA.dbg() << "cannot find object 'routing' in repository" << std::endl; 
+    GEA.dbg() << "cannot find object 'routing' in repository" << std::endl;
     return -1;
   }
   delete routing->topology->metric;
@@ -186,7 +186,7 @@ GEA_MAIN_2(pktpair, argc, argv)
     if (w == "--debug") {
       pp->debug = true;
     }
-    if (w == "--minimum") {      
+    if (w == "--minimum") {
       std::stringstream ss(p);
       ss >> pp->bufferSize;
       std::cout << "PktPair: using minimum-value, bufferSize: " << pp->bufferSize << std::endl;

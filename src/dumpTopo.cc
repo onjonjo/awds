@@ -13,9 +13,9 @@ using namespace std;
 using namespace awds;
 
 struct topostream {
-    
+
     ofstream file;
-    
+
     static bool xmlTopoDiff(void *d,  string& s) {
 	struct topostream *self = static_cast<struct topostream *>(d);
 	if (self->file.is_open()) {
@@ -24,16 +24,16 @@ struct topostream {
 	}
 	return true;
     }
-    
+
 };
 
 
 GEA_MAIN_2(topodump, argc, argv) {
-  
+
   ObjRepository& rep = ObjRepository::instance();
   RTopology *topology = (RTopology *)rep.getObj("topology");
   if (!topology) {
-    GEA.dbg() << "cannot find object 'topology' in repository" << endl; 
+    GEA.dbg() << "cannot find object 'topology' in repository" << endl;
     return -1;
   }
   bool append(false);
@@ -44,8 +44,8 @@ GEA_MAIN_2(topodump, argc, argv) {
       if (argc > i+1) {
 	  p = argv[i+1];
       }
-      if (o == "--file") {	  
-	  file = p; 
+      if (o == "--file") {
+	  file = p;
 	  i++;
       }
       if (o == "--append") {
@@ -67,7 +67,7 @@ GEA_MAIN_2(topodump, argc, argv) {
   } else {
       result = topology->getXmlString();
   }
-  
+
   if (type == "stream") {
       if (file == "") {
 	  GEA.dbg() << "usage: " << argv[0] << " --type stream --file <filename>" << endl;
@@ -81,8 +81,8 @@ GEA_MAIN_2(topodump, argc, argv) {
       stream->file.flush();
       return 0;
   }
-  
-  
+
+
   if (file.length()) {
       ofstream f;
       if (append) {
@@ -94,7 +94,7 @@ GEA_MAIN_2(topodump, argc, argv) {
   } else {
       GEA.dbg() << endl << topology->getXmlString() << endl;
   }
-  
+
   _exit(0);
 
   return 0;

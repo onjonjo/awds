@@ -4,12 +4,12 @@
 #include <awds/BasePacket.h>
 
 namespace awds {
-    
+
 
     /** \brief base class for implementing firewalls rules
      */
     class Firewall {
-	
+
     public:
 	/** \brief decide, if a packet is accepted
 	 *

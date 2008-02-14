@@ -166,7 +166,7 @@ aes_rval aes_encrypt_key256(const void *in_key, aes_encrypt_ctx cx[1])
 
 #if ENC_UNROLL == NONE
     {   aes_32t i;
- 
+
         for(i = 0; i < (15 * N_COLS - 1) / 8; ++i)
             ke8(cx->k_sch,  i);
     }
