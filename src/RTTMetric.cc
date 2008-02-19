@@ -9,7 +9,7 @@ using namespace std;
 using namespace awds;
 using namespace gea;
 
-awds::RTTMetric::RTTMetric(awds::Routing *r):UCastMetric(r),history(0),interval(0.5),debug(false),alpha(1),packetSize(800) {  
+awds::RTTMetric::RTTMetric(awds::Routing *r):UCastMetric(r),history(0),interval(0.5),debug(false),alpha(1),packetSize(800) {
   srand(time(0));
 }
 
@@ -24,7 +24,7 @@ awds::RTTMetric::start() {
 	      (void*)this);
 }
 
-std::string 
+std::string
 awds::RTTMetric::get_history() {
   std::string result;
   if (history) {
@@ -96,7 +96,7 @@ std::string awds::RTTMetric::get_values() {
 }
 
 
-awds::RTopology::link_quality_t 
+awds::RTopology::link_quality_t
 awds::RTTMetric::my_get_quality(NodeDescr &ndescr) {
   RTopology::link_quality_t ret = RTopology::max_quality();
   RTTData::iterator it = rttData.find(ndescr.id);
@@ -122,7 +122,7 @@ awds::RTTMetric::addNode(NodeId &nodeId) {
   }
 }
 
-void 
+void
 awds::RTTMetric::begin_update() {
   RTTData::iterator it(rttData.begin());
   while (it != rttData.end()) {
@@ -131,7 +131,7 @@ awds::RTTMetric::begin_update() {
   }
 }
 
-void 
+void
 awds::RTTMetric::end_update() {
   RTTData::iterator it(rttData.begin());
   while (it != rttData.end()) {
@@ -147,7 +147,7 @@ awds::RTTMetric::end_update() {
   }
 }
 
-unsigned long 
+unsigned long
 awds::RTTMetric::my_calculate(awds::RTopology::link_quality_t forward,
 			      awds::RTopology::link_quality_t backward) {
   return forward+backward;
@@ -180,13 +180,13 @@ void awds::RTTMetric::go_measure() {
 	      (void*)this);
 }
 
-void 
+void
 awds::RTTMetric::on_recv(BasePacket *p) {
   UCMetricPacket mp(*p);
   if (debug) {
     GEA.dbg() << "rtt: receive metricpacket from: " << (unsigned int) mp.getSrc() << std::endl;
   }
-  if (mp.getType() == awds::UCMetricPacket::req) {    
+  if (mp.getType() == awds::UCMetricPacket::req) {
     if (debug) {
       GEA.dbg() << "rtt: request" << std::endl;
     }
@@ -216,7 +216,7 @@ awds::RTTMetric::on_recv(BasePacket *p) {
   }
 }
 
-void 
+void
 awds::RTTMetric::on_wait(gea::Handle *h,
 			 gea::AbsTime t) {
   go_measure();
@@ -225,16 +225,16 @@ awds::RTTMetric::on_wait(gea::Handle *h,
 
 extern "C"
 #ifdef PIC
-int gea_main(int argc, const char  * const * argv) 
+int gea_main(int argc, const char  * const * argv)
 #else
-int awdsRouting_gea_main(int argc, const char  * const *argv) 
+int awdsRouting_gea_main(int argc, const char  * const *argv)
 #endif
 
 {
   ObjRepository& rep = ObjRepository::instance();
   AwdsRouting *routing = (AwdsRouting *)rep.getObj("awdsRouting");
   if (!routing) {
-    GEA.dbg() << "cannot find object 'routing' in repository" << std::endl; 
+    GEA.dbg() << "cannot find object 'routing' in repository" << std::endl;
     return -1;
   }
   delete routing->topology->metric;

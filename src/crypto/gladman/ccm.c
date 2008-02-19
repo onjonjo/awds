@@ -30,11 +30,11 @@
  ---------------------------------------------------------------------------
  Issue Date: 1/05/2003
 
- This code implements the CCM combined encryption and authentication 
- mode specified by Doug Whiting, Russ Housley and Niels Ferguson. 
+ This code implements the CCM combined encryption and authentication
+ mode specified by Doug Whiting, Russ Housley and Niels Ferguson.
 
- The additonal authenicated data in this version is memory resident in 
- a single block and is limited to less than 65536 - 256 (= 65280) bytes. 
+ The additonal authenicated data in this version is memory resident in
+ a single block and is limited to less than 65536 - 256 (= 65280) bytes.
  The message data is limited to less 2^32 bytes but can be processed in
  either a single memory resident block or in multiple smaller blocks.
 
@@ -96,27 +96,27 @@
 
 #endif
 
-/*  This call initialises the CCM context by setting the encryption key 
-    and setting up and calculating the the CBC value for the additional 
-    authenication data. 
-   
-    This call is then followed by calls to CCM_encrypt() or CCM_decrypt() 
-    to encrypt or decrypt the message bytes. Length values are in bytes. 
-   
-    The message length value for CCM_init() is the actual number of bytes 
-    in the message without the authentication data. This is also true for 
-    CCM_encrypt() but the length for CCM_decrypt() is the message length 
-    plus the length in bytes of the added authentication data field that 
+/*  This call initialises the CCM context by setting the encryption key
+    and setting up and calculating the the CBC value for the additional
+    authenication data.
+
+    This call is then followed by calls to CCM_encrypt() or CCM_decrypt()
+    to encrypt or decrypt the message bytes. Length values are in bytes.
+
+    The message length value for CCM_init() is the actual number of bytes
+    in the message without the authentication data. This is also true for
+    CCM_encrypt() but the length for CCM_decrypt() is the message length
+    plus the length in bytes of the added authentication data field that
     is stored at the end of the message.
 
     CCM_encrypt() and CCM_decrypt() can be called more than once in order
-    to process long messages but the overall sum of the lengths for the 
+    to process long messages but the overall sum of the lengths for the
     set of calls used must match the message length (encrypt) or the sum
     of the message length and the authentication field length (decrypt).
 
-    The number of bytes required in the nonce[] array depends on how many 
-    bytes are needed to represent the message length in bytes. If 2, 3 or 
-    4 bytes are needed to store the message length, then the number of 
+    The number of bytes required in the nonce[] array depends on how many
+    bytes are needed to represent the message length in bytes. If 2, 3 or
+    4 bytes are needed to store the message length, then the number of
     nonce bytes needed is 13, 12 or 11 respectively.
 */
 
@@ -132,7 +132,7 @@ ret_type CCM_init(
 	if(key_len != 16 && key_len != 24 && key_len != 32)
 		return CCM_bad_key;
 
-	aes_encrypt_key(key, key_len, ctx->aes);	
+	aes_encrypt_key(key, key_len, ctx->aes);
 
 	if(auth_field_len < 2 || auth_field_len > 16 || (auth_field_len & 1))
         return CCM_bad_auth_field_length;   /* illegal authentication field size    */
@@ -145,14 +145,14 @@ ret_type CCM_init(
     ctx->af_len = auth_field_len;
 
 #ifndef LONG_MESSAGES
-    ctx->blk[0] = (ctx->md_len & 0xff000000 ? 3 : 
+    ctx->blk[0] = (ctx->md_len & 0xff000000 ? 3 :
                    ctx->md_len & 0xffff0000 ? 2 : 1);
 #else
-    ctx->blk[0] = (ctx->md_len & 0xff00000000000000 ? 7 : 
-                   ctx->md_len & 0xffff000000000000 ? 6 : 
-                   ctx->md_len & 0xffffff0000000000 ? 5 : 
-                   ctx->md_len & 0xffffffff00000000 ? 4 : 
-                   ctx->md_len & 0xffffffffff000000 ? 3 : 
+    ctx->blk[0] = (ctx->md_len & 0xff00000000000000 ? 7 :
+                   ctx->md_len & 0xffff000000000000 ? 6 :
+                   ctx->md_len & 0xffffff0000000000 ? 5 :
+                   ctx->md_len & 0xffffffff00000000 ? 4 :
+                   ctx->md_len & 0xffffffffff000000 ? 3 :
                    ctx->md_len & 0xffffffffffff0000 ? 2 : 1);
 #endif
 
@@ -173,15 +173,15 @@ ret_type CCM_init(
         cnt = 0;            /* set the two byte length field for the data   */
         ctx->cbc[0] ^= (aes_08t)(ad_len >> 8);
         ctx->cbc[1] ^= (aes_08t) ad_len;
-        
+
         while(cnt < ad_len) /* perform the CBC calculation on the data      */
-        {   
+        {
             /* xor data into the running CBC block                          */
             ctx->cbc[(cnt + 2) & BLOCK_MASK] ^= auth[cnt];
 
             /* if CBC block is full or at end of the authentication data    */
             if(!((++cnt + 2) & BLOCK_MASK) || cnt == ad_len)
-                aes_encrypt(ctx->cbc, ctx->cbc, ctx->aes); 
+                aes_encrypt(ctx->cbc, ctx->cbc, ctx->aes);
         }
     }
 
@@ -189,21 +189,21 @@ ret_type CCM_init(
     return CCM_ok;
 }
 
-/*  Encrypt 'len' bytes data from imsg[] to omsg[]. This call can be repeated 
-    for multiple blocks provided that the sum of the individual block lengths 
+/*  Encrypt 'len' bytes data from imsg[] to omsg[]. This call can be repeated
+    for multiple blocks provided that the sum of the individual block lengths
     is equal to the overall message length set in the call to CCM_init(). The
-    last omsg[] buffer for which this routine is called must have extra space 
-    for the authentication field bytes in addition to the message bytes (i.e. 
+    last omsg[] buffer for which this routine is called must have extra space
+    for the authentication field bytes in addition to the message bytes (i.e.
     the omsg[] buffer for the last call must have a length that is the sum of
     the input parameter 'len' and the 'auth_field_len' set when CCM_init() is
-    called.  If the return value is negative an error has occurred, otherwise 
+    called.  If the return value is negative an error has occurred, otherwise
     the total number of bytes written to omsg[] is returned.
 */
 
 #define lp(x)       ((unsigned long*)(x))         /* cast to unsigned long pointer	*/
 #define aligned(x)  (!(((unsigned long)(x)) & 3)) /* check for long word alignment	*/
 
-ret_type CCM_encrypt(unsigned char mbuf[],		/* the plaintext input message      */ 
+ret_type CCM_encrypt(unsigned char mbuf[],		/* the plaintext input message      */
 					 mlen_type len,             /* the length of this block (bytes) */
 					 CCM_ctx ctx[1])            /* the CCM context                  */
 
@@ -227,26 +227,26 @@ ret_type CCM_encrypt(unsigned char mbuf[],		/* the plaintext input message      
 		{
 			while(b_pos < (AES_BLOCK_SIZE >> 2) && cnt + 4 < len)
 			{
-				lp(ctx->cbc)[b_pos] ^= *mp; 
+				lp(ctx->cbc)[b_pos] ^= *mp;
 				*mp++ ^= lp(ctx->sii)[b_pos++];
 				cnt += 4;
 			}
-		
+
 			if(b_pos == (AES_BLOCK_SIZE >> 2))
 			{
-			        b_pos = 0; 
-				inc_ctr(ctx); 
+			        b_pos = 0;
+				inc_ctr(ctx);
 				aes_encrypt(ctx->blk, ctx->sii, ctx->aes);
 				aes_encrypt(ctx->cbc, ctx->cbc, ctx->aes);
 			}
 		}
 
         while(cnt + AES_BLOCK_SIZE < len)
-        {   
-            lp(ctx->cbc)[0] ^= *mp; *mp++ ^= lp(ctx->sii)[0]; 
-            lp(ctx->cbc)[1] ^= *mp; *mp++ ^= lp(ctx->sii)[1]; 
-            lp(ctx->cbc)[2] ^= *mp; *mp++ ^= lp(ctx->sii)[2]; 
-            lp(ctx->cbc)[3] ^= *mp; *mp++ ^= lp(ctx->sii)[3]; 
+        {
+            lp(ctx->cbc)[0] ^= *mp; *mp++ ^= lp(ctx->sii)[0];
+            lp(ctx->cbc)[1] ^= *mp; *mp++ ^= lp(ctx->sii)[1];
+            lp(ctx->cbc)[2] ^= *mp; *mp++ ^= lp(ctx->sii)[2];
+            lp(ctx->cbc)[3] ^= *mp; *mp++ ^= lp(ctx->sii)[3];
             inc_ctr(ctx);
             aes_encrypt(ctx->blk, ctx->sii, ctx->aes);
             aes_encrypt(ctx->cbc, ctx->cbc, ctx->aes);
@@ -262,7 +262,7 @@ ret_type CCM_encrypt(unsigned char mbuf[],		/* the plaintext input message      
 		    mbuf[cnt++] ^= ctx->sii[b_pos++];			/* encrypt message  */
 		}
 
-		b_pos = 0; inc_ctr(ctx); 
+		b_pos = 0; inc_ctr(ctx);
         aes_encrypt(ctx->blk, ctx->sii, ctx->aes);  /* encrypt the CTR value    */
         aes_encrypt(ctx->cbc, ctx->cbc, ctx->aes);  /* encrypt the running CBC  */
 	}
@@ -274,7 +274,7 @@ ret_type CCM_encrypt(unsigned char mbuf[],		/* the plaintext input message      
 
         if(b_pos == AES_BLOCK_SIZE)	/* if the current encryption block is full  */
         {
-			b_pos = 0; inc_ctr(ctx); 
+			b_pos = 0; inc_ctr(ctx);
             aes_encrypt(ctx->blk, ctx->sii, ctx->aes);  /* encrypt the CTR value    */
             aes_encrypt(ctx->cbc, ctx->cbc, ctx->aes);  /* encrypt the running CBC  */
         }
@@ -295,49 +295,49 @@ ret_type CCM_encrypt(unsigned char mbuf[],		/* the plaintext input message      
 
         cnt += ctx->af_len;
     }
-    
+
     return (ret_type)cnt;
 }
 
-/*  Decrypt 'len' bytes data from imsg[] to omsg[]. This call can be repeated 
-    for multiple blocks provided that the sum of the individual block lengths 
+/*  Decrypt 'len' bytes data from imsg[] to omsg[]. This call can be repeated
+    for multiple blocks provided that the sum of the individual block lengths
     is equal to the sum of the message length and the authentication field
     length set in the call to CCM_init(). The last block for which this routine
     is called must include the _complete_ authentication field (i.e. the 'len'
     parameter for this call must include the remaining ciphertext and the full
     authentication field length set by 'auth_field_len' in the CCM_init() call.
-    If the return value is negative an error has occurred, otherwise the number 
+    If the return value is negative an error has occurred, otherwise the number
     of bytes written to omsg[] in the current call is returned.
 
     NOTE: this implementation is not fully compliant with the CCM specification
     when multiple calls to CCM_encrypt() are used because, in the event that an
     authentication error is detected when the last block is processed,  earlier
-    decrypted blocks will already have been returned to the caller, which is in 
-    violation of the specification.  This is costly to avoid for large messages 
+    decrypted blocks will already have been returned to the caller, which is in
+    violation of the specification.  This is costly to avoid for large messages
     that cannot be memory resident as a single block - in this case the message
-    would have to be processed twice so that the final authentication value can 
+    would have to be processed twice so that the final authentication value can
     be checked before the output is provided on a second pass.
 */
 
-ret_type CCM_decrypt(unsigned char mbuf[],	/* the plaintext input message      */ 
+ret_type CCM_decrypt(unsigned char mbuf[],	/* the plaintext input message      */
 					 mlen_type len,         /* the length of this block (bytes) */
 					 CCM_ctx ctx[1])        /* the CCM context                  */
 {   mlen_type   cnt = 0, b_pos = (ctx->cnt & AES_BLOCK_SIZE);
-    
+
     if(ctx->cnt + len > ctx->md_len)
     {
         if(ctx->cnt + len != ctx->md_len + ctx->af_len)
             return CCM_msg_length_error;
 		len = ctx->md_len - ctx->cnt;
     }
-    
+
 	if(((mbuf - ctx->blk) & 3) == 0)
 	{
 		unsigned long	*mp;
 
 		while(!aligned(mbuf + cnt) && cnt < len && b_pos < AES_BLOCK_SIZE)
 		{
-	        mbuf[cnt] ^= ctx->sii[b_pos];		/* decrypt message  */ 
+	        mbuf[cnt] ^= ctx->sii[b_pos];		/* decrypt message  */
 			ctx->cbc[b_pos++] ^= mbuf[cnt++];	/* update the CBC   */
 		}
 
@@ -349,17 +349,17 @@ ret_type CCM_decrypt(unsigned char mbuf[],	/* the plaintext input message      *
 	            lp(ctx->cbc)[b_pos] ^= (*mp++ ^= lp(ctx->sii)[b_pos]);
 				b_pos++; cnt += 4;
 			}
-		
+
 			if(b_pos == (AES_BLOCK_SIZE >> 2))
 			{
-				b_pos = 0; inc_ctr(ctx); 
+				b_pos = 0; inc_ctr(ctx);
 				aes_encrypt(ctx->blk, ctx->sii, ctx->aes);
 				aes_encrypt(ctx->cbc, ctx->cbc, ctx->aes);
 			}
 		}
 
         while(cnt + AES_BLOCK_SIZE < len)
-        {   
+        {
             lp(ctx->cbc)[0] ^= (*mp++ ^= lp(ctx->sii)[0]);
             lp(ctx->cbc)[1] ^= (*mp++ ^= lp(ctx->sii)[1]);
             lp(ctx->cbc)[2] ^= (*mp++ ^= lp(ctx->sii)[2]);
@@ -373,9 +373,9 @@ ret_type CCM_decrypt(unsigned char mbuf[],	/* the plaintext input message      *
 
     while(cnt < len)
     {
-        mbuf[cnt] ^= ctx->sii[b_pos];		/* decrypt message  */ 
+        mbuf[cnt] ^= ctx->sii[b_pos];		/* decrypt message  */
         ctx->cbc[b_pos++] ^= mbuf[cnt++];	/* update the CBC   */
-        
+
         if(b_pos == AES_BLOCK_SIZE)		/* if the current encryption block is full  */
         {
             b_pos = 0; inc_ctr(ctx);
@@ -383,10 +383,10 @@ ret_type CCM_decrypt(unsigned char mbuf[],	/* the plaintext input message      *
             aes_encrypt(ctx->cbc, ctx->cbc, ctx->aes);  /* encrypt the running CBC  */
         }
     }
-	
+
 	ctx->cnt += cnt;
     if(ctx->cnt == ctx->md_len)			/* if at end of message         */
-    {       
+    {
         if(b_pos)						/* if a partial block remains   */
             aes_encrypt(ctx->cbc, ctx->cbc, ctx->aes);
 
@@ -396,7 +396,7 @@ ret_type CCM_decrypt(unsigned char mbuf[],	/* the plaintext input message      *
         /* verify the encrypted authentication value */
         for(b_pos = 0; b_pos < ctx->af_len; ++b_pos)
             if(mbuf[cnt + b_pos] != (ctx->cbc[b_pos] ^ ctx->sii[b_pos]))
-            {   
+            {
                 /* if bad clear the message and authentication field    */
                 memset(mbuf, 0, (size_t)cnt + ctx->af_len);
                 return CCM_auth_failure;
@@ -406,9 +406,9 @@ ret_type CCM_decrypt(unsigned char mbuf[],	/* the plaintext input message      *
     return (ret_type)cnt;
 }
 
-/* Perform an encryption or decryption in one call.  The message length is the 
-   plaintext message length without the authentication field for both the 
-   encryption and decryption calls. If the return value is negative an error 
+/* Perform an encryption or decryption in one call.  The message length is the
+   plaintext message length without the authentication field for both the
+   encryption and decryption calls. If the return value is negative an error
    has occurred, otherwise the number of bytes written to omsg[] is returned.
 */
 
@@ -417,14 +417,14 @@ ret_type CCM_mode(
     const unsigned char nonce[],                     /* the nonce value                   */
     const unsigned char auth[], unsigned long ad_len,/* the additional authenticated data */
     unsigned char msg[], mlen_type msg_len,          /* the message data                  */
-    unsigned long auth_field_len,                    /* the authentication field length   */ 
+    unsigned long auth_field_len,                    /* the authentication field length   */
     int ed_flag)                                     /* 0 = encrypt, 1 = decrypt          */
 {   CCM_ctx ctx[1];
     ret_type    ec;
 
     ec = CCM_init(key, key_len, nonce, auth, ad_len, msg_len, auth_field_len, ctx);
-    return ec != CCM_ok ? ec : ed_flag 
-        ? CCM_decrypt(msg, msg_len + auth_field_len, ctx) 
+    return ec != CCM_ok ? ec : ed_flag
+        ? CCM_decrypt(msg, msg_len + auth_field_len, ctx)
         : CCM_encrypt(msg, msg_len, ctx);
 }
 

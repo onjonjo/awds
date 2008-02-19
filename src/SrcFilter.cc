@@ -22,19 +22,19 @@ SrcFilter::~SrcFilter()
 bool SrcFilter::check_packet(awds::BasePacket *p)
 {
     NodeId src;
-    
+
     switch (p->getType()) {
-    case PacketTypeFlood: 
+    case PacketTypeFlood:
 	src = Flood(*p).getLastHop();
 	break;
-    case PacketTypeBeacon: 
+    case PacketTypeBeacon:
 	src = SrcPacket(*p).getSrc();
 	break;
     case PacketTypeUnicast: // fall through
-    case PacketTypeForward: 
+    case PacketTypeForward:
 	return true; // we cannot filter unicast and flow packets.
     }
-    
+
     Rules::const_iterator itr = rules.find(src);
     if (itr != rules.end())
 	return itr->second;
@@ -128,12 +128,12 @@ int SrcFilter::cmd_filter(awds::ShellClient &sc, void *data, int argc, char **ar
 GEA_MAIN_2(src_filter, argc, argv) {
 
     REP_MAP_OBJ(awds::Firewall **, firewall_pp);
-    
+
     if (!firewall_pp) {
 	GEA.dbg() << "cannot find object 'firewall_pp' in object repository" << endl;
 	return 1;
     }
-    
+
     REP_MAP_OBJ(awds::RTopology *, topology);
     REP_MAP_OBJ(awds::Shell *, shell);
 
@@ -145,9 +145,9 @@ GEA_MAIN_2(src_filter, argc, argv) {
     GEA.dbg() << "activating filter" << endl;
 
     SrcFilter *srcFilter = new SrcFilter(topology);
-    
+
     *firewall_pp = srcFilter; // plug in the firewall;
-    
+
     if (argc > 1) {
 	srcFilter->addRules(argc-1, argv + 1, GEA.dbg() );
 	srcFilter->dumpRules(GEA.dbg());

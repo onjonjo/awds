@@ -75,17 +75,17 @@ namespace awds {
 		*this = lq;
 	    }
 
-	    LinkQuality(): 
+	    LinkQuality():
 		counterpart(0),
 		quality(0),
-		metric_weight(0) 
+		metric_weight(0)
 	    {}
 
 	    LinkQuality(NodeId n, link_quality_t w):
 		counterpart(0),
 		neighbor(n),
 		quality(w),
-		metric_weight(0) 
+		metric_weight(0)
 	    {}
 
 	    void remove_reference() {
@@ -278,9 +278,9 @@ namespace awds {
 	return lq.neighbor;
     }
 
-    
+
     typedef RTopology Topology; // for migrating the class name.
-    
+
 } // end of namespace awds
 
 

@@ -43,9 +43,9 @@ namespace awds {
       return static_cast<Type>(packet.buffer[OffsetType]);
     }
     void setOriginator(const NodeId& id) {
-      id.toArray(&packet.buffer[OffsetOriginator]);	
+      id.toArray(&packet.buffer[OffsetOriginator]);
     }
-    
+
     void getOriginator(NodeId& id) const {
       id.fromArray(&packet.buffer[OffsetOriginator]);
     }

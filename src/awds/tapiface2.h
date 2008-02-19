@@ -8,16 +8,16 @@ class TapInterface2 : public TapInterface {
 
 public:
     TapInterface2(Routing *routing) :
-	TapInterface(routing) 
+	TapInterface(routing)
     {}
-    
+
     virtual ~TapInterface2() {}
 
     virtual bool setIfaceHwAddress(const NodeId& id);
-    
+
 /** detemine the routing node ID for the given MAC address.
      *  \param mac pointer to 6 chars with the MAC address
-     *  \praram id reference to a NodeID variable. If a valid destination id is found, 
+     *  \praram id reference to a NodeID variable. If a valid destination id is found,
      *             it is stored here.
      *  \returns true, if id was found, false otherwise (means broadcast).
      */
@@ -27,14 +27,14 @@ public:
      *  this is not used in the basic tap awdsRoutingace
      */
     virtual void   storeSrcAndMac(const NodeId &id, const char *bufO, gea::AbsTime t);
-    
+
 protected:
-    
+
     struct MacEntry {
 	NodeId id;
 	gea::AbsTime validity;
     };
-    
+
     typedef std::map<NodeId, struct MacEntry> MacTable;
     MacTable macTable;
 

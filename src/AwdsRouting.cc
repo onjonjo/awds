@@ -42,7 +42,7 @@ awds::AwdsRouting::AwdsRouting(basic *base) :
     this->topoPeriod = TOPO_INTERVAL;
 
     GEA.dbg() << "let's go!" << endl;
- 
+
     this->udpSend = base->sendHandle;
     this->udpRecv = base->recvHandle;
 
@@ -155,11 +155,11 @@ void awds::AwdsRouting::recv_packet(gea::Handle *h, gea::AbsTime t, void *data) 
 	BasePacket *p = new BasePacket();
 
 	int ret = p->receive(h);
-	
+
 	if ( (!self->firewall || self->firewall->check_packet(p) ) &&
-	     ret >= 0 && 
+	     ret >= 0 &&
 	     SrcPacket(*p).getSrc() != self->myNodeId )
-	    
+
 	    switch (p->getType()) {
 	    case PacketTypeBeacon:  self->recv_beacon(p);    break;
 	    case PacketTypeFlood:   self->recv_flood(p);     break;
@@ -593,12 +593,12 @@ void awds::AwdsRouting::send_unicast(gea::Handle *h, gea::AbsTime t, void *data)
 
 
     if (h->status != gea::Handle::Ready) {
-	
+
 	GEA.dbg() << "ERROR: transmission timed out" << endl;
-    
+
     } else {
 	// (h->status == gea::Handle::Ready)
-	
+
 	UnicastPacket uniP(*p);
 	NodeId dest = uniP.getNextHop();
 	self->base->setSendDest( dest );
@@ -748,7 +748,7 @@ int awds::AwdsRouting::sendFlowPacket(BasePacket *p) {
     assert(p->getType() == PacketTypeForward);
 
     awds::FlowPacket flowP(*p);
-    
+
     if (flowP.getFlowDest() == myNodeId) {
 	// I'm the destination node
 	FlowReceiverMap::iterator itr = flowReceiverMap.find(flowP.getFlowType());
@@ -795,8 +795,8 @@ GEA_MAIN_2(awdsrouting, argc, argv)
     REP_INSERT_OBJ(awds::Routing *,     routing,     awdsRouting);
     REP_INSERT_OBJ(awds::RTopology *,   topology,    awdsRouting->topology);
     REP_INSERT_OBJ(awds::Firewall **,   firewall_pp, &(awdsRouting->firewall) );
-    
-    
+
+
     if ( (argc >= 3) && (!strcmp(argv[1], "--name") ) ) {
 	strncpy(awdsRouting->topology->nodeName, argv[2], 32);
     }

@@ -5,11 +5,11 @@
 #include <awds/UCMetricPacket.h>
 
 namespace awds {
-    
+
     /** \brief A base class for all metrics that use probe packets.
      */
-    class UCastMetric : 
-	public awds::ExtMetric 
+    class UCastMetric :
+	public awds::ExtMetric
     {
     public:
 	UCastMetric(awds::Routing *r);

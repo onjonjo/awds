@@ -38,26 +38,26 @@ void ende(int) {
 }
 
 int main(int argc, char **argv) {
-    
-    
+
+
 
     static const char *  rawbasic_args[2] = {"rawbasic_internal", "ath0"};
-    
-    if (argc > 1) 
+
+    if (argc > 1)
 	rawbasic_args[1] = argv[1];
-    
+
     rawbasic_gea_main(2, rawbasic_args  );
-    
+
     static const char *  interf_args[1] = {"interf_internal"};
     awdsrouting_gea_main(1, interf_args  );
-    
+
     static const char *  tapiface2_args[1] = {"tapiface2_internal"};
     tapiface2_gea_main(1, tapiface2_args  );
 
 
 
     signal(SIGHUP, ende);
-    
+
     static_cast<gea::ShadowEventHandler *>( gea::geaAPI().subEventHandler )->run();
     return 0;
 }

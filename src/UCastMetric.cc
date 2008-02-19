@@ -3,7 +3,7 @@
 awds::UCastMetric::UCastMetric(awds::Routing *r):ExtMetric(r) {
   routing->registerUnicastProtocol(PACKET_TYPE_UC_METRIC,recv_packet,(void*)this);
 }
- 
+
 void awds::UCastMetric::send(BasePacket *p,gea::AbsTime t,NodeId dest) {
   UnicastPacket uniP(*p);
   uniP.setUcDest(dest);

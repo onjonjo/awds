@@ -115,11 +115,11 @@ bool TapInterface::getNodeForMacAddress(const char* mac, NodeId& id, gea::AbsTim
 
     id.fromArray(dest_addr);
 
-    /* This is obviously a bug! , however this is not used anymore, have a look 
-     * in the overloaded version in 
+    /* This is obviously a bug! , however this is not used anymore, have a look
+     * in the overloaded version in
      * TapIface2.cc .
      */
-    return true; 
+    return true;
 }
 
 void TapInterface::storeSrcAndMac(const NodeId &id, const char *bufO, gea::AbsTime t) {

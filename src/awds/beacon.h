@@ -24,8 +24,8 @@ namespace awds {
 	static const size_t OffsetNumNoMpr = OffsetPeriod   + 2;
 	static const size_t OffsetNumMpr   = OffsetNumNoMpr + 1;
 	static const size_t OffsetLNeigh   = OffsetNumMpr   + 1;
-	
-	
+
+
 	Beacon(BasePacket& p) : SrcPacket(p) {
 	    packet.setType(PacketTypeBeacon);
 	}

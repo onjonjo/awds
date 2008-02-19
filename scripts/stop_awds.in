@@ -8,12 +8,10 @@ CONF_FILE=@AWDS_CONF_DIR@/awds.conf
 export LD_BIND_NOW=1
 test -n "$LD_LIBRARY_PATH" && LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:
 export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}@AWDS_MOD_DIR@
- 
+
 cd $(dirname $0)
 
 ACTION=--kill
 test "$1" = "--test" && ACTION=-t
 
 exec gea_start daemon.so $ACTION --pidfile /var/run/awds.pid
-
-

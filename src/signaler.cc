@@ -24,7 +24,7 @@ GEA_MAIN(argc, argv) {
 
   bool stop(false);
   std::string result;
-  
+
   for (int i(1);i<argc;++i) {
     std::string w(argv[i]);
     std::string p;

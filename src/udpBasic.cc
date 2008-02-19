@@ -22,13 +22,13 @@ using namespace awds;
 struct UdpBasic : public basic {
 
     void init(const NodeId& myId) {
-	
+
         MyId = myId;
 	BroadcastId = NodeId(0xFFFFFFFFUL);
 	sendHandle =  new gea::UdpHandle( gea::UdpHandle::Write,
 					  gea::UdpAddress(gea::UdpAddress::IPADDR_BROADCAST,
 							  PORT /*port*/) );
-	
+
 	recvHandle = new gea::UdpHandle(gea::UdpHandle::Read,
 					gea::UdpAddress(gea::UdpAddress::IPADDR_ANY,
 							PORT /*port*/));
@@ -37,24 +37,24 @@ struct UdpBasic : public basic {
 
     virtual void setSendDest(const NodeId& id);
     virtual void getRecvSrc(NodeId& id);
-    
-  
+
+
     virtual ~UdpBasic() {
 	delete sendHandle;
 	delete recvHandle;
     }
 
-    
+
 };
 
 
 void UdpBasic::setSendDest(const NodeId& id) {
-    
+
     if (id == BroadcastId) {
-	
+
 	((gea::UdpHandle *)sendHandle)->setDest(gea::UdpAddress(gea::UdpAddress::IPADDR_BROADCAST,
 								PORT ) );
-	
+
     } else {
 
 	gea::UdpAddress dest( (u_int32_t)(unsigned long)id, (u_int16_t)PORT);
@@ -65,29 +65,29 @@ void UdpBasic::setSendDest(const NodeId& id) {
 
 
 void UdpBasic::getRecvSrc(NodeId& id) {
-    
+
 }
 
 GEA_MAIN(argc,argv)
 {
 
-    
+
     NodeId MyId;
     if (argc <= 1) {
 	MyId = NodeId(gea::UdpHandle::getIP());
     } else {
-	
+
 	MyId = NodeId( inet_addr(argv[1]) );
     }
-  
+
     UdpBasic *basic = new UdpBasic();
-    
+
     basic->init(MyId);
-    
+
     REP_INSERT_OBJ(awds::basic *, basic, basic);
 
     GEA.dbg() << "running UDP basic on " << MyId << std::endl;
-    
+
     return 0;
 }
 

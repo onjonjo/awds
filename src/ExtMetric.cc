@@ -14,4 +14,3 @@ void awds::ExtMetric::wait(gea::Handle *h,gea::AbsTime t,void *data) {
   ExtMetric *instance(static_cast<ExtMetric*>(data));
   instance->on_wait(h,t);
 }
-

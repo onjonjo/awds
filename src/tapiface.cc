@@ -2,18 +2,18 @@
 
 using namespace awds;
 
-extern "C" 
+extern "C"
 int gea_main(int argc, const char  * const *argv) {
-    
-    ObjRepository& rep = ObjRepository::instance(); 
-    
+
+    ObjRepository& rep = ObjRepository::instance();
+
     Routing *routing = (Routing *)rep.getObj("awdsRouting");
     if (!routing) {
-	GEA.dbg() << "cannot find object 'awdsRouting' in repository" << std::endl; 
+	GEA.dbg() << "cannot find object 'awdsRouting' in repository" << std::endl;
 	return -1;
     }
-    
-    
+
+
 
     TapInterface *tap = new TapInterface(routing);
     if (argc > 1) {
@@ -23,14 +23,14 @@ int gea_main(int argc, const char  * const *argv) {
 	tap->init("awds%d");
 	//	tap = new TapInterface(routing, "awds%d");
     }
-    
 
- 
-    
+
+
+
     rep.insertObj("tap", "TapInterface", (void*)tap);
-    
+
     GEA.dbg() << "created device " << tap->devname << std::endl;
-    
+
     //    while (1);
     return 0;
 }

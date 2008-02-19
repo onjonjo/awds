@@ -8,7 +8,7 @@
 
 
 namespace awds {
-  
+
   /** \brief A class that implements the PktPair metric.
    */
   class PktPair : public UCastMetric {

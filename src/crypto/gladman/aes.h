@@ -51,10 +51,10 @@ extern "C"
 
 #define AES_ENCRYPT /* define if support for encryption is needed   */
   /* #define AES_DECRYPT */ /* define if support for decryption is needed   */
-  
+
   /*  This include is used to find 8 & 32 bit unsigned integer types  */
 #include "limits.h"
-  
+
 #if UCHAR_MAX == 0xff                   /* an unsigned 8 bit type   */
   typedef unsigned char      aes_08t;
 #else

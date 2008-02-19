@@ -25,12 +25,12 @@ enum TopoLockCmd {
 };
 
 class TopoLock {
-    
+
     AwdsRouting *awdsRouting;
-    
+
 public:
-    
-    
+
+
     TopoLock(AwdsRouting *awdsRouting) :
 	awdsRouting(awdsRouting)
     {
@@ -39,15 +39,15 @@ public:
     }
     int addTopoLockCmd();
     static void topolock_recv(BasePacket *p, void *data);
-    
+
 };
 
 void TopoLock::topolock_recv(BasePacket *p, void *data) {
-    
+
     RTopology *topology = static_cast<TopoLock*>(data)->awdsRouting->topology;
-    
+
     enum TopoLockCmd cmd = static_cast<enum TopoLockCmd>( p->buffer[Flood::FloodHeaderEnd] );
-    
+
     switch (cmd) {
     case TopoLockCmd_Lock:
 	topology->setLocked(true);
@@ -59,16 +59,16 @@ void TopoLock::topolock_recv(BasePacket *p, void *data) {
 	topology->reset();
 	topology->setLocked(false);
 	break;
-	
+
     default:
 	break;
     }
-    
-    
+
+
 }
 
 
-static const char *topolock_cmd_usage = 
+static const char *topolock_cmd_usage =
     "topolock <cmd> \n"
     " with <cmd> \n"
     "    lock        lock the topology\n"
@@ -78,10 +78,10 @@ static const char *topolock_cmd_usage =
 
 static int topo_command_fn(ShellClient &sc, void *data, int argc, char **argv) {
     AwdsRouting *awdsRouting = static_cast<AwdsRouting *>(data);
-    
+
     BasePacket *p = awdsRouting->newFloodPacket(PACKET_TYPE_BC_TOPO_LOCK);
     Flood flood(*p);
-    
+
     int cmd;
     if ( (argc >= 2) && !strcmp(argv[1], "lock")) {
 	cmd = TopoLockCmd_Lock;
@@ -93,31 +93,31 @@ static int topo_command_fn(ShellClient &sc, void *data, int argc, char **argv) {
 	*sc.sockout << topolock_cmd_usage << endl;
 	return 0;
     }
-    
+
     p->buffer[Flood::FloodHeaderEnd] = cmd;
     p->size = Flood::FloodHeaderEnd + 1;
-    
+
     awdsRouting->sendBroadcast(p);
-    
+
     p->unref();
-    
+
     return 0;
 }
 
 
 int TopoLock::addTopoLockCmd() {
-    
+
     ObjRepository& rep = ObjRepository::instance();
-    
+
     Shell *shell = static_cast<Shell *>(rep.getObj("shell"));
-    
-    if (!shell) 
+
+    if (!shell)
 	return -1;
-    
+
     shell->add_command("topolock", topo_command_fn, this->awdsRouting,
 		       "remote manipulation of all topologies",
 		       topolock_cmd_usage);
-    
+
     return 0;
 }
 
@@ -125,16 +125,16 @@ int TopoLock::addTopoLockCmd() {
 GEA_MAIN(argc,argv) {
 
     ObjRepository& rep = ObjRepository::instance();
-    
-    
+
+
     AwdsRouting *awdsRouting = (AwdsRouting *)rep.getObj("awdsRouting");
     if (!awdsRouting) {
-	GEA.dbg() << "cannot find object 'awdsRouting' in repository" << std::endl; 
+	GEA.dbg() << "cannot find object 'awdsRouting' in repository" << std::endl;
 	return -1;
     }
-    
+
     new TopoLock(awdsRouting);
-    
+
     return 0;
 }
 

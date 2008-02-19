@@ -4,29 +4,29 @@
 using namespace std;
 
 bool awds::FloodHistory::contains(const NodeId& id, u_int16_t seq) const {
-	
+
     size_t p = end;
-	
+
     while (1) {
-	if ( (hist[p].seq == seq ) && (hist[p].id == id )) 
+	if ( (hist[p].seq == seq ) && (hist[p].id == id ))
 	    return true;
-	if (p == start) 
+	if (p == start)
 	    return false;
-	    
-	if (p == 0) 
+
+	if (p == 0)
 	    p = size-1;
-	else 
+	else
 	    --p;
     }
-    
+
     assert(!"never reached");
 }
 
 
 void awds::FloodHistory::printHistoryOfNode(const NodeId& id)  {
-    std::ostream& os = GEA.dbg(); 
+    std::ostream& os = GEA.dbg();
     os << "hist of " << id << ":";
-	
+
     for (unsigned i = 0; i < size; ++i) {
 	if (hist[i].id == id) {
 	    os << " " << hist[i].seq;
@@ -42,4 +42,3 @@ void awds::FloodHistory::printHistoryOfNode(const NodeId& id)  {
  * c-basic-offset: 4
  * End:
  */
-

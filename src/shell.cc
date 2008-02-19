@@ -284,7 +284,7 @@ void TcpShellClient::read_client_data(gea::Handle *h, gea::AbsTime t, void *data
 	int ret;
 	ret = h->read(&self->cmd_buf[self->cmd_buf_len], CMD_BUF_MAX-self->cmd_buf_len);
 	if (ret <= 0) {
-	    GEA.dbg() << "closing shell connection "  
+	    GEA.dbg() << "closing shell connection "
 		      << inet_ntoa(self->peer_addr.sin_addr) << ":" << ntohs(self->peer_addr.sin_port) << endl;
 	    delete h;
 	    close (self->fd);
@@ -382,7 +382,7 @@ GEA_MAIN_2(shell, argc, argv)
     Shell *sh = new TcpShell();
     //    sh->add_command("test", test, NULL, "shell function example", "shell function example long help");
     sh->add_command("exit", exit_cmd, 0, "close this shell", "close the connection of this shell");
-    
+
     rep.insertObj("shell", "Shell", (void*)sh);
 
     return 0;

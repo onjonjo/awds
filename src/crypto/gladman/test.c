@@ -8,13 +8,13 @@
 //          modified by Brian Gladman <brg@gladman.me.uk>
 //
 // This code is a modified version of the original file ccm.c authored by
-// Doug Whiting of Hifn <dwhiting@hifn.com>. 
+// Doug Whiting of Hifn <dwhiting@hifn.com>.
 //
-// It has been modified by Brian Gladman <brg@gladman.me.uk> to act as a 
+// It has been modified by Brian Gladman <brg@gladman.me.uk> to act as a
 // test file for his own implementation of CCM.
 
 // This code is released to the public domain, on an as-is basis.
-// 
+//
 //==========================================================================
 // Release date 14th July 2002
 
@@ -31,10 +31,10 @@
 #elif !defined(_VERBOSE_)
 #define	_VERBOSE_	0
 #endif
-*/ 
+*/
 /* show what compiler we used */
 
-#if   defined(__BORLANDC__)	
+#if   defined(__BORLANDC__)
 #define	COMPILER_ID "Borland"
 #define	LITTLE_ENDIAN	1
 #elif defined(_MSC_VER)
@@ -112,7 +112,7 @@ aes_32t rand_32(aes_encrypt_ctx aes[1])
     {
 		// use whatever key is currently defined
         prng.ctr_cnt = AES_BLOCK_SIZE / 4;
-		
+
 		for(i = 0; i < 16; ++i)
 			if(++(prng.ctr_blk.b[i]))
 				break;
@@ -130,17 +130,17 @@ aes_32t rand_32(aes_encrypt_ctx aes[1])
 
 void show_block(const block *blk, const char *prefix, const char *suffix, int a)
 {	int		i, blkSize = AES_BLOCK_SIZE;
-    
+
 	printf(prefix, a);
-    
-	if(suffix == NULL) 
-	{ 
-		suffix = "\n"; blkSize = a; 
+
+	if(suffix == NULL)
+	{
+		suffix = "\n"; blkSize = a;
 	}
-    
+
 	for(i = 0; i < blkSize; ++i)
         printf("%02X%s", blk->b[i], (i & 3) == 3 ? "  " : " ");
-    
+
 	printf(suffix);
 }
 
@@ -149,7 +149,7 @@ void show_addr(const packet *p)
 
     printf("      TA = ");
 
-	for(i = 0; i < 6; ++i) 
+	for(i = 0; i < 6; ++i)
 		printf("%02X%s", p->TA[i], i == 3 ? "  " : " ");
 
     printf("  48-bit pktNum = %04X.%08X\n", p->pktNum[1], p->pktNum[0]);
@@ -160,17 +160,17 @@ void show_packet(const packet *p, const char *pComment, int a)
 
     printf("Total packet length = %4d. ",p->length);
     printf(pComment,a);
-    if(p->encrypted) 
+    if(p->encrypted)
 		printf("[Encrypted]");
-    
+
 	for(i = 0; i < p->length; ++i)
 	{
-        if(!(i & 15)) 
+        if(!(i & 15))
 			printf("\n%11s", "");
 
         printf("%02X%s", p->data[i], (i & 3) == 3 ? "  " : " ");
     }
-    
+
 	printf("\n");
 }
 
@@ -183,33 +183,33 @@ void Generate_CTR_CBC_Vector(packet *p,int verbose, aes_encrypt_ctx aes[1])
     assert(p->length >= p->clrCount && p->length <= MAX_PACKET);
     assert(p->micLength > 0 && p->micLength <= AES_BLOCK_SIZE);
     len = p->length - p->clrCount;		// l(m)
-    
+
     //---- generate the first AES block for CBC-MAC
     m.b[ 0] = (aes_08t) ((L_SIZE-1) << L_SHIFT) +      // flags octet
                      ((p->clrCount) ? A_DATA : 0) + (((p->micLength - 2) / 2 << M_SHIFT));
-    
-	m.b[ 1] = N_RESERVED;				// reserved nonce octet 
+
+	m.b[ 1] = N_RESERVED;				// reserved nonce octet
     m.b[ 2] = Lo8(p->pktNum[1] >> 8);   // 48 bits of packet number ("IV")
     m.b[ 3] = Lo8(p->pktNum[1]);
     m.b[ 4] = Lo8(p->pktNum[0] >>24);
     m.b[ 5] = Lo8(p->pktNum[0] >>16);
     m.b[ 6] = Lo8(p->pktNum[0] >> 8);
     m.b[ 7] = Lo8(p->pktNum[0]);
-    
+
 	m.b[ 8] = p->TA[0];                 // 48 bits of transmitter address
     m.b[ 9] = p->TA[1];
     m.b[10] = p->TA[2];
     m.b[11] = p->TA[3];
     m.b[12] = p->TA[4];
     m.b[13] = p->TA[5];
-    
+
 	m.b[14] = Lo8(len >> 8);            // l(m) field
     m.b[15] = Lo8(len);
 
     //---- compute the CBC-MAC tag (MIC)
     aes_encrypt(m.b, x.b, aes);			// produce the CBC IV
     show_block(&m, "CBC IV in: ", "\n", 0);
-    if(verbose) 
+    if(verbose)
 		show_block(&x, "CBC IV out:", "\n", 0);
     j = 0;								// j = octet counter inside the AES block
 	if(p->clrCount)						// is there a header?
@@ -218,31 +218,31 @@ void Generate_CTR_CBC_Vector(packet *p,int verbose, aes_encrypt_ctx aes[1])
         x.b[j++] ^= (p->clrCount >> 8) & 0xFF;
         x.b[j++] ^= p->clrCount & 0xFF;
     }
-    
-	for(i = blkNum = 0; i < p->length; ++i)    
+
+	for(i = blkNum = 0; i < p->length; ++i)
 	{									// do the CBC-MAC processing
         x.b[j++] ^= p->data[i];         // perform the CBC xor
         needPad = (i == p->clrCount - 1) || (i == p->length - 1);
 
         if(j == AES_BLOCK_SIZE || needPad)	// full block, or hit pad boundary
 		{
-			if(verbose) 
+			if(verbose)
 				show_block(&x, "After xor: ", (i >= p->clrCount) ? " [msg]\n" : " [hdr]\n",blkNum);
 
             aes_encrypt(x.b, x.b, aes);	// encrypt the CBC-MAC block, in place
-            if(verbose) 
+            if(verbose)
 				show_block(&x, "After AES: ", "\n", blkNum);
             blkNum++;                   // count the blocks
             j = 0;                      // the block is now empty
 		}
-	}      
-    
-	memcpy(T.b, x.b, p->micLength);		// save the MIC tag 
+	}
+
+	memcpy(T.b, x.b, p->micLength);		// save the MIC tag
     show_block(&T, "MIC tag  : ", NULL, p->micLength);
 
     //---- encrypt the data packet using CTR mode
     m.b[0] &= ~(A_DATA | (7 << M_SHIFT));	// clear flag fields for counter mode
-    
+
 	for(i = blkNum = 0; i + p->clrCount < p->length; ++i)
 	{
         if(!(i % AES_BLOCK_SIZE))
@@ -251,24 +251,24 @@ void Generate_CTR_CBC_Vector(packet *p,int verbose, aes_encrypt_ctx aes[1])
             m.b[14] = blkNum / 256;
             m.b[15] = blkNum % 256;
             aes_encrypt(m.b, x.b, aes);	// then encrypt the counter
-            
-			if(verbose && i == 0) 
+
+			if(verbose && i == 0)
 				show_block(&m, "CTR Start: ", "\n", 0);
-            if(verbose) 
+            if(verbose)
 				show_block(&x, "CTR[%04X]: " , "\n", blkNum);
 		}
-		
+
 		p->data[i+p->clrCount] ^= x.b[i % AES_BLOCK_SIZE];    // merge in the keystream
 	}
 
     //---- truncate, encrypt, and append MIC to packet
     m.b[14] = m.b[15] = 0;              // use block counter value zero for tag
     aes_encrypt(m.b, x.b, aes);         // encrypt the counter
-    
-	if(verbose) 
+
+	if(verbose)
 		show_block(&x, "CTR[MIC ]: ", NULL, p->micLength);
-    
-	for(i = 0; i < p->micLength; ++i)  
+
+	for(i = 0; i < p->micLength; ++i)
         p->data[p->length + i] = T.b[i] ^ x.b[i];
 
     p->length += p->micLength;			// adjust packet length accordingly
@@ -283,7 +283,7 @@ int main(int argc,char *argv[])
 
     seed = (argc > 1) ? atoi(argv[1]) : (int) time(NULL);
     init_rand(seed);
-    
+
 	printf("%s C compiler [%s %s].%s\nRandom seed = %d\n", COMPILER_ID,__DATE__,__TIME__,
 #ifdef LITTLE_ENDIAN
 	   " Little-endian.",
@@ -293,16 +293,16 @@ int main(int argc,char *argv[])
 	   seed);
 
     // generate CTR-CBC vectors for various parameter settings
-    
+
 	for(k = pktNum = 0; k < 2; ++k)
 	{   // k==1 --> random vectors. k==0 --> "visually simple" vectors
-        
-		for(i = 0; i < AES_BLOCK_SIZE; ++i)          
+
+		for(i = 0; i < AES_BLOCK_SIZE; ++i)
 			p.key.b[i] = (k) ? (aes_08t) rand_32(aes) & 0xFF : i + 0xC0;
-        
-		for(i = 0; i < 6; ++i)          
+
+		for(i = 0; i < 6; ++i)
             p.TA[i]    = (k) ? (aes_08t) rand_32(aes) & 0xFF : i + 0xA0;
-        
+
 		aes_encrypt_key128(p.key.b, aes);     // run the key schedule
 
         // now generate the vectors
@@ -317,11 +317,11 @@ int main(int argc,char *argv[])
 				p.length = len + i;				// len+i is packet length
 				p.encrypted = 0;
 				assert(p.length <= MAX_PACKET);
-            
+
 				for(j = 0; j < p.length; ++j)	// generate random packet contents
 					p.data[j] = (k) ? rand_32(aes) : j;
 				pktNum++;
-            
+
 				printf("=============== Packet Vector #%d ==================\n",pktNum);
 				show_block(&p.key , "AES Key:   ", "\n", 0);
 				show_addr(&p);
@@ -340,7 +340,7 @@ int main(int argc,char *argv[])
 				nonce[10] = p.TA[3];
 				nonce[11] = p.TA[4];
 				nonce[12] = p.TA[5];
-				
+
 				memcpy(ref, p.data, p.length);
 				memcpy(dat, p.data, p.length); ll = p.length - p.clrCount;
 
@@ -358,7 +358,7 @@ int main(int argc,char *argv[])
 																p.micLength, 0);
 #endif
 				if(memcmp(p.data, dat, p.length))
-				{	
+				{
 					printf("bad data (encryption)"); exit(1);
 				}
 
@@ -372,7 +372,7 @@ int main(int argc,char *argv[])
 																p.micLength, 1);
 #endif
 				if(memcmp(ref, dat, ll + p.clrCount))
-				{	
+				{
 					printf("bad data (decryption)"); exit(1);
 				}
             }
