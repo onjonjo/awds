@@ -27,7 +27,7 @@ void awds::SendQueue::xmit_cb(gea::Handle *h, gea::AbsTime t, void *data) {
 		BasePacket *p = self->queue.front();
 		self->queue.pop_front();
 		self->base->setSendDest(p->dest);
-		if (p->send(h) <= 0) {
+		if (p->send(h) < 0) {
 			GEA.dbg() << "error sending from SendQueue" << std::endl;
 		}
 		p->unref();
