@@ -29,6 +29,7 @@ awds::AwdsRouting::AwdsRouting(basic *base) :
     FlowRouting(base),
     verbose(false),
     firewall(0), // no firewall by default.
+    sendq(base),
     beaconSeq(0),
     beaconPeriod((double)(this->period) / 1000.),
     nextBeacon( gea::AbsTime::now() + beaconPeriod),
@@ -176,11 +177,8 @@ void awds::AwdsRouting::recv_packet(gea::Handle *h, gea::AbsTime t, void *data) 
 	p->unref();
     } else {
 
+	send_beacon(h, self->nextBeacon, data);
 	self->nextBeacon += gea::Duration((double)(self->period) / 1000. );
-
-	GEA.waitFor(self->udpSend,
-		    self->nextBeacon,
-		    send_beacon, data);
 
     }
 
@@ -191,21 +189,21 @@ void awds::AwdsRouting::send_beacon(gea::Handle *h, gea::AbsTime t, void *data) 
 
     AwdsRouting *self = static_cast<AwdsRouting*>(data);
     self->calcMpr();
-    BasePacket p;
-    Beacon beacon(p);
+    BasePacket *p = new BasePacket();
+    Beacon beacon(*p);
     beacon.setSrc(self->myNodeId);
     beacon.setNeigh(self, t);
     beacon.setSeq(self->beaconSeq++);
     beacon.setPeriod(self->beaconPeriod);
 
-    self->base->setSendDest( self->base->BroadcastId );
+    p->setDest( self->base->BroadcastId );
 
     if (self->cryptoUnit) {
-	self->cryptoUnit->sign(p.buffer, p.size, 0);
-	p.size += 32;
+	self->cryptoUnit->sign(p->buffer, p->size, 0);
+	p->size += 32;
     }
 
-    if (p.send(h) < 0)
+    if (self->sendq.enqueuePacket(p, true) == false)
 	GEA.dbg() << " cannot send"<< std::endl;
 
 }
@@ -367,10 +365,7 @@ void awds::AwdsRouting::sendUnicastVia(BasePacket *p,/*gea::AbsTime t,*/ NodeId 
     ucPacket.setNextHop(nextHop);
     p->setDest(nextHop);
     //    p->ref();
-    GEA.waitFor(this->udpSend,
-		GEA.lastEventTime + gea::Duration(12.2),
-		send_unicast,
-		new std::pair<BasePacket *,AwdsRouting *>(p,this) );
+    sendq.enqueuePacket(p, false);
 }
 
 
@@ -468,28 +463,8 @@ void awds::AwdsRouting::recv_flood(BasePacket *p ) {
 
     p->ref();
 
-    GEA.waitFor(udpSend,
-		GEA.lastEventTime + gea::Duration(12.2),
-		AwdsRouting::repeat_flood,
-		p);
-
-
-}
-
-
-
-void awds::AwdsRouting::repeat_flood(gea::Handle *h, gea::AbsTime t, void *data) {
-
-    BasePacket *p = (BasePacket *)data;
-
-    //self->base->setSendDest( self->base->BroadcastId );
-
-    int ret = p->send(h);
-    if (ret < 0) {
-	GEA.dbg() << "There was an error while sending a broadcast packet." << endl;
-    }
-
-    p->unref();
+    p->setDest( base->BroadcastId );
+    sendq.enqueuePacket(p, true);
 
 
 }
@@ -507,6 +482,8 @@ BasePacket *awds::AwdsRouting::newFloodPacket(int floodType) {
 	flood.setFloodType(floodType);
 	flood.setTTL(32);
 	flood.setSeq(floodSeq++);
+
+	p->setDest( base->BroadcastId );
     }
 
     return p;
@@ -576,43 +553,10 @@ void awds::AwdsRouting::recv_unicast(BasePacket *p) {
     ucPacket.setNextHop(nextHop);
     p->setDest(nextHop);
     p->ref();
-    GEA.waitFor(this->udpSend,
-		GEA.lastEventTime + gea::Duration(1.2),
-		send_unicast,
-		new std::pair<BasePacket *,AwdsRouting *>(p,this) );
+    sendq.enqueuePacket(p, false);
 
 }
 
-
-
-void awds::AwdsRouting::send_unicast(gea::Handle *h, gea::AbsTime t, void *data) {
-
-    std::pair<BasePacket *,AwdsRouting *>* xdata = ( std::pair<BasePacket *,AwdsRouting *>* )data;
-    BasePacket *p = xdata->first;
-    AwdsRouting *self = xdata->second;
-
-
-    if (h->status != gea::Handle::Ready) {
-
-	GEA.dbg() << "ERROR: transmission timed out" << endl;
-
-    } else {
-	// (h->status == gea::Handle::Ready)
-
-	UnicastPacket uniP(*p);
-	NodeId dest = uniP.getNextHop();
-	self->base->setSendDest( dest );
-
-	int ret = p->send(h);
-	if (ret < 0) {
-	    GEA.dbg() << "There was an error while sending a packet to " << dest << endl;
-	}
-	self->base->setSendDest( self->base->BroadcastId );
-    }
-    p->unref();
-
-    delete xdata;
-}
 
 int awds::AwdsRouting::foreachNode(NodeFunctor f, void *data) const {
     int ret = 0;
@@ -766,13 +710,12 @@ int awds::AwdsRouting::sendFlowPacket(BasePacket *p) {
     if (citr == forwardingTable.end())
 	return -1;
 
-    base->setSendDest( citr->second );
-    int ret = p->send(udpSend);
-    if (ret < 0) {
-	GEA.dbg() << "There was an error while sending a packet to " << citr->second << endl;
-    }
+    p->setDest( citr->second );
 
-    return 0;
+    // our caller destroys the packet after the call. increase refcount
+    p->ref();
+
+    return sendq.enqueuePacket(p, false)?0:-1;
 }
 
 

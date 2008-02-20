@@ -51,6 +51,8 @@ public:
     static void recv_unicast  ( BasePacket *p, void *data);
     static void recv_broadcast( BasePacket *p, void *data);
 
+    static void tap_sendcb(BasePacket &p, void *data, ssize_t len);
+
     /** detemine the routing node ID for the given MAC address.
      *  \param mac pointer to 6 chars with the MAC address
      *  \praram id reference to a NodeID variable. If a valid destination id is found,

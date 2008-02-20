@@ -172,6 +172,7 @@ void TapInterface::tap_recv(gea::Handle *h, gea::AbsTime t, void *data) {
 		p->size += 32;
 	    }
 
+	    p->setSendCallback(tap_sendcb, data);
 
 	    self->routing->sendBroadcast(p);
 
@@ -198,6 +199,8 @@ void TapInterface::tap_recv(gea::Handle *h, gea::AbsTime t, void *data) {
 		p->size += 32;
 	    }
 
+	    p->setSendCallback(tap_sendcb, data);
+
 	    self->routing->sendUnicast(p);
 
 	}
@@ -205,11 +208,24 @@ void TapInterface::tap_recv(gea::Handle *h, gea::AbsTime t, void *data) {
 	p->unref();
 
 
+    } else {
+	GEA.waitFor(h, t + gea::Duration(10.), tap_recv, data);
     }
 
-    GEA.waitFor(h, t + gea::Duration(10.), tap_recv, data);
-
 }
+
+void TapInterface::tap_sendcb(BasePacket &p, void *data, ssize_t len) {
+    TapInterface *self = static_cast<TapInterface *>(data);
+
+#if 0
+    if (len <= 0) {
+    	GEA.dbg() << "send of tapi packet failed!" << std::endl;
+    }
+#endif
+    /* allow receiving more packets from tapi handle */
+    GEA.waitFor(self->tapHandle, gea::AbsTime::now() + gea::Duration(10.), tap_recv, data);
+}
+
 
 void TapInterface::recv_unicast ( BasePacket *p,  void *data) {
 

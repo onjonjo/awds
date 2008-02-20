@@ -5,6 +5,8 @@
 static const int BEACON_INTERVAL = 1400;
 static const int TOPO_INTERVAL = 1000;
 
+static const int QUEUE_LENGTH = 10;
+
 #endif //SETTINGS_H__
 /* This stuff is for emacs
  * Local variables:

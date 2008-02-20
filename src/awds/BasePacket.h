@@ -38,21 +38,33 @@ namespace awds {
 	 *  \see BasePacket::unref()
 	 */
 	int refcount;
+	typedef void (*SendCallback)(BasePacket &p, void* data, ssize_t size);
+	SendCallback cb;
+	void *cb_data;
 
 
 	NodeId dest;
 
-	BasePacket() : size(0), refcount(1) {
+	BasePacket() : size(0), refcount(1), cb(NULL) {
 	    buffer[0] = 0;
 	}
 
 	int send(gea::Handle* h) {
-
-	    return h->write(buffer, size);
+	    ssize_t ret = h->write(buffer, size);
+	    if (cb)
+	    	cb(*this, cb_data, ret);
+	    cb = NULL;
+	    return ret;
 
 	}
 	int receive(gea::Handle* h) { return (size = h->read(buffer, MaxSize)) ; }
 
+	void setSendCallback(SendCallback cb, void *data) {
+		/* no chained callback possible */
+		assert(this->cb == NULL);
+		this->cb = cb;
+		this->cb_data = data;
+	}
 	/** \brief increase the reference counter.
 	 */
 	int ref()   { return ++refcount; }
@@ -69,8 +81,11 @@ namespace awds {
 	    assert(refcount > 0);
 	    --refcount;
 	    ret = refcount;
-	    if (refcount == 0)
+	    if (refcount == 0) {
+		if (cb)
+		    cb(*this, cb_data, -1);
 		delete this;
+	    }
 	    return ret;
 	}
 
