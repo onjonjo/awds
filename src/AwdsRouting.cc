@@ -713,6 +713,9 @@ int awds::AwdsRouting::sendFlowPacket(BasePacket *p) {
 
     p->setDest( citr->second );
 
+    // our caller destroys the packet after the call. increase refcount
+    p->ref();
+
     return sendq.enqueuePacket(p, false)?0:-1;
 }
 
