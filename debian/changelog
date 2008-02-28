@@ -1,3 +1,9 @@
+awds (7.4) unstable; urgency=low
+
+  * added internal packet queue
+
+ -- Andre Herms <aherms@ivs.cs.uni-magdeburg.de>  Tue, 26 Feb 2008 16:09:02 +0100
+
 awds (7.3) unstable; urgency=low
 
   * some bugfixes

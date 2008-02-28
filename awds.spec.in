@@ -10,7 +10,7 @@ URL: http://awds.berlios.de
 Buildroot: /var/tmp/%{name}-buildroot
 Source: http://schiess.mich.tot/%{name}-%{version}.tar.gz
 License: LGPL
-#BuildRequires: zlib-devel gcc >= 3.0-0 gcc-c++ >= 3.0-0 gea >= 2.1
+BuildRequires: gcc >= 3.0-0 gcc-c++ >= 3.0-0 libgea2 >= 2.3
 
 %description
  This package contains the multi-hop rounting AWDS. It creates a
