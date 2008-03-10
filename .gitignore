@@ -75,3 +75,9 @@ missing
 
 # src/crypto/gladman
 CMakeCache.txt
+CMakeFiles
+awds.spec
+CPackConfig.cmake
+CPackSourceConfig.cmake
+*.tar.gz
+cmake_install.cmake
