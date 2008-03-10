@@ -1,4 +1,3 @@
-
 #include <cstdlib>
 #include <cstdio>
 
@@ -167,26 +166,6 @@ int Pinger::parse_opts(int argc, const char* const *argv) {
 } // end parse_opts
 
 
-
-static void toArray(const gea::Duration& dur, char *buf) {
-
-    unsigned long long d = (unsigned long long)( (double)dur * (double)0x1000000000ULL );
-    for (int i = 0; i < 8; ++i) {
-	buf[i] = (char)(unsigned char)d;
-	d /= 0x0100ULL;
-    }
-}
-
-static gea::Duration durationFromArray(const char *buf) {
-
-    unsigned long long d = 0;
-    for (int i = 7; i >= 0; --i) {
-	d *= 0x0100ULL;
-	d |= (unsigned char)buf[i];
-    }
-    return gea::Duration( (double)d  / (double)0x1000000000ULL );
-}
-
 static const size_t PingTraceNum  = UnicastPacket::UnicastPacketEnd;
 static const size_t PingDirection = PingTraceNum + 2;
 static const size_t PingTimeStamp = PingDirection + 1;
@@ -216,7 +195,7 @@ void Pinger::next_ping(gea::Handle *h, gea::AbsTime t, void *data) {
 
     p->size = self->pingSize;
     p->buffer[PingDirection] = 'i';
-    toArray( t - self->myT0, &p->buffer[PingTimeStamp] );
+    (t - self->myT0).toArray( &p->buffer[PingTimeStamp] );
 
     if (self->doTracePath) {
 	uniP.setTracePointer(PingHeaderEnd);
@@ -266,7 +245,9 @@ void Pinger::ping_recv(BasePacket *p, void *data) {
 	self->awdsRouting->sendUnicast(p);
 	p->unref();
     } else {
-	Duration timestamp = durationFromArray( &p->buffer[PingTimeStamp]);
+	Duration timestamp;
+	timestamp.fromArray(&p->buffer[PingTimeStamp]);
+
 	double deltaT= (double)(GEA.lastEventTime - ( self->myT0 + timestamp ) );
 	ostream& out = self->dbg();
 

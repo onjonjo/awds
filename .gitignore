@@ -74,3 +74,4 @@ missing
 /src/crypto/.deps
 
 # src/crypto/gladman
+CMakeCache.txt
