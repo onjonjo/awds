@@ -1005,13 +1005,34 @@ void RTopology::sendLinkRemoved(const NodeId& from, const NodeId& to) const {
 }
 
 
-static const char *topo_cmd_usage = "topo <cmd> \n"
+void RTopology::dumpNextHops(std::ostream& os)  {
+
+    AdjList::const_iterator itr;
+
+    os << "# destination\tnext hop" << std::endl;
+    for (itr=adjList.begin(); itr != adjList.end(); ++itr) {
+	NodeId nextHop;
+	bool found;
+	this->getNextHop(itr->first, nextHop, found);
+	os << itr->first << "\t";
+	if (found) 
+	    os << nextHop;
+	else
+	    os << "------------";
+	os << std::endl;
+    }
+}
+
+
+static const char *topo_cmd_usage =
+ "topo <cmd> \n"
  " with <cmd> \n"
  "    dump        print the current topology\n"
  "    get_locked  print the lock status of the topology\n"
  "    lock        lock the topology\n"
  "    unlock      unlock the topology\n"
  "    names       list the known names of all stations\n"
+ "    nexthops    dump the local routing table (next hops)"
  ;
 
 static int topo_command_fn(ShellClient &sc, void *data, int argc, char **argv) {
@@ -1019,7 +1040,9 @@ static int topo_command_fn(ShellClient &sc, void *data, int argc, char **argv) {
 
     if ( (argc == 2) && !strcmp(argv[1], "dump") ) {
 	*sc.sockout << topology->getAdjString() << endl;
-
+	return 0;
+    } else if ( (argc == 2) && !strcmp(argv[1], "nexthops") ) {
+	topology->dumpNextHops(*sc.sockout);
 	return 0;
     } else   if ( (argc == 2) && !strcmp(argv[1], "get_locked") ) {
 	*sc.sockout << (topology->getLocked() ? "true" : "false") << endl;

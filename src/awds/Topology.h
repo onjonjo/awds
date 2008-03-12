@@ -266,6 +266,8 @@ namespace awds {
 
 	//debug output
 	void print();
+	
+	void dumpNextHops(std::ostream& os);
 
 	virtual std::string getDotString() const;
 	virtual std::string getAdjString() const;
