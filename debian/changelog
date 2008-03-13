@@ -1,3 +1,9 @@
+awds (7.5) unstable; urgency=low
+
+  * added "topo nexthops" command
+
+ -- Andre Herms <aherms@ivs.cs.uni-magdeburg.de>  Thu, 13 Mar 2008 14:47:47 +0100
+
 awds (7.4) unstable; urgency=low
 
   * added internal packet queue
