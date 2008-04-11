@@ -176,12 +176,16 @@ void awds::AwdsRouting::recv_packet(gea::Handle *h, gea::AbsTime t, void *data) 
 	    }
 	p->unref();
     } else {
-
+	
 	send_beacon(h, self->nextBeacon, data);
+	
 	self->nextBeacon += gea::Duration((double)(self->period) / 1000. );
-
     }
-
+    
+    // prevent scheduling of events in the past.
+    while (self->nextBeacon < GEA.lastEventTime) {
+	self->nextBeacon += gea::Duration((double)(self->period) / 1000. );
+    }
     GEA.waitFor(h, self->nextBeacon, AwdsRouting::recv_packet, data);
 }
 
