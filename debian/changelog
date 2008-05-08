@@ -1,3 +1,9 @@
+awds (7.6) unstable; urgency=low
+
+  * fix scheduling of beacon packets (caused problems with libgea 2.4)
+
+ -- Andre Herms <aherms@ivs.cs.uni-magdeburg.de>  Fri, 11 Apr 2008 15:54:38 +0200
+
 awds (7.5) unstable; urgency=low
 
   * added "topo nexthops" command

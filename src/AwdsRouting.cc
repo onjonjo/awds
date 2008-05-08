@@ -32,7 +32,7 @@ awds::AwdsRouting::AwdsRouting(basic *base) :
     sendq(base),
     beaconSeq(0),
     beaconPeriod((double)(this->period) / 1000.),
-    nextBeacon( gea::AbsTime::now() + beaconPeriod),
+    nextBeacon( GEA.lastEventTime + beaconPeriod),
     floodSeq(0),
     unicastSeq(0)
 {
@@ -59,7 +59,7 @@ awds::AwdsRouting::AwdsRouting(basic *base) :
 
 
     GEA.waitFor( &this->blocker ,
-		 gea::AbsTime::now() + gea::Duration( (double)topoPeriod / 1000.),
+		 GEA.lastEventTime + gea::Duration( (double)topoPeriod / 1000.),
 		 trigger_topo, this);
 
 
@@ -179,12 +179,12 @@ void awds::AwdsRouting::recv_packet(gea::Handle *h, gea::AbsTime t, void *data) 
 	
 	send_beacon(h, self->nextBeacon, data);
 	
-	self->nextBeacon += gea::Duration((double)(self->period) / 1000. );
+	self->nextBeacon += self->beaconPeriod;
     }
     
     // prevent scheduling of events in the past.
     while (self->nextBeacon < GEA.lastEventTime) {
-	self->nextBeacon += gea::Duration((double)(self->period) / 1000. );
+	self->nextBeacon += self->beaconPeriod;
     }
     GEA.waitFor(h, self->nextBeacon, AwdsRouting::recv_packet, data);
 }
