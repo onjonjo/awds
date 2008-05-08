@@ -40,6 +40,8 @@ missing
 /debian/tmp
 
 # doc
+/doc/Makefile.in
+/doc/html
 
 # ns2-scripts
 /ns2-scripts/*.gz

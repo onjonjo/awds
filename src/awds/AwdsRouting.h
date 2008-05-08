@@ -43,6 +43,12 @@ namespace awds {
 	static const int period = BEACON_INTERVAL; /**< beacon period in milliseconds */
 	int topoPeriod; /**< topology propagtion period in milliseconds */
 
+	enum periodType { /**< type for constant or adaptive periods */
+		Constant,
+		Adaptive
+	};
+	periodType topoPeriodType; /**< period type for topo packets */
+
 	gea::Handle *udpSend; /**< for sending packets */
 	gea::Handle *udpRecv; /**< for receiving packets */
 	gea::Blocker    blocker;
