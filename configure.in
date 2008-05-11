@@ -76,7 +76,14 @@ esac],[aes_mmx=false])
 AM_CONDITIONAL(AES_MMX, test x$aes_mmx = xtrue)
 
 AC_CHECK_PROGS(DB2MAN, docbook2man, notfound)
+AC_CHECK_PROGS(XSLTPROC, xsltproc, notfound)
+
+
+
 AM_CONDITIONAL(CREATE_MANPAGE, test x$DB2MAN != xnotfound)
+AM_CONDITIONAL(CREATE_MODDOCS, test x$XSLTPROC != xnotfound)
+
+
 
 AC_CONFIG_FILES([Makefile
  src/Makefile
