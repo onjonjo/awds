@@ -1,0 +1,156 @@
+<?xml version='1.0' encoding='ISO-8859-1'?>
+<!DOCTYPE refentry PUBLIC "-//OASIS//DTD DocBook XML V4.2//EN"
+"http://www.oasis-open.org/docbook/xml/4.2/docbookx.dtd" [
+
+<!--
+
+Process this file with an XSLT processor: `xsltproc \
+-''-nonet /usr/share/sgml/docbook/stylesheet/xsl/nwalsh/\
+manpages/docbook.xsl manpage.dbk'.  A manual page
+<package>.<section> will be generated.  You may view the
+manual page with: nroff -man <package>.<section> | less'.  A
+typical entry in a Makefile or Makefile.am is:
+
+DB2MAN=/usr/share/sgml/docbook/stylesheet/xsl/nwalsh/\
+manpages/docbook.xsl
+XP=xsltproc -''-nonet
+
+manpage.1: manpage.dbk
+        $(XP) $(DB2MAN) $<
+    
+The xsltproc binary is found in the xsltproc package.  The
+XSL files are in docbook-xsl.  Please remember that if you
+create the nroff version in one of the debian/rules file
+targets (such as build), you will need to include xsltproc
+and docbook-xsl in your Build-Depends control field.
+
+-->
+
+  <!-- Fill in your name for FIRSTNAME and SURNAME. -->
+  <!ENTITY dhfirstname "<firstname>Andre</firstname>">
+  <!ENTITY dhsurname   "<surname>Herms</surname>">
+  <!-- Please adjust the date whenever revising the manpage. -->
+  <!ENTITY dhdate      "<date>April 16, 2008</date>">
+  <!-- SECTION should be 1-8, maybe w/ subsection other parameters are
+       allowed: see man(7), man(1). -->
+  <!ENTITY dhsection   "<manvolnum>5</manvolnum>">
+  <!ENTITY dhemail     "<email>aherms@jeetze.somewhere.de</email>">
+  <!ENTITY dhusername  "Andre Herms">
+  <!ENTITY dhucpackage "<refentrytitle>AWDS</refentrytitle>">
+  <!ENTITY dhpackage   "awds-awdsrouting">
+
+  <!ENTITY debian      "<productname>Debian</productname>">
+  <!ENTITY gnu         "<acronym>GNU</acronym>">
+  <!ENTITY gpl         "&gnu; <acronym>GPL</acronym>">
+]>
+
+<refentry>
+  <refentryinfo>
+    <address>
+      &dhemail;
+    </address>
+    <copyright>
+      <year>2007</year>
+      <holder>&dhusername;</holder>
+    </copyright>
+    &dhdate;
+  </refentryinfo>
+  <refmeta>
+    &dhucpackage;
+
+    &dhsection;
+  </refmeta>
+  <refnamediv>
+    <refname>&dhpackage;</refname>
+
+    <refpurpose>AWDS module for the routing logic</refpurpose>
+  </refnamediv>
+  <refsynopsisdiv>
+    <cmdsynopsis>
+      <command>awdsrouting.so</command>
+
+      <arg><option>--name <filename>hostname</filename></option></arg>
+
+      <arg><option>--verbose</option></arg>
+    </cmdsynopsis>
+  </refsynopsisdiv>
+  <refsect1>
+    <title>DESCRIPTION</title>
+
+    <para>The awds-awdsrouting module contains the whole routing logic of AWDS. 
+</para>
+
+  </refsect1>
+
+  <refsect1>
+    <title>DEPENDENCIES</title>
+
+    <variablelist>
+      <varlistentry>
+	<term>shell.so</term>
+	<listitem>
+	  <para>
+The shell modules is optional. If present, ...
+</para>
+	</listitem>
+      </varlistentry>
+
+      <varlistentry>
+	<term>rawbasic.so</term>
+	<listitem>
+	  <para>
+The awdsrouting module requires at least one basic module. 
+The rawbasic module is the preferred one to use. 
+</para>
+	</listitem>
+      </varlistentry>
+
+      <varlistentry>
+	<term>udpbasic.so</term>
+	<listitem>
+	  <para>
+The awdsrouting module requires at least one basic module. 
+The udpbasic module is one option, mostly used for the NS-2 simulator. 
+</para>
+	</listitem>
+      </varlistentry>
+
+
+    </variablelist>
+  </refsect1>
+
+
+  <refsect1>
+    <title>OPTIONS</title>
+
+    <para>The following options are supported.</para>
+
+    <variablelist>
+      <varlistentry>
+        <term>
+          <option>--name <filename>hostname</filename></option>
+        </term>
+        <listitem>
+          <para>Propagate <filename>hostname</filename> as the human-readable name of this node.</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+              <option>--verbose</option>
+        </term>
+        <listitem>
+          <para>Set the verbose flag to create more debug output.</para>
+        </listitem>
+      </varlistentry>
+    
+    </variablelist>
+  </refsect1>
+  <refsect1>
+    <title>SEE ALSO</title>
+
+    <para>awds-rawbasic(5), awds-udpbasic(5), awds-shell(5), start_awds(8), stop_awds(8).</para>
+
+  </refsect1>
+</refentry>
+
