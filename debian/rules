@@ -105,7 +105,7 @@ binary-arch: build install
 #	dh_installudev
 #	dh_installcron
 #	dh_installinfo
-	dh_installman doc/start_awds.8 doc/stop_awds.8
+	dh_installman doc/start_awds.8 doc/stop_awds.8 doc/*.5
 	dh_link
 	dh_strip
 	dh_compress
