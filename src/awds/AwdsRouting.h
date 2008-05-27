@@ -20,9 +20,6 @@
 #include <awds/beacon.h>
 #include <awds/settings.h>
 // #include <awds/RateMonitor.h>
-
-#include <awds/SendQueue.h>
-
 #include <awds/Firewall.h>
 
 namespace awds {
@@ -50,8 +47,6 @@ namespace awds {
 	class FloodHistory *floodHistory; /**< history of recent flood packets */
 
 	class awds::Firewall *firewall; /**< used for packet filtering */
-
-	SendQueue sendq;
 
 	AwdsRouting(basic *base);
 

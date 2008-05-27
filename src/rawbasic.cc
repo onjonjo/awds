@@ -17,6 +17,7 @@
 #include <gea/API.h>
 
 #include <awds/basic.h>
+#include <awds/SendQueue.h>
 
 
 #define ETHERTYPE_AWDS 0x8334
@@ -65,8 +66,10 @@ public:
     NodeId dest;
     NodeId src;
 
+    SendQueue* sendq;
+
     RawBasic(const char *dev) {
-	strcpy(devicename, dev);
+        strcpy(devicename, dev);
 
 	if ( !createSocket() )
 	    raw_socket = -1;
@@ -77,8 +80,13 @@ public:
 
 	sendHandle = new RawHandle(*this, false);
 	recvHandle = new RawHandle(*this, true);
+        sendq = new SendQueue(this, sendHandle);
     }
 
+    virtual bool send(BasePacket *p, bool high_prio) {
+        // add packet to SendQueue, instead of sending it directly
+        return sendq->enqueuePacket(p, high_prio);
+    }
 
     bool getHwAddress() {
 	struct ifreq req;
@@ -176,7 +184,9 @@ int RawHandle::read(char *buf, int size) {
 
 
 RawBasic::~RawBasic() {
-
+    delete sendHandle;
+    delete recvHandle;
+    delete sendq;
 }
 
 void RawBasic::setSendDest(const NodeId& d) {

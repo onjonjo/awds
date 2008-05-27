@@ -60,7 +60,6 @@ awdsrouting_la_SOURCES =  \
 	FloodHistory.cc \
 	Topology.cc \
 	TopoPacket.cc \
-	SendQueue.cc \
 	awds/sqrt_int.h sqrt_int.c
 
 
@@ -74,7 +73,7 @@ udpbasic_la_CPPFLAGS = -DMODULE_NAME=udpbasic $(COMMON_CPPFLAGS)
 udpbasic_la_LDFLAGS = $(module_flags)
 udpbasic_la_LIBADD = -lgea2
 
-rawbasic_la_SOURCES = rawbasic.cc basic.cc awds/basic.h awds/NodeId.h
+rawbasic_la_SOURCES = rawbasic.cc basic.cc awds/basic.h awds/NodeId.h SendQueue.cc
 rawbasic_la_CPPFLAGS = -DMODULE_NAME=rawbasic $(COMMON_CPPFLAGS)
 rawbasic_la_LDFLAGS = $(module_flags)
 rawbasic_la_LIBADD = -lgea2 -lgea2-posix

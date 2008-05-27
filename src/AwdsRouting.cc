@@ -29,7 +29,6 @@ awds::AwdsRouting::AwdsRouting(basic *base) :
     FlowRouting(base),
     verbose(false),
     firewall(0), // no firewall by default.
-    sendq(base),
     beaconSeq(0),
     beaconPeriod((double)(this->period) / 1000.),
     nextBeacon( gea::AbsTime::now() + beaconPeriod),
@@ -148,14 +147,14 @@ void awds::AwdsRouting::trigger_topo(gea::Handle *h, gea::AbsTime t, void *data)
 
 void awds::AwdsRouting::recv_packet(gea::Handle *h, gea::AbsTime t, void *data) {
     AwdsRouting *self = static_cast<AwdsRouting*>(data);
+    assert(h == self->base->recvHandle);
 
     if (h->status == gea::Handle::Ready) {
 
 	// okay, we received some packet
 
 	BasePacket *p = new BasePacket();
-
-	int ret = p->receive(h);
+	int ret = self->base->receive(p);
 
 	if ( (!self->firewall || self->firewall->check_packet(p) ) &&
 	     ret >= 0 &&
@@ -176,12 +175,12 @@ void awds::AwdsRouting::recv_packet(gea::Handle *h, gea::AbsTime t, void *data) 
 	    }
 	p->unref();
     } else {
-	
+
 	send_beacon(h, self->nextBeacon, data);
-	
+
 	self->nextBeacon += gea::Duration((double)(self->period) / 1000. );
     }
-    
+
     // prevent scheduling of events in the past.
     while (self->nextBeacon < GEA.lastEventTime) {
 	self->nextBeacon += gea::Duration((double)(self->period) / 1000. );
@@ -207,7 +206,7 @@ void awds::AwdsRouting::send_beacon(gea::Handle *h, gea::AbsTime t, void *data) 
 	p->size += 32;
     }
 
-    if (self->sendq.enqueuePacket(p, true) == false)
+    if (!self->base->send(p, true))
 	GEA.dbg() << " cannot send"<< std::endl;
 
 }
@@ -369,7 +368,8 @@ void awds::AwdsRouting::sendUnicastVia(BasePacket *p,/*gea::AbsTime t,*/ NodeId 
     ucPacket.setNextHop(nextHop);
     p->setDest(nextHop);
     //    p->ref();
-    sendq.enqueuePacket(p, false);
+    if (!base->send(p, false))
+        GEA.dbg() << " cannot send"<< std::endl;
 }
 
 
@@ -467,10 +467,8 @@ void awds::AwdsRouting::recv_flood(BasePacket *p ) {
 
     p->ref();
 
-    p->setDest( base->BroadcastId );
-    sendq.enqueuePacket(p, true);
-
-
+    if (!base->send(p, true))
+        GEA.dbg() << " cannot send"<< std::endl;
 }
 
 
@@ -557,8 +555,9 @@ void awds::AwdsRouting::recv_unicast(BasePacket *p) {
     ucPacket.setNextHop(nextHop);
     p->setDest(nextHop);
     p->ref();
-    sendq.enqueuePacket(p, false);
 
+    if (!base->send(p, false))
+        GEA.dbg() << " cannot send"<< std::endl;
 }
 
 
@@ -719,7 +718,7 @@ int awds::AwdsRouting::sendFlowPacket(BasePacket *p) {
     // our caller destroys the packet after the call. increase refcount
     p->ref();
 
-    return sendq.enqueuePacket(p, false)?0:-1;
+    return base->send(p, true)?0:-1;
 }
 
 
