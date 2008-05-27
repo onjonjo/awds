@@ -12,6 +12,7 @@
 #include <gea/API.h>
 
 #include <awds/basic.h>
+#include <awds/SendQueue.h>
 
 using namespace awds;
 
@@ -20,6 +21,8 @@ using namespace awds;
 /** \brief Implementation of basic communication mechanisms ontop of UDP datagrams.
  */
 struct UdpBasic : public basic {
+
+    SendQueue* sendq;
 
     void init(const NodeId& myId) {
 
@@ -33,6 +36,7 @@ struct UdpBasic : public basic {
 					gea::UdpAddress(gea::UdpAddress::IPADDR_ANY,
 							PORT /*port*/));
 
+        sendq = new SendQueue(this, sendHandle);
     }
 
     virtual void setSendDest(const NodeId& id);
@@ -42,9 +46,13 @@ struct UdpBasic : public basic {
     virtual ~UdpBasic() {
 	delete sendHandle;
 	delete recvHandle;
+        delete sendq;
     }
 
-
+    virtual bool send(BasePacket *p, bool high_prio) {
+        // add packet to SendQueue, instead of sending it directly
+        return sendq->enqueuePacket(p, high_prio);
+    }
 };
 
 

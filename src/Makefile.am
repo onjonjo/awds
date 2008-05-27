@@ -68,7 +68,7 @@ awdsrouting_la_LDFLAGS = $(module_flags)
 awdsrouting_la_LIBADD = -lgea2
 
 
-udpbasic_la_SOURCES = udpBasic.cc awds/basic.h basic.cc
+udpbasic_la_SOURCES = udpBasic.cc awds/basic.h basic.cc SendQueue.cc
 udpbasic_la_CPPFLAGS = -DMODULE_NAME=udpbasic $(COMMON_CPPFLAGS)
 udpbasic_la_LDFLAGS = $(module_flags)
 udpbasic_la_LIBADD = -lgea2
