@@ -57,7 +57,7 @@ clean:
 	# Add here commands to clean up after the build process.
 #	-$(MAKE) distclean
 ifneq "$(wildcard /usr/share/misc/config.sub)" ""
-	rm -f config.sub
+	rm -f config.sub 
 	cp -f /usr/share/misc/config.sub config.sub
 endif
 ifneq "$(wildcard /usr/share/misc/config.guess)" ""
@@ -105,7 +105,7 @@ binary-arch: build install
 #	dh_installudev
 #	dh_installcron
 #	dh_installinfo
-	dh_installman doc/start_awds.8 doc/stop_awds.8
+	dh_installman doc/start_awds.8 doc/stop_awds.8 doc/*.5
 	dh_link
 	dh_strip
 	dh_compress

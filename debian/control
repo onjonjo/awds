@@ -2,7 +2,7 @@ Source: awds
 Section: net
 Priority: optional
 Maintainer: Andre Herms <aherms@ivs.cs.uni-magdeburg.de>
-Build-Depends: debhelper (>= 4.2.32), autotools-dev, libgea2-dev (>= 2.3), nasm, libtool (>= 1.5), automake1.9|automaken, docbook-utils
+Build-Depends: debhelper (>= 4.2.32), autotools-dev, libgea2-dev (>= 2.3), nasm, libtool (>= 1.5), automake1.9|automaken, docbook-utils, docbook-xsl, xsltproc
 Standards-Version: 3.7.2
 
 Package: awds

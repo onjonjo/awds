@@ -1,0 +1,142 @@
+<?xml version='1.0' encoding='ISO-8859-1'?>
+<!DOCTYPE refentry PUBLIC "-//OASIS//DTD DocBook XML V4.2//EN"
+"http://www.oasis-open.org/docbook/xml/4.2/docbookx.dtd" [
+
+<!--
+
+Process this file with an XSLT processor: `xsltproc \
+-''-nonet /usr/share/sgml/docbook/stylesheet/xsl/nwalsh/\
+manpages/docbook.xsl manpage.dbk'.  A manual page
+<package>.<section> will be generated.  You may view the
+manual page with: nroff -man <package>.<section> | less'.  A
+typical entry in a Makefile or Makefile.am is:
+
+DB2MAN=/usr/share/sgml/docbook/stylesheet/xsl/nwalsh/\
+manpages/docbook.xsl
+XP=xsltproc -''-nonet
+
+manpage.1: manpage.dbk
+        $(XP) $(DB2MAN) $<
+    
+The xsltproc binary is found in the xsltproc package.  The
+XSL files are in docbook-xsl.  Please remember that if you
+create the nroff version in one of the debian/rules file
+targets (such as build), you will need to include xsltproc
+and docbook-xsl in your Build-Depends control field.
+
+-->
+
+  <!-- Fill in your name for FIRSTNAME and SURNAME. -->
+  <!ENTITY dhfirstname "<firstname>Andre</firstname>">
+  <!ENTITY dhsurname   "<surname>Herms</surname>">
+  <!-- Please adjust the date whenever revising the manpage. -->
+  <!ENTITY dhdate      "<date>April 16, 2008</date>">
+  <!-- SECTION should be 1-8, maybe w/ subsection other parameters are
+       allowed: see man(7), man(1). -->
+  <!ENTITY dhsection   "<manvolnum>5</manvolnum>">
+  <!ENTITY dhemail     "<email>aherms@jeetze.somewhere.de</email>">
+  <!ENTITY dhusername  "Andre Herms">
+  <!ENTITY dhucpackage "<refentrytitle>AWDS</refentrytitle>">
+  <!ENTITY dhpackage   "awds-shell">
+
+  <!ENTITY debian      "<productname>Debian</productname>">
+  <!ENTITY gnu         "<acronym>GNU</acronym>">
+  <!ENTITY gpl         "&gnu; <acronym>GPL</acronym>">
+]>
+
+<refentry>
+  <refentryinfo>
+    <address>
+      &dhemail;
+    </address>
+    <copyright>
+      <year>2007</year>
+      <holder>&dhusername;</holder>
+    </copyright>
+    &dhdate;
+  </refentryinfo>
+  <refmeta>
+    &dhucpackage;
+
+    &dhsection;
+  </refmeta>
+  <refnamediv>
+    <refname>&dhpackage;</refname>
+
+    <refpurpose>AWDS module for interacritive control via shell commands</refpurpose>
+  </refnamediv>
+  <refsynopsisdiv>
+    <cmdsynopsis>
+      <command>shell.so</command>
+    </cmdsynopsis>
+  </refsynopsisdiv>
+  <refsect1>
+    <title>DESCRIPTION</title>
+
+    <para>The awds-shell allows to interactively control AWDS via an interactive shell. It creates a 
+         TCP service on port 8444. You can connect to it via <command>telnet(1)</command> or <command>netcat(1)</command>.
+    </para>
+    
+    <example>
+      <title>Example of connecting to the AWDS shell</title>
+      <!-- one of (calloutlist glosslist itemizedlist orderedlist segmentedlist simplelist variablelist literallayout programlisting programlistingco screen screenco screenshot synopsis cmdsynopsis funcsynopsis classsynopsis fieldsynopsis constructorsynopsis destructorsynopsis methodsynopsis formalpara para simpara address blockquote graphic graphicco mediaobject mediaobjectco informalequation informalexample informalfigure informaltable indexterm beginpage) -->
+      <screen>> telnet localhost 8444
+Trying 127.0.0.1...
+Connected to localhost.localdomain.
+Escape character is '^]'.
+Welcome to localhost!
+#  exit
+Good bye!
+# Connection closed by foreign host.                                            
+</screen>
+    </example>
+    
+    <para>Initially, only a few commands are available:</para>
+    <variablelist>
+      <varlistentry>
+	<term><command>help</command></term>
+	<listitem><para>Show all available commands including a short description.</para>
+	</listitem>
+      </varlistentry>
+
+      <varlistentry>
+	<term><command>help <parameter>command</parameter></command></term>
+	<listitem><para>Show a long description of a command.</para>
+	</listitem>
+      </varlistentry>
+      
+      <varlistentry>
+	<term><command>exit</command></term>
+	<listitem><para>Close the TCP socket. The AWDS instance remains active.</para>
+	</listitem>
+      </varlistentry>
+      
+            
+      
+    </variablelist>
+  </refsect1>
+
+  <refsect1>
+    <title>DEPENDENCIES</title>
+        <para>The shell module has no dependencies.
+    
+</para>
+
+  </refsect1>
+
+
+
+  <refsect1>
+    <title>OPTIONS</title>
+
+    <para>The shell module does not accept any module parameters.
+</para>
+  </refsect1>
+  <refsect1>
+    <title>SEE ALSO</title>
+
+    <para>start_awds(8), stop_awds(8), telnet(1).</para>
+
+  </refsect1>
+</refentry>
+

@@ -69,7 +69,11 @@ public:
 	: topology(topology)
     {
 
-	createSocket();
+	if (! createSocket()) {
+		GEA.dbg() << "Topowatch: Cannot create socket!" << std::endl;
+		return;
+	}
+
 	lHandle = new UnixFdHandle(l_socket, gea::PosixModeRead);
 
 	GEA.waitFor(lHandle, AbsTime::now() + Duration(12.),

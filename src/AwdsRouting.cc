@@ -18,6 +18,8 @@
 #include <awds/FloodHistory.h>
 #include <awds/sqrt_int.h>
 
+#include <awds/ext/Shell.h>
+
 #include <crypto/CryptoUnit.h>
 
 using namespace std;
@@ -31,7 +33,7 @@ awds::AwdsRouting::AwdsRouting(basic *base) :
     firewall(0), // no firewall by default.
     beaconSeq(0),
     beaconPeriod((double)(this->period) / 1000.),
-    nextBeacon( gea::AbsTime::now() + beaconPeriod),
+    nextBeacon( GEA.lastEventTime + beaconPeriod),
     floodSeq(0),
     unicastSeq(0)
 {
@@ -40,6 +42,7 @@ awds::AwdsRouting::AwdsRouting(basic *base) :
     this->neighbors = new NodeDescr[MaxNeighbors];
     this->base = base;
     this->topoPeriod = TOPO_INTERVAL;
+    this->topoPeriodType = Adaptive;
 
     GEA.dbg() << "let's go!" << endl;
 
@@ -58,7 +61,7 @@ awds::AwdsRouting::AwdsRouting(basic *base) :
 
 
     GEA.waitFor( &this->blocker ,
-		 gea::AbsTime::now() + gea::Duration( (double)topoPeriod / 1000.),
+		 GEA.lastEventTime + gea::Duration( (double)topoPeriod / 1000.),
 		 trigger_topo, this);
 
 
@@ -112,16 +115,20 @@ void awds::AwdsRouting::trigger_topo(gea::Handle *h, gea::AbsTime t, void *data)
     assert(topo.getFloodType() == FloodTypeTopo); // done by constructor of TopoPacket
 
     topo.setNeigh(self);
-    long n = self->topology->getNumNodes();
-    //    long newPeriod = ((n*n)/ isqrt(n) ) * 200;
-    long newPeriod = (200 * n * n * 4)/ isqrt(n * 16);
 
-    if ( newPeriod > 2 * self->topoPeriod) { // force slow increase of period
+    if (self->topoPeriodType == Adaptive) {
+        long n = self->topology->getNumNodes();
+        //    long newPeriod = ((n*n)/ isqrt(n) ) * 200;
+        long newPeriod = (200 * n * n * 4)/ isqrt(n * 16);
 
-	newPeriod = 2 * self->topoPeriod;
+        if ( newPeriod > 2 * self->topoPeriod) { // force slow increase of period
+
+            newPeriod = 2 * self->topoPeriod;
+        }
+
+        self->topoPeriod =  newPeriod;
     }
 
-    self->topoPeriod =  newPeriod;
     topo.setValidity( 3 * self->topoPeriod);
 
 
@@ -178,12 +185,12 @@ void awds::AwdsRouting::recv_packet(gea::Handle *h, gea::AbsTime t, void *data) 
 
 	send_beacon(h, self->nextBeacon, data);
 
-	self->nextBeacon += gea::Duration((double)(self->period) / 1000. );
+	self->nextBeacon += self->beaconPeriod;
     }
 
     // prevent scheduling of events in the past.
     while (self->nextBeacon < GEA.lastEventTime) {
-	self->nextBeacon += gea::Duration((double)(self->period) / 1000. );
+	self->nextBeacon += self->beaconPeriod;
     }
     GEA.waitFor(h, self->nextBeacon, AwdsRouting::recv_packet, data);
 }
@@ -722,6 +729,37 @@ int awds::AwdsRouting::sendFlowPacket(BasePacket *p) {
 }
 
 
+static const char *topoPeriod_cmd_usage =
+    "topoperiod ( show | adaptive | constant <millisecs> )\n"
+    "   show            - show current settings\n"
+    "   adaptive        - use adaptive period\n"
+    "   constant <ms>   - use constant period of <ms> milliseconds.\n";
+
+
+static int topoPeriod_command_fn(ShellClient &sc, void *data, int argc, char **argv) {
+    AwdsRouting *self = static_cast<AwdsRouting*>(data);
+
+    if (argc == 2 && (string(argv[1]) == "show")) {
+        *sc.sockout << (self->topoPeriodType == AwdsRouting::Adaptive ? "Adaptive: " : "Constant: ");
+        *sc.sockout << self->topoPeriod << " ms" << endl;
+    } else if (argc == 2 && (string(argv[1]) == "adaptive")) {
+        *sc.sockout << "Setting adaptive period." << endl;
+        self->topoPeriodType = AwdsRouting::Adaptive;
+    } else if (argc == 3 && (string(argv[1]) == "constant")) {
+        int p = atoi(argv[2]);
+        if (p == 0) {
+            *sc.sockout << "Invalid value: " << p << endl;
+            return -1;
+        }
+        *sc.sockout << "Setting constant period to " << p << " ms." << endl;
+        self->topoPeriodType = AwdsRouting::Constant;
+        self->topoPeriod = p;
+    } else {
+        *sc.sockout << topoPeriod_cmd_usage;
+    }
+}
+
+
 #define MODULE_NAME awdsrouting
 
 GEA_MAIN_2(awdsrouting, argc, argv)
@@ -755,6 +793,11 @@ GEA_MAIN_2(awdsrouting, argc, argv)
 	    awds::NodeDescr::verbose = true;
 	}
     }
+
+    REP_MAP_OBJ(Shell *, shell);
+    if (shell)
+        shell->add_command("topoperiod", topoPeriod_command_fn, awdsRouting,
+                "set period for topology packets", topoPeriod_cmd_usage);
 
     return 0;
 }
