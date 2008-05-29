@@ -70,7 +70,10 @@ namespace awds {
 	static void send_beacon(gea::Handle *h, gea::AbsTime t, void *data);
 	static void recv_packet(gea::Handle *h, gea::AbsTime t, void *data);
 
-	static void trigger_topo(gea::Handle *h, gea::AbsTime t, void *data);
+	static void send_periodic_topo(gea::Handle *h, gea::AbsTime t, void *data);
+
+	/** Send a topology packet. */
+	virtual void send_topo();
 
 	/** convert a node id to a unique name
 	 *  This method implements the abstact version in awds::Routing

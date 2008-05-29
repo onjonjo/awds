@@ -63,7 +63,7 @@ awds::AwdsRouting::AwdsRouting(basic *base) :
 
     GEA.waitFor( &this->blocker ,
 		 GEA.lastEventTime + gea::Duration( (double)topoPeriod / 1000.),
-		 trigger_topo, this);
+		 send_periodic_topo, this);
 
 
 }
@@ -103,52 +103,51 @@ void awds::AwdsRouting::recv_beacon(BasePacket *p) {
 }
 
 
+void awds::AwdsRouting::send_topo() {
 
-void awds::AwdsRouting::trigger_topo(gea::Handle *h, gea::AbsTime t, void *data) {
-
-    AwdsRouting *self = static_cast<AwdsRouting*>(data);
-
-    //    GEA.waitFor( self->udpSend, t + gea::Duration(12.2), send_topo, data);
-
-
-    BasePacket *p = self->newFloodPacket(FloodTypeTopo);
+    BasePacket *p = newFloodPacket(FloodTypeTopo);
     TopoPacket topo(*p);
     assert(topo.getFloodType() == FloodTypeTopo); // done by constructor of TopoPacket
 
-    topo.setNeigh(self);
+    topo.setNeigh(this);
 
-    if (self->topoPeriodType == Adaptive) {
-        long n = self->topology->getNumNodes();
+    if (topoPeriodType == Adaptive) {
+        long n = topology->getNumNodes();
         //    long newPeriod = ((n*n)/ isqrt(n) ) * 200;
         long newPeriod = (200 * n * n * 4)/ isqrt(n * 16);
 
-        if ( newPeriod > 2 * self->topoPeriod) { // force slow increase of period
+        if ( newPeriod > 2 * topoPeriod) { // force slow increase of period
 
-            newPeriod = 2 * self->topoPeriod;
+            newPeriod = 2 * topoPeriod;
         }
 
-        self->topoPeriod =  newPeriod;
+        topoPeriod =  newPeriod;
     }
 
-    topo.setValidity( 3 * self->topoPeriod);
+    topo.setValidity( 3 * topoPeriod);
 
 
     // sign the packet
-    if (self->cryptoUnit) {
+    if (cryptoUnit) {
 	const CryptoUnit::MemoryBlock noSign[] = { {p->buffer + Flood::OffsetLastHop, NodeId::size + 1},
 						   {0,0}};
-	self->cryptoUnit->sign(p->buffer, p->size, noSign);
+	cryptoUnit->sign(p->buffer, p->size, noSign);
 	p->size += 32;
-	//	GEA.dbg() << "topo packet siye = " << p->size << endl;
-	//assert ( self->cryptoUnit->verifySignature(self->myNodeId, p->buffer, p->size, noSign) );
     }
 
-    self->sendBroadcast(p);
+    sendBroadcast(p);
     p->unref();
+}
+
+
+void awds::AwdsRouting::send_periodic_topo(gea::Handle *h, gea::AbsTime t, void *data) {
+
+    AwdsRouting *self = static_cast<AwdsRouting*>(data);
+
+    self->send_topo();
 
     GEA.waitFor(h, t + ( (double)self->topoPeriod * 0.001),
-		trigger_topo, data);
-
+		send_periodic_topo, data);
 
 }
 
