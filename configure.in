@@ -79,9 +79,33 @@ AC_CHECK_PROGS(DB2MAN, docbook2man, notfound)
 AC_CHECK_PROGS(XSLTPROC, xsltproc, notfound)
 
 
+DOCBOOKXSL="not found"
 
-AM_CONDITIONAL(CREATE_MANPAGE, test x$DB2MAN != xnotfound)
-AM_CONDITIONAL(CREATE_MODDOCS, test x$XSLTPROC != xnotfound)
+XSL_CANDIDATES="/usr/share/xml/docbook/stylesheet/nwalsh/manpages/docbook.xsl \
+	/usr/share/xml/docbook/stylesheet/manpages/docbook.xsl \
+	/usr/share/docbook/stylesheet/xml/manpages/docbook.xsl"
+	
+
+AC_MSG_CHECKING(DockBook XSL stylesheet file for manpages)
+AC_ARG_WITH(manpagexsl,
+[  --with-manpagexsl=file	  use file as docbook xsl stylesheet],
+[ case "$withval" in 
+	yes|no)
+		AC_MSG_RESULT(no)
+		;;		
+	*)
+		DOCBOOCXSL="$withval"	
+		AC_MSG_RESULT($DOCBOOKXSL)
+esac],[
+	for i in $XSL_CANDIDATES; do
+		test -f $i && DOCBOOKXSL="$i"
+	done
+	AC_MSG_RESULT($DOCBOOKXSL)
+])
+AC_SUBST(DOCBOOKXSL)
+
+AM_CONDITIONAL(CREATE_MANPAGE, test "$DB2MAN" != "notfound")
+AM_CONDITIONAL(CREATE_MODDOCS, test "$XSLTPROC" != "notfound" -a "$DOCBOOKXSL" != "not found")
 
 
 
