@@ -3,8 +3,8 @@
 
 #include <cassert>
 
-#include <sys/types.h>
 
+#include <stdint.h>
 
 #include <gea/API.h>
 #include <gea/Time.h>
@@ -94,8 +94,11 @@ struct NodeDescr {
 	lastBeaconTime = t;
     }
 
+    /* \brief return the number of bits set in the beacon history
+     * \returns the number of bits between 0 and 32
+     */
     unsigned char quality() const {
-	unsigned long x = beaconHist;
+	uint32_t x = beaconHist;
 
 	unsigned char  n = 0;
 	/*

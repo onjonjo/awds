@@ -27,8 +27,8 @@ namespace awds {
 	    return 10;
 	}
 
-	virtual unsigned long my_calculate( RTopology::link_quality_t forward,
-					    RTopology::link_quality_t backward) {
+	virtual uint32_t my_calculate( RTopology::link_quality_t forward,
+				       RTopology::link_quality_t backward) {
 	    // no testing for "forward" and "backward" greater than 0 neccesary it
 	    // is all done in calculate and get_qualities
 	    return 1;
@@ -77,14 +77,14 @@ namespace awds {
 	/** on receive of a Topopacket calculate will be called on each LinkQuality to calculate the
 	 *  "metric_weight" depended on the quality values by the two corresponding LinkQualities
 	 */
-	unsigned long calculate(RTopology::LinkList::iterator &it) {
+	uint32_t calculate(RTopology::LinkList::iterator &it) {
 	    RTopology::link_quality_t f,b;
-	    unsigned long mw = std::numeric_limits<unsigned long>::max();
+	    uint32_t mw = std::numeric_limits<uint32_t>::max();
 
 	    if (it->get_qualities(f,b))
 		mw = my_calculate(f,b);
 
-	    mw = std::min(mw, std::numeric_limits<unsigned long>::max() / 1024U);
+	    mw = std::min(mw, std::numeric_limits<uint32_t>::max() / 1024U);
 
 	    it->set_metric_weight(mw);
 	    return mw;
