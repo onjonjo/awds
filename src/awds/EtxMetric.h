@@ -11,9 +11,9 @@ namespace awds {
     protected:
 	virtual RTopology::link_quality_t my_get_quality(NodeDescr &ndescr);
 
-	virtual unsigned long my_calculate(RTopology::link_quality_t forward,RTopology::link_quality_t backward);
+	virtual uint32_t my_calculate(RTopology::link_quality_t forward,RTopology::link_quality_t backward);
 
-	double scale;
+	const uint32_t scale;
 
     public:
 	EtxMetric(Routing *r);

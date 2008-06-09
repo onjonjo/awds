@@ -57,7 +57,7 @@ namespace awds {
 	    NodeId neighbor; /**< the endpoint of the link */
 
 	    link_quality_t quality; /**< unidirectional quality, received by topo packets */
-	    unsigned long metric_weight; /**< calculated by metric bidirectional */
+	    uint32_t metric_weight; /**< calculated by metric bidirectional */
 
 	    LinkQuality &operator=(const LinkQuality& lq) {
 		counterpart   = lq.counterpart;
@@ -109,7 +109,7 @@ namespace awds {
 		return v;
 	    }
 
-	    void set_metric_weight(unsigned long mw) {
+	    void set_metric_weight(uint32_t mw) {
 		metric_weight = mw;
 		if (counterpart) {  // is this really neccessary?
 		    counterpart->metric_weight = mw;
@@ -266,7 +266,7 @@ namespace awds {
 
 	//debug output
 	void print();
-	
+
 	void dumpNextHops(std::ostream& os);
 
 	virtual std::string getDotString() const;

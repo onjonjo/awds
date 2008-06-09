@@ -13,27 +13,32 @@ using namespace awds;
 using namespace gea;
 
 
-RTopology::link_quality_t awds::EtxMetric::my_get_quality(NodeDescr &ndescr) {
-  RTopology::link_quality_t q(32-ndescr.quality());
-  // highest value is worst value!
-  return q * (RTopology::max_quality() / 32);
+RTopology::link_quality_t awds::EtxMetric::my_get_quality(NodeDescr& ndescr) {
+  RTopology::link_quality_t q = 32-ndescr.quality();
+  /* q=0 means: last 32 beacons received = very good link
+   * q>0 means: some beacons lost = not so good link.
+   * highest value is worst value!
+   */
+
+  // scale value to use the whole range of the quality type.
+  return q * (RTopology::max_quality() / 32U);
 }
 
-unsigned long awds::EtxMetric::my_calculate(RTopology::link_quality_t forward,
+uint32_t awds::EtxMetric::my_calculate(RTopology::link_quality_t forward,
 					    RTopology::link_quality_t backward)
 {
+
   forward /= (RTopology::max_quality() / 32U);
   backward /= (RTopology::max_quality() / 32U);
-  double f(forward), b(backward);
-  double lra = f/32.0;  // loss rate
-  double lrb = b/32.0;
-  double etx = (1.0/((1.-lra)*(1.-lrb)))*scale;
-  return static_cast<unsigned long>(etx);
+
+  uint32_t etx = (1024U * scale)/( (32U-forward) * (32U-backward));
+  return etx;
 }
 
-awds::EtxMetric::EtxMetric(Routing *r):Metric(r) {
-  scale = std::numeric_limits<unsigned long>::max()/1024;
-}
+awds::EtxMetric::EtxMetric(Routing *r):
+  Metric(r),
+  scale(2048)
+{}
 
 awds::EtxMetric::~EtxMetric() {
 }

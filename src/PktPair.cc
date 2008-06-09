@@ -31,8 +31,8 @@ RTopology::link_quality_t PktPair::my_get_quality(NodeDescr &ndescr)
   return ret;
 }
 
-unsigned long PktPair::my_calculate(RTopology::link_quality_t forward,
-				    RTopology::link_quality_t backward) {
+uint32_t PktPair::my_calculate(RTopology::link_quality_t forward,
+			       RTopology::link_quality_t backward) {
   return forward+backward;
 }
 

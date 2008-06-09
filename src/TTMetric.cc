@@ -34,7 +34,7 @@ awds::TTMetric::my_get_quality(NodeDescr &ndescr) {
   return ret;
 }
 
-unsigned long
+uint32_t
 awds::TTMetric::my_calculate(awds::RTopology::link_quality_t forward,
 			      awds::RTopology::link_quality_t backward) {
   return forward;

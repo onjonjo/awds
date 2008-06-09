@@ -33,7 +33,7 @@ namespace awds {
     gea2mad *g2m;
     virtual int update();
     virtual RTopology::link_quality_t my_get_quality(NodeDescr &ndescr);
-    virtual unsigned long my_calculate(RTopology::link_quality_t forward,RTopology::link_quality_t backward);
+    virtual uint32_t my_calculate(RTopology::link_quality_t forward,RTopology::link_quality_t backward);
     virtual std::string get_values();
 
     virtual void addNode(NodeId &nodeId);

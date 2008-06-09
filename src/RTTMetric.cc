@@ -147,7 +147,7 @@ awds::RTTMetric::end_update() {
   }
 }
 
-unsigned long
+uint32_t
 awds::RTTMetric::my_calculate(awds::RTopology::link_quality_t forward,
 			      awds::RTopology::link_quality_t backward) {
   return forward+backward;
