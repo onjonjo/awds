@@ -11,7 +11,7 @@ if CREATE_MODDOCS
 
 MODDOCS=awds-daemon.5 awds-shell.5 awds-rawbasic.5 awds-udpbasic.5 awds-awdsrouting.5
 
-XSLT_FILE = /usr/share/sgml/docbook/stylesheet/xsl/nwalsh/manpages/docbook.xsl
+XSLT_FILE = @DOCBOOKXSL@
 
 man5_MANS = $(MODDOCS)
 
