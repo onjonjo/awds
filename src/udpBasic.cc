@@ -91,11 +91,12 @@ GEA_MAIN(argc,argv)
     UdpBasic *basic = new UdpBasic();
 
     basic->init(MyId);
-
+    basic->start();
+    
     REP_INSERT_OBJ(awds::basic *, basic, basic);
 
     GEA.dbg() << "running UDP basic on " << MyId << std::endl;
-
+    
     return 0;
 }
 

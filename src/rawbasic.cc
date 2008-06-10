@@ -68,8 +68,11 @@ public:
 
     SendQueue* sendq;
 
-    RawBasic(const char *dev) {
-        strcpy(devicename, dev);
+
+
+    RawBasic(const char *dev)
+    {
+	strcpy(devicename, dev);
 
 	if ( !createSocket() )
 	    raw_socket = -1;
@@ -80,14 +83,16 @@ public:
 
 	sendHandle = new RawHandle(*this, false);
 	recvHandle = new RawHandle(*this, true);
-        sendq = new SendQueue(this, sendHandle);
+	sendq = new SendQueue(this, sendHandle);
     }
 
     virtual bool send(BasePacket *p, bool high_prio) {
-        // add packet to SendQueue, instead of sending it directly
-        return sendq->enqueuePacket(p, high_prio);
+	// add packet to SendQueue, instead of sending it directly
+	return sendq->enqueuePacket(p, high_prio);
     }
 
+    
+public:
     bool getHwAddress() {
 	struct ifreq req;
 
@@ -97,6 +102,7 @@ public:
 
 	return true;
     }
+
 
 
 
@@ -180,9 +186,6 @@ int RawHandle::read(char *buf, int size) {
 
 }
 
-
-
-
 RawBasic::~RawBasic() {
     delete sendHandle;
     delete recvHandle;
@@ -213,16 +216,14 @@ GEA_MAIN_2(rawbasic, argc, argv) {
 	return -1;
     }
 
+    basic->start();
     //   basic->init(MyId);
 
     ObjRepository& rep = ObjRepository::instance();
 
     rep.insertObj("basic", "basic", (void*)basic);
 
-    GEA.dbg() << "running RAW basic on " << basic->MyId << std::endl;
-
-//     basic->setSendDest(basic->BroadcastId);
-//     basic->sendHandle->write("Hallllllllllllllllllllo:  : ", 100);
+    GEA.dbg() << "running RAW basic on " << netif << " address=" << basic->MyId << std::endl;
 
     return 0;
 }
