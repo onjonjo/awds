@@ -67,7 +67,11 @@ void UdpBasic::setSendDest(const NodeId& id) {
 
 	gea::UdpAddress dest( (u_int32_t)(unsigned long)id, (u_int16_t)PORT);
 
-	((gea::UdpHandle *)sendHandle)->setDest(dest);
+	((gea::UdpHandle *)sendHandle)->setDest(dest); {
+	    GEA.waitFor(recvHandle,
+			GEA.lastEventTime + recvTimeout,
+			recv_data, (void *)this);
+	}
     }
 }
 
