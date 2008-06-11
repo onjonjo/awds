@@ -156,11 +156,11 @@ RTopology::RTopology(NodeId id,Routing *routing) :
     nodeName[0] = '\0';
 
     // start regular cleanup of removed stations.
-    gea::AbsTime t = gea::AbsTime::now();
+    gea::AbsTime t = GEA.lastEventTime;
     adjList[myNodeId].validity = t
 	+ gea::Duration(double(5 * TOPO_INTERVAL) * 0.001);
     cleanup_nodes(&cleanup_blocker, t, this);
-
+    
     addTopoCmd();
 }
 
@@ -279,7 +279,13 @@ DLLEXPORT const RTopology::LinkQuality *RTopology::NDescr::findLinkQuality(NodeI
 
 void RTopology::feed(const TopoPacket& p) {
     if (locked) return; // when locked status is set, ignore new packets
-
+    
+    if (p.packet.size < TopoPacket::OffsetLinks + 1) {
+	GEA.dbg() << "received misformed  topo packet" << endl;
+	return;
+    }
+	
+    
     bool links_have_changed = false;
 
     AbsTime t = GEA.lastEventTime;
@@ -818,7 +824,7 @@ gea::AbsTime RTopology::removeOldNodes() {
     AdjList::iterator itr = adjList.begin();
 
     assert(itr != adjList.end());
-    gea::AbsTime nextTimeout = t + gea::Duration(314.1592);
+    gea::AbsTime nextTimeout = t + gea::Duration(31415,10);
 
     if (locked) return nextTimeout;
 

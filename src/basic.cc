@@ -12,9 +12,9 @@ void awds::basic::recv_data(gea::Handle *h, gea::AbsTime t, void *data) {
     
     if (h->status ==  gea::Handle::Ready) {
 	BasePacket *p = new BasePacket();
-	p->size = self->recvHandle->read(p->buffer, p->MaxSize);
-    
-	if (self->recv_callback && (p->size > 0) )
+	int ret = p->receive(self->recvHandle); 
+	
+	if (self->recv_callback && (ret > 0) )
 	    self->recv_callback(p, self->recv_callback_data);
 	p->unref();
     } else {
