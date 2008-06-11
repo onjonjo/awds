@@ -9,6 +9,9 @@
 namespace awds{
 
     /** \brief data structure to remember and lookup the recent flood packets
+     * 
+     *  It implements a ring buffer. 
+     *  
      */
     class FloodHistory {
 
@@ -20,38 +23,29 @@ namespace awds{
 	    u_int16_t seq;
 	};
 
+#define FLOOD_HISTORY_NUM_ENTRIES ((size_t)0x80) ///< how many packets to remember
 
-	size_t size; ///< how many packets to remember
-	size_t start, end;
+	size_t end;    ///< end pointer in the ring buffer
+	size_t count;  ///< number of entries in the ring buffer
 
-	Entry *hist;
+	Entry hist[FLOOD_HISTORY_NUM_ENTRIES];
 
-	FloodHistory() :
-	    size(0x80)  // this is a reasonable value
+	FloodHistory() 
 	{
-	    start = 0;
+	    count = 0;
 	    end = 0;
-
-	    hist = new Entry[size];
-	}
-
-
-	~FloodHistory() {
-	    delete hist;
 	}
 
 	void insert(const NodeId& id, u_int16_t seq) {
-	    end = ( end + 1 ) % size;
+	    end = ( end + 1 ) % FLOOD_HISTORY_NUM_ENTRIES;
 	    hist[end].id = id;
 	    hist[end].seq = seq;
-	    if ( end == start)
-		start = (start + 1) % size;
+	    count = std::min(count+1, FLOOD_HISTORY_NUM_ENTRIES);
 	}
 
 	void printHistoryOfNode(const NodeId& id);
 
 	bool contains(const NodeId& id, u_int16_t seq) const;
-
 
     };
 }
