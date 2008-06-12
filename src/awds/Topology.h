@@ -133,7 +133,8 @@ namespace awds {
 	    LinkList linklist; /**< list of neighbours */
 	    NodeId nextHop;
 	    NodeId prevHop;
-	    gea::AbsTime validity; /**< time of expiry */
+	    gea::AbsTime nodeValidity; /**< time of expiry of this node */
+	    gea::AbsTime edgeValidity; /**< time of expiry of all links from this node*/
 
 	    unsigned long distance; /**< distance value used for dijkstra */
 
@@ -149,9 +150,10 @@ namespace awds {
 		nodeName[0]='\0';
 	    }
 
-	    void update_validity(const gea::AbsTime& new_v) {
-		if (this->validity < new_v)
-		    this->validity = new_v;
+	    void update_nodeValidity(const gea::AbsTime& new_v) {
+		if (this->nodeValidity < new_v) {
+		    this->nodeValidity = new_v;
+		}
 	    }
 
 
@@ -266,7 +268,7 @@ namespace awds {
 
 	//debug output
 	void print();
-	
+
 	void dumpNextHops(std::ostream& os);
 
 	virtual std::string getDotString() const;
