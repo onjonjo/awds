@@ -156,9 +156,10 @@ RTopology::RTopology(NodeId id,Routing *routing) :
     nodeName[0] = '\0';
 
     // start regular cleanup of removed stations.
-    gea::AbsTime t = gea::AbsTime::now();
-    adjList[myNodeId].validity = t
-	+ gea::Duration(double(5 * TOPO_INTERVAL) * 0.001);
+    gea::AbsTime t = GEA.lastEventTime;
+    adjList[myNodeId].nodeValidity
+	= adjList[myNodeId].edgeValidity
+	= t + gea::Duration(5 * TOPO_INTERVAL, 1000);
     cleanup_nodes(&cleanup_blocker, t, this);
 
     addTopoCmd();
@@ -182,6 +183,12 @@ RTopology::getNodeEntry(const NodeId& id, gea::AbsTime t ) {
 
     assert(itr != adjList.end());
     if (ret.second) { // new entry
+
+	itr->second.nodeValidity
+	    = itr->second.edgeValidity
+	    = GEA.lastEventTime + Duration(1,10);
+
+
 	sendNodesChanged();
 	sendNodeAdded(id);
 	if (!newXmlTopologyDelta.empty()) {
@@ -280,6 +287,12 @@ DLLEXPORT const RTopology::LinkQuality *RTopology::NDescr::findLinkQuality(NodeI
 void RTopology::feed(const TopoPacket& p) {
     if (locked) return; // when locked status is set, ignore new packets
 
+    if (p.packet.size < TopoPacket::OffsetLinks + 1) {
+	GEA.dbg() << "received malformed topo packet from" << p.getSrc() << endl;
+	return;
+    }
+
+
     bool links_have_changed = false;
 
     AbsTime t = GEA.lastEventTime;
@@ -296,8 +309,12 @@ void RTopology::feed(const TopoPacket& p) {
     AdjList::iterator itr_src ;
 
     itr_src = getNodeEntry(src, t); // find entry, create a new one if not found and return it.
+    assert(p.getValidity() > Duration(0));
     gea::AbsTime newValidity = t + p.getValidity();
-    itr_src->second.validity = newValidity;   // set validity
+
+    // update validities of node and of the edges
+    itr_src->second.update_nodeValidity(newValidity);
+    itr_src->second.edgeValidity = newValidity;
 
     LinkList &linklist = itr_src->second.linklist;
     LinkList old_linklist;
@@ -370,7 +387,7 @@ void RTopology::feed(const TopoPacket& p) {
 	    // case 1: link is kept
 
 	    NDescr& nDescr = getNodeEntry(itr_new->neighbor, t)->second;
-	    nDescr.update_validity(newValidity);
+	    nDescr.update_nodeValidity(newValidity);
 	    LinkQuality *counterpart = nDescr.findLinkQuality(src);
 	    // the counterpart might be 0, but this is handled by set_counterpart()
 	    itr_new->set_counterpart(counterpart);
@@ -400,7 +417,7 @@ void RTopology::feed(const TopoPacket& p) {
 	    //	    GEA.dbg() << "new link from "  << src << " to " << itr_new->neighbor << endl;
 
 	    NDescr& nDescr = getNodeEntry(itr_new->neighbor, t)->second;
-	    nDescr.update_validity(newValidity);
+	    nDescr.update_nodeValidity(newValidity);
 	    LinkQuality *counterpart = nDescr.findLinkQuality(src);
 	    // the counterpart might be 0, but this is handled by set_counterpart()
 	    itr_new->set_counterpart(counterpart);
@@ -700,14 +717,6 @@ void RTopology::calcRoutes() {
 	    unsigned newDist = ndescr.distance + (unsigned)(ndescr.linklist[i].metric_weight);
 	    if (newDist < neigh.distance) {
 
-		// debugging stuff
-	//	if ( find(todo.begin(), todo.end(), itr2) == todo.end() ) {
-//		    GEA.dbg() << " new path to " <<  itr2->first
-//			      << " pref=(" << itr2->second.prevHop << ") "
-//			      << " shorter than previous found" << std::endl;
-//		    assert (!"ouch!" );
-//		}
-		// end of debugging stuff
 		neigh.distance = newDist;
 		neigh.prevHop = nearest->first;
 	    }
@@ -790,7 +799,8 @@ struct doInvalidate {
     doInvalidate(gea::AbsTime t, const NodeId myId) : t(t), myNodeId(myId) {}
     void operator ()( RTopology::AdjList::value_type& v)  const  {
 	if (v.first != myNodeId) {
-	    v.second.validity = t;
+	    v.second.nodeValidity = t;
+	    v.second.edgeValidity = t;
 	}
     }
 };
@@ -818,32 +828,31 @@ gea::AbsTime RTopology::removeOldNodes() {
     AdjList::iterator itr = adjList.begin();
 
     assert(itr != adjList.end());
-    gea::AbsTime nextTimeout = t + gea::Duration(314.1592);
+    gea::AbsTime nextTimeout = t + gea::Duration(31415,10);
 
     if (locked) return nextTimeout;
 
     while( itr != adjList.end() ) {
 	const NodeId currentNodeId = itr->first;
-	const gea::AbsTime validity = itr->second.validity;
 
-	if (validity <= t) {
+	// the following part removes all old edges.
 
-	    if (currentNodeId == myNodeId) {
-		GEA.dbg() << "failure! removing my one node from topology"
-			  << " age is " << ( t - validity )
-			  << endl;
+	const gea::AbsTime edgeValidity = itr->second.edgeValidity;
+	const gea::AbsTime nodeValidity = itr->second.nodeValidity;
+
+	if (edgeValidity <= t) {
+
+	    LinkList& linklist = itr->second.linklist;
+
+	    // remove all link references from outside
+	    for( LinkList::iterator ll = linklist.begin();
+		 ll != linklist.end(); ++ll ) {
+		ll->remove_reference();
 	    }
 
-	    if (verbose) {
-		GEA.dbg() << "removing node "
-			  << currentNodeId << endl;
-	    }
-
-	    AdjList::iterator itr2 = itr;
-	    itr2++;
-
+	    // we should remove all edges of this node.
 	    if (!newXmlTopologyDelta.empty() || linkObserver ) {
-		const LinkList& linklist = itr->second.linklist;
+
 		for (LinkList::const_iterator iN = linklist.begin();
 		     iN != linklist.end();
 		     ++iN) {
@@ -851,17 +860,36 @@ gea::AbsTime RTopology::removeOldNodes() {
 			   << "\" to=\"" << getNodeId(*iN) << "\" />\n";
 		    sendLinkRemoved( currentNodeId, getNodeId(*iN) );
 		}
-		node_s << "  <remove_node id=\"" << currentNodeId << "\" />\n";
+
 	    }
-	    // createRemoveMessages(itr->first, itr->second);
+	    linklist.clear();
 	    oneRemoved = true;
+	}
 
-	    LinkList::iterator ll = itr->second.linklist.begin();
-	    while (ll != itr->second.linklist.end()) {
-		ll->remove_reference();
-		++ll;
+	// the following part removes all old nodes. It edges are removed by the code before.
+	if (nodeValidity <= t) {
+
+	    if (currentNodeId == myNodeId) {
+		GEA.dbg() << "failure! removing my one node from topology"
+			  << " age is " << ( t - nodeValidity )
+			  << endl;
 	    }
 
+	    if (verbose) {
+		GEA.dbg() << "removing node "
+			  << currentNodeId
+			  << " age is " << ( t - nodeValidity )
+			  << " edge val " << ( t - edgeValidity )
+			  << endl;
+	    }
+
+	    AdjList::iterator itr2 = itr;
+	    itr2++;
+
+	    if (!newXmlTopologyDelta.empty() || linkObserver )
+		node_s << "  <remove_node id=\"" << currentNodeId << "\" />\n";
+
+	    oneRemoved = true;
 	    adjList.erase(itr);
 	    itr = itr2;
 	    sendNodeRemoved(currentNodeId);
@@ -869,9 +897,8 @@ gea::AbsTime RTopology::removeOldNodes() {
 	} else {
 	    itr++;
 
-	    if ( validity < nextTimeout)
-		nextTimeout = validity;
-
+	    if ( nodeValidity < nextTimeout)
+		nextTimeout = nodeValidity;
 	}
     }
 
@@ -1015,7 +1042,7 @@ void RTopology::dumpNextHops(std::ostream& os)  {
 	bool found;
 	this->getNextHop(itr->first, nextHop, found);
 	os << itr->first << "\t";
-	if (found) 
+	if (found)
 	    os << nextHop;
 	else
 	    os << "------------";

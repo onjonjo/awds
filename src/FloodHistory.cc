@@ -7,19 +7,15 @@ bool awds::FloodHistory::contains(const NodeId& id, u_int16_t seq) const {
 
     size_t p = end;
 
-    while (1) {
+    for (size_t i = 0; i<count; ++i) {
 	if ( (hist[p].seq == seq ) && (hist[p].id == id ))
 	    return true;
-	if (p == start)
-	    return false;
-
 	if (p == 0)
-	    p = size-1;
+	    p = FLOOD_HISTORY_NUM_ENTRIES - 1;
 	else
 	    --p;
     }
-
-    assert(!"never reached");
+    return false;
 }
 
 
@@ -27,7 +23,7 @@ void awds::FloodHistory::printHistoryOfNode(const NodeId& id)  {
     std::ostream& os = GEA.dbg();
     os << "hist of " << id << ":";
 
-    for (unsigned i = 0; i < size; ++i) {
+    for (size_t i = 0; i < FLOOD_HISTORY_NUM_ENTRIES; ++i) {
 	if (hist[i].id == id) {
 	    os << " " << hist[i].seq;
 	}
