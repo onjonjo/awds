@@ -134,6 +134,13 @@ namespace awds {
 	NodeDescr    *neighbors;// [MaxNeighbors];
 	int          numNeigh;
 
+	gea::Blocker linkFailBlocker;	///< Blocker for checkLinkFailure callback
+
+	/**
+	 * GEA callback that checks whether links have bacome inactive.
+	 */
+	static void checkLinkFailure(gea::Handle *h, gea::AbsTime t, void *data);
+
 	u_int16_t beaconSeq;
 	gea::Duration beaconPeriod;
 	gea::AbsTime nextBeacon;

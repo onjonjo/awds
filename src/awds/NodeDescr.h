@@ -20,45 +20,69 @@
 namespace awds {
 struct NodeDescr {
 
-
-    static const int LostTrigger = 8;
     static bool verbose;
 
     NodeId id;                    /// ID of the node
     BasePacket *lastBeacon;       /// pointer to the last received beacon
     gea::AbsTime lastBeaconTime;  /// when was the last beacon received
     gea::Duration beaconInterval; /// beacon interval of the node.
+    gea::AbsTime linkValidity;    /// timestamp until link is valid
     //    unsigned long beaconHist;
     u_int32_t beaconHist;         /// bitfield of the last received/lost beacons
     bool active;                  /// is this an active (good recieved) node
     bool mpr;			  /// is this a MPR node
 
-    void updateActive( /* gea::AbsTime t */) {
+    /**
+     * Check, whether node became active.
+     *
+     * This function should be called, when a new beacon was received.
+     *
+     * \return true if node became active.
+     */
+    bool updateActive() {
 
+	linkValidity = lastBeaconTime + gea::Duration( (double)beaconInterval
+							* (double)NR_BEACON_TRIGGER_FAIL );
 	const bool last12received = (beaconHist > 0xFFF00000UL);
-	const bool last4lost      = (beaconHist < 0x08000000UL );
-	const bool lastBeacon2old = (lastBeaconTime <
-				     GEA.lastEventTime - gea::Duration( (double)beaconInterval
-									* (double)LostTrigger) );
-	if ( !active && !lastBeacon2old && last12received) {
+
+	if ( !active && last12received) {
 	    active = true;
 	    if (verbose) {
 		GEA.dbg() << "neighbor "
 			  << Beacon(*lastBeacon).getSrc() << " became active" << std::endl;
 	    }
-	} else if (  active && ( last4lost || lastBeacon2old ) )  {
+	    return true;
+	} else
+	    return false;
+    }
+
+
+    /**
+     * Check, whether node became inactive.
+     *
+     * This function should be called more or less periodically, to check
+     * whether a link has become inactive. This is done by
+     * AwdsRouting::checkLinkFailure()
+     *
+     * \return true if node became inactive.
+     */
+    bool updateInactive() {
+
+	const bool lastBeacon2old = (linkValidity <= GEA.lastEventTime);
+
+	if ( active && lastBeacon2old )  {
 	    active = false;
 	    if (verbose) {
-		GEA.dbg() << "neighbor "
-			  << Beacon(*lastBeacon).getSrc() << " became inactive "
-			  << ( last4lost ? "(last 4 beacon lost)" : "(last beacon too old)")
+		GEA.dbg() << "neighbor " << Beacon(*lastBeacon).getSrc()
+			  << " became inactive (last beacon too old)"
 			  << std::endl;
 	    }
-	}
+	    return true;
+	} else
+	    return false;
     }
 
     bool isGood() {
-	updateActive();
 	return active;
     }
 
@@ -77,9 +101,9 @@ struct NodeDescr {
 	return isGood();
     }
 
-    bool isTooOld() {
-	return lastBeaconTime + (beaconInterval * 32)  < GEA.lastEventTime;
-
+    bool isExpired() {
+	return !active && (lastBeaconTime + ((double)beaconInterval * 32)
+				< GEA.lastEventTime);
     }
 
     NodeDescr() : beaconInterval(0.) {}

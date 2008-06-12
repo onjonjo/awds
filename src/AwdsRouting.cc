@@ -22,6 +22,8 @@
 
 #include <crypto/CryptoUnit.h>
 
+#define DBGTIME(t)  std::fixed << (t) - gea::AbsTime::t0() << ": "
+
 using namespace std;
 using namespace awds;
 using namespace gea;
@@ -83,6 +85,11 @@ void awds::AwdsRouting::recv_beacon(BasePacket *p) {
     Beacon beacon(*p);
     NodeId neighbor;
     beacon.getSrc(neighbor);
+
+    if (verbose) {
+	GEA.dbg() << DBGTIME(GEA.lastEventTime) << "got beacon from " << neighbor
+		<< " with seq.nr. " << beacon.getSeq() << std::endl;
+    }
 
     // check signature, if available
     if (this->cryptoUnit) {
@@ -267,9 +274,6 @@ bool awds::AwdsRouting::refreshNeigh(BasePacket *p) {
 
     nIdx.beaconHist >>= lostBeacon;
     nIdx.beaconHist |= 0x80000000UL;
-    //  (void)nIdx.isGood(t);
-    //   GEA.dbg() << "lost of " << beacon.getSrc() << " is "
-    // << (unsigned)lostBeacon << " hist=" << nIdx.beaconHist << std::endl;
 
     nIdx.lastBeacon->unref();
     nIdx.lastBeacon     = p;
@@ -277,9 +281,60 @@ bool awds::AwdsRouting::refreshNeigh(BasePacket *p) {
     nIdx.beaconInterval = beacon.getPeriod();
     p->ref();
 
+    if (nIdx.updateActive()) {
+        /* At this point a reactive topo packet could be send to propagate
+         * the change of the topology. */
+
+	if ( this->linkFailBlocker.status != gea::Handle::Blocked) {
+	    /* The checkLinkFail-job is currently not running but has to
+	     * be activated */
+	    if (this->verbose)
+		GEA.dbg() << "checkLinkFailure job activated, next call: "
+			  << DBGTIME(nIdx.linkValidity) << std::endl;
+	    GEA.waitFor(&this->linkFailBlocker, nIdx.linkValidity,
+			checkLinkFailure, this);
+	}
+
+    }
+
     return is_new;
 }
 
+void awds::AwdsRouting::checkLinkFailure(gea::Handle *h, gea::AbsTime t, void *data) {
+
+    AwdsRouting *self = static_cast<AwdsRouting*>(data);
+    bool topoChanged = false;
+    gea::AbsTime *minValidity = NULL;
+
+    if (self->verbose)
+	GEA.dbg() << DBGTIME(GEA.lastEventTime) << "checkLinkFailure()"
+		<< std::endl;
+
+    for (size_t i = 0; i < (size_t)self->numNeigh; ++i ) {
+	NodeDescr &node = self->neighbors[i];
+	topoChanged = topoChanged || node.updateInactive();
+
+	if (node.active) {
+	    if ((minValidity == NULL) || (node.linkValidity < *minValidity))
+		minValidity = &node.linkValidity;
+	}
+    }
+
+    self->removeOldNeigh();
+
+    if (topoChanged) {
+	if (self->verbose)
+	    GEA.dbg() << "Topology has changed, send aperiodic topo packet." << std::endl;
+	self->send_topo();
+    }
+
+    if (minValidity) {
+	if (self->verbose)
+	    GEA.dbg() << "\tnext call: " << std::fixed
+			<< DBGTIME(*minValidity) << std::endl;
+	GEA.waitFor(h, *minValidity, checkLinkFailure, data);
+    }
+}
 
 static void cpStat2Dyn(awds::AwdsRouting::Hop2List::value_type& r) {
     r.second.dyn = r.second.stat;
@@ -307,9 +362,8 @@ void awds::AwdsRouting::removeOldNeigh() {
 
     size_t newnum = 0;
     for (size_t i = 0; i < (size_t)numNeigh; ++i) {
-	bool tooOld = neighbors[i].isTooOld();
 
-	if (!tooOld) {
+	if (!neighbors[i].isExpired()) {
 
 	    if (newnum != i) neighbors[newnum] = neighbors[i];
 	    ++newnum;
