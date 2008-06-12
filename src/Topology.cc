@@ -182,6 +182,10 @@ RTopology::getNodeEntry(const NodeId& id, gea::AbsTime t ) {
 
     assert(itr != adjList.end());
     if (ret.second) { // new entry
+	
+	itr->second.validity = GEA.lastEventTime;
+	itr->second.distance = 0xffff;
+		
 	sendNodesChanged();
 	sendNodeAdded(id);
 	if (!newXmlTopologyDelta.empty()) {
