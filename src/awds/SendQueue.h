@@ -13,7 +13,7 @@ namespace awds {
 		std::list<BasePacket*> queue;
 	public:
 
-		SendQueue(basic *_b) : h(_b->sendHandle), base(_b) {
+		SendQueue(basic *_b, gea::Handle *_h) : base(_b), h(_h) {
 		}
 
 		bool enqueuePacket(BasePacket *p, bool high_prio);
