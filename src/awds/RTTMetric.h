@@ -19,7 +19,7 @@ namespace awds {
 	    gea::Duration time;
 	    gea::AbsTime lastsend,lastrecv;
 	    bool in_use;
-	    s_rtt_data():time(1),lastsend(0),lastrecv(0),in_use(true) {}
+	    s_rtt_data():time(1),lastsend(gea::AbsTime::t0()),lastrecv(gea::AbsTime::t0()),in_use(true) {}
 	};
 	typedef std::map<NodeId,s_rtt_data> RTTData;
 	RTTData rttData;

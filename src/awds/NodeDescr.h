@@ -38,8 +38,7 @@ struct NodeDescr {
 	const bool last12received = (beaconHist > 0xFFF00000UL);
 	const bool last4lost      = (beaconHist < 0x08000000UL );
 	const bool lastBeacon2old = (lastBeaconTime <
-				     GEA.lastEventTime - gea::Duration( (double)beaconInterval
-									* (double)LostTrigger) );
+				     GEA.lastEventTime - ( beaconInterval * LostTrigger) );
 	if ( !active && !lastBeacon2old && last12received) {
 	    active = true;
 	    if (verbose) {
@@ -88,7 +87,7 @@ struct NodeDescr {
 	active = false;
 	mpr = true;
 	beaconHist = 0;
-	beaconInterval = (double)BEACON_INTERVAL / 1000.;
+	beaconInterval = gea::Duration(BEACON_INTERVAL, 1000);
 	this->id = _id;
 	lastBeacon = p;
 	lastBeaconTime = t;

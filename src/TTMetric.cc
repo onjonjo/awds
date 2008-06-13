@@ -156,7 +156,7 @@ int awdsRouting_gea_main(int argc, const char  * const *argv)
       std::stringstream ss(p);
       double h;
       ss >> h;
-      tt->interval = h;
+      tt->interval.setSeconds(h);
     }
     if (w == "--packetsize") {
       std::stringstream ss(p);

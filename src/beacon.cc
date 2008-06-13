@@ -14,12 +14,11 @@ using namespace gea;
 
 gea::Duration Beacon::getPeriod() const {
     u_int16_t period = fromArray<u_int16_t>(&packet.buffer[OffsetPeriod]);
-    return gea::Duration( (double)period * 0.001);
+    return gea::Duration(period, 1000);
 }
 
 void Beacon::setPeriod(const gea::Duration& d) {
-    double dd = static_cast<double>(d);
-    u_int16_t period = static_cast<u_int16_t>(dd * 1000.);
+    u_int16_t period = d.getNanoSecsLL() / 1000000LL; // duration in ms.
     toArray<u_int16_t>(period, &packet.buffer[OffsetPeriod]);
 }
 

@@ -23,9 +23,9 @@ RTopology::link_quality_t PktPair::my_get_quality(NodeDescr &ndescr)
   RTopology::link_quality_t ret = RTopology::max_quality();
   Nodes::iterator it(nodes.find(ndescr.id));
   if (it != nodes.end()) {
-    if (it->second.getTime()) {
+    if (it->second.getTime() != Duration(0) ) {
       ret = (RTopology::link_quality_t)std::max( 1.,
-						 (double)RTopology::max_quality() * it->second.time * 10.);
+						 (double)RTopology::max_quality() * (it->second.time * 10).getSecondsD());
     }
   }
   return ret;
@@ -74,7 +74,7 @@ void PktPair::on_recv(BasePacket *p) {
   if (debug) {
     GEA.dbg() << "PktPair: receive metricpacket from: " << (unsigned int) sender << std::endl;
   }
-  gea::Duration help_t(t-gea::AbsTime(0));
+  gea::Duration help_t = t - gea::AbsTime::t0();
   if (mp.getType() == awds::UCMetricPacket::first) {
     firstPackets[sender] = t;
     if (debug) {
@@ -202,7 +202,7 @@ GEA_MAIN_2(pktpair, argc, argv)
       std::stringstream ss(p);
       double h;
       ss >> h;
-      pp->interval = h;
+      pp->interval.setSeconds(h);
     }
     if (w == "--packetsize") {
       std::stringstream ss(p);

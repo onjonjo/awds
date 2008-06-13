@@ -39,9 +39,9 @@ awds::RTTMetric::get_history() {
       r << "Received: " << std::endl;
       double sum(0);
       gea::Duration mi(1),ma(0);
-      for (unsigned int i(0);i<it->second.size();i+=2) {
+      for (unsigned int i = 0; i<it->second.size(); i+=2) {
 	r << it->second[i] << " ";
-	sum += it->second[i];
+	sum += it->second[i].getNanoSecsD();
 	mi = std::min(mi,it->second[i]);
 	ma = std::max(ma,it->second[i]);
       }
@@ -52,11 +52,11 @@ awds::RTTMetric::get_history() {
       r << std::endl;
       r << "Smoothed: " << std::endl;
       sum = 0;
-      mi = 1;
-      ma = 0;
+      mi = gea::Duration(1,1);
+      ma = gea::Duration(0,1);
       for (unsigned int i(1);i<it->second.size();i+=2) {
 	r << it->second[i] << " ";
-	sum += it->second[i];
+	sum += it->second[i].getNanoSecsD();
 	mi = std::min(mi,it->second[i]);
 	ma = std::max(ma,it->second[i]);
       }
@@ -104,8 +104,8 @@ awds::RTTMetric::my_get_quality(NodeDescr &ndescr) {
     // first time, register to measure
     rttData[ndescr.id] = s_rtt_data();
   } else {
-    if (it->second.time) {
-      ret = (RTopology::link_quality_t)std::max( 1., (double)RTopology::max_quality() * it->second.time * 10.);
+    if (it->second.time.getNanoSecsLL() != 0LL) {
+      ret = (RTopology::link_quality_t)std::max( 1., (double)RTopology::max_quality() * (it->second.time * 10).getSecondsD() );
     }
   }
   return ret;
@@ -175,7 +175,7 @@ void awds::RTTMetric::go_measure() {
     it->second.lastsend = t;
   }
   GEA.waitFor(&blocker,
-	      gea::AbsTime::now()+interval+(rand()%10/10.0),
+	      GEA.lastEventTime + interval + gea::Duration(rand()%10, 10),
 	      &ExtMetric::wait,
 	      (void*)this);
 }
@@ -202,7 +202,7 @@ awds::RTTMetric::on_recv(BasePacket *p) {
     RTTData::iterator it(rttData.find(mp.getSrc()));
     if (it != rttData.end()) {
       //      std::cout << "alpha: " << alpha << "  " << d << "  " << it->second.time << std::endl;
-      it->second.time = alpha*d+(1-alpha)*(it->second.time);
+      it->second.time.setSeconds( alpha * d.getSecondsD() + (1.-alpha) * it->second.time.getSecondsD());
       //std::cout << it->second.time << std::endl;
       it->second.lastrecv = GEA.lastEventTime;
       if (debug) {
@@ -261,7 +261,7 @@ int awdsRouting_gea_main(int argc, const char  * const *argv)
       std::stringstream ss(p);
       double h;
       ss >> h;
-      rtt->interval = h;
+      rtt->interval.setSeconds(h);
     }
     if (w == "--packetsize") {
       std::stringstream ss(p);
