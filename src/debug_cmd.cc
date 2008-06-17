@@ -143,11 +143,11 @@ static int debug_command_fn(ShellClient &sc, void *data, int argc, char **argv) 
     if (argc == 2 && !strcmp(argv[1], "hist")) {
 	self->dumpHistory(sc.sockout);
 	return 0;
-    } else if ( argc == 2 && !strcmp(argv[1], "watch") ) {
-	self->outputSet.insert(sc.sockout);
-	GEA.waitFor(sc.sockin, gea::AbsTime::now() + 900000. , std_input, new xpair_t(&sc, self) );
-	sc.block();
-	return 0;
+	//  } else if ( argc == 2 && !strcmp(argv[1], "watch") ) {
+	// 	self->outputSet.insert(sc.sockout);
+	// 	GEA.waitFor(sc.sockin, gea::AbsTime::now() + 900000. , std_input, new xpair_t(&sc, self) );
+	// 	sc.block();
+	// 	return 0;
     } else if ( argc == 3 && !strcmp(argv[1], "logfile") ) {
 
 	if (self->logfile) {
@@ -163,7 +163,7 @@ static int debug_command_fn(ShellClient &sc, void *data, int argc, char **argv) 
     } else if ( argc == 1 ) {
 	self->dumpHistory(sc.sockout);
 	self->outputSet.insert(sc.sockout);
-	GEA.waitFor(sc.sockin, gea::AbsTime::now() + 900000. , std_input, new xpair_t(&sc, self) );
+	GEA.waitFor(sc.sockin, GEA.lastEventTime + gea::Duration(900000,1) , std_input, new xpair_t(&sc, self) );
 	sc.block();
 	return 0;
     }

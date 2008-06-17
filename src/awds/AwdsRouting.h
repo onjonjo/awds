@@ -9,7 +9,7 @@
 #include <awds/basic.h>
 
 #include <gea/API.h>
-#include <gea/UdpHandle.h>
+//#include <gea/UdpHandle.h>
 #include <gea/Time.h>
 #include <gea/Blocker.h>
 
@@ -20,13 +20,12 @@
 #include <awds/beacon.h>
 #include <awds/settings.h>
 // #include <awds/RateMonitor.h>
-
-#include <awds/SendQueue.h>
-
 #include <awds/Firewall.h>
 
 namespace awds {
-
+    
+   
+    
     /** \brief This class implement the routing functionality
      *  \ingroup awdsrouting_mod
      *
@@ -40,24 +39,25 @@ namespace awds {
 	basic * base;
 
 	//static const int UdpPort = 4921;
-	static const int period = BEACON_INTERVAL; /**< beacon period in milliseconds */
-	int topoPeriod; /**< topology propagtion period in milliseconds */
+	static const int period = BEACON_INTERVAL; /**< beacon period in milliseconds     */
 
-	enum periodType { /**< type for constant or adaptive periods */
+	int           topoPeriod_ms;      /**< topology propagtion period in milliseconds */
+
+	enum PeriodType { /**< type for constant or adaptive periods */
 		Constant,
 		Adaptive
 	};
-	periodType topoPeriodType; /**< period type for topo packets */
+	PeriodType topoPeriodType;        /**< period type for topo packets */
 
-	gea::Handle *udpSend; /**< for sending packets */
-	gea::Handle *udpRecv; /**< for receiving packets */
-	gea::Blocker    blocker;
-	class RTopology * topology;  ///< for storing the topology
+	//	gea::Handle *udpSend; /**< for sending packets */
+	//gea::Handle *udpRecv; /**< for receiving packets */
+
+	gea::Blocker        beaconBlocker;/**< for periodic sending of beacon packets */
+	gea::Blocker        blocker;      /**< for periodic sending of topo packets   */
+	class RTopology    *topology;     /**< for storing the topology */
 	class FloodHistory *floodHistory; /**< history of recent flood packets */
 
-	class awds::Firewall *firewall; /**< used for packet filtering */
-
-	SendQueue sendq;
+	class awds::Firewall *firewall;   /**< used for packet filtering */
 
 	AwdsRouting(basic *base);
 
@@ -68,7 +68,7 @@ namespace awds {
 	virtual size_t getMTU();
 
 	static void send_beacon(gea::Handle *h, gea::AbsTime t, void *data);
-	static void recv_packet(gea::Handle *h, gea::AbsTime t, void *data);
+	static void recv_packet(BasePacket *p, void *data);
 
 	static void send_periodic_topo(gea::Handle *h, gea::AbsTime t, void *data);
 
@@ -131,8 +131,8 @@ namespace awds {
 
 
 	static const int MaxNeighbors = 40;// (1000 - 120) / NodeId::size;
-	NodeDescr    *neighbors;// [MaxNeighbors];
-	int          numNeigh;
+	NodeDescr     *neighbors;// [MaxNeighbors];
+	int           numNeigh;
 
 	gea::Blocker linkFailBlocker;	///< Blocker for checkLinkFailure callback
 
@@ -141,13 +141,12 @@ namespace awds {
 	 */
 	static void checkLinkFailure(gea::Handle *h, gea::AbsTime t, void *data);
 
-	u_int16_t beaconSeq;
-	gea::Duration beaconPeriod;
-	gea::AbsTime nextBeacon;
+	u_int16_t     beaconSeq;    /**< becon sequence number */
+	gea::Duration beaconPeriod; /**< period of sending beacon packets */
+	gea::AbsTime  nextBeacon;   /**< when the next beacon packet will be generated */
 
-	u_int16_t floodSeq;
-	u_int16_t unicastSeq;
-
+	u_int16_t     floodSeq;     /**< sequence number of flooding packets */
+	u_int16_t     unicastSeq;   /**< sequence number of unicast packets  */
 
 	int findNeigh(const NodeId& id) const {
 
@@ -206,11 +205,9 @@ namespace awds {
 	virtual int sendFlowPacket(BasePacket *p);
 
 
-    };
+    }; // end of class AwdsRouting
 
-}
-
-// using namespace awds;
+} // end of namespace awds;
 
 #endif //INTERF_H__
 /* This stuff is for emacs

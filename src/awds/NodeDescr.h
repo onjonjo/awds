@@ -41,8 +41,7 @@ struct NodeDescr {
      */
     bool updateActive() {
 
-	linkValidity = lastBeaconTime + gea::Duration( (double)beaconInterval
-							* (double)NR_BEACON_TRIGGER_FAIL );
+	linkValidity = lastBeaconTime + gea::Duration( beaconInterval * NR_BEACON_TRIGGER_FAIL );
 	const bool last12received = (beaconHist > 0xFFF00000UL);
 
 	if ( !active && last12received) {
@@ -102,7 +101,7 @@ struct NodeDescr {
     }
 
     bool isExpired() {
-	return !active && (lastBeaconTime + ((double)beaconInterval * 32)
+	return !active && (lastBeaconTime + (beaconInterval * 32)
 				< GEA.lastEventTime);
     }
 
@@ -112,7 +111,7 @@ struct NodeDescr {
 	active = false;
 	mpr = true;
 	beaconHist = 0;
-	beaconInterval = (double)BEACON_INTERVAL / 1000.;
+	beaconInterval = gea::Duration(BEACON_INTERVAL, 1000);
 	this->id = _id;
 	lastBeacon = p;
 	lastBeaconTime = t;

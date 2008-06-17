@@ -11,7 +11,7 @@ static const int TOPO_INTERVAL = 1000;
  * If this amount of beacon periods has passed without reception of
  * a new beacon, the link becomes inactive.
  */
-static const int NR_BEACON_TRIGGER_FAIL = 4;
+static const int NR_BEACON_TRIGGER_FAIL = 8;
 
 static const int QUEUE_LENGTH = 10;
 

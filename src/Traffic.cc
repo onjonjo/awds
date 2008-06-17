@@ -32,7 +32,7 @@ void awds::Traffic::send(int pCount,int pSize,NodeId d) {
       std::cout << static_cast<AwdsRouting*>(routing)->topology->getAdjString() << std::endl;
     }
     GEA.waitFor(&blocker,
-		gea::AbsTime::now()+10,
+		GEA.lastEventTime + Duration(10,1),
 		&Traffic::wait,
 		(void*)this);
     return;
@@ -56,7 +56,7 @@ void awds::Traffic::send(int pCount,int pSize,NodeId d) {
   p->setDest(dest);
   routing->sendUnicast(p);
   GEA.waitFor(&blocker,
-	      gea::AbsTime::now()+10,
+	      GEA.lastEventTime + Duration(10,1),
 	      &Traffic::wait,
 	      (void*)this);
 }
@@ -77,7 +77,7 @@ void awds::Traffic::on_wait(gea::Handle *h,gea::AbsTime t) {
     } else {
       std::cout << "waiting" << std::endl;
       GEA.waitFor(&blocker,
-		  gea::AbsTime::now()+1,
+		  GEA.lastEventTime + Duration(1,1),
 		  &Traffic::wait,
 		  (void*)this);
     }

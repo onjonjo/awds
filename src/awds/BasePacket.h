@@ -3,8 +3,8 @@
 
 #include <cassert>
 
-#include <gea/Handle.h>
 #include <awds/NodeId.h>
+#include <gea/Handle.h>
 #include <gea/UdpHandle.h>
 
 namespace awds {
@@ -42,22 +42,12 @@ namespace awds {
 	SendCallback cb;
 	void *cb_data;
 
-
+        int receive(gea::Handle* h) { return (size = h->read(buffer, MaxSize)) ; }
 	NodeId dest;
 
 	BasePacket() : size(0), refcount(1), cb(NULL) {
 	    buffer[0] = 0;
 	}
-
-	int send(gea::Handle* h) {
-	    ssize_t ret = h->write(buffer, size);
-	    if (cb)
-	    	cb(*this, cb_data, ret);
-	    cb = NULL;
-	    return ret;
-
-	}
-	int receive(gea::Handle* h) { return (size = h->read(buffer, MaxSize)) ; }
 
 	void setSendCallback(SendCallback cb, void *data) {
 		/* no chained callback possible */

@@ -103,7 +103,7 @@ int Pinger::parse_opts(int argc, const char* const *argv) {
     double interval;
 
     // default settings:
-    this->period = 1.0;
+    this->period = Duration(1,1);
     this->pingSize = 200;
     this->ttl=64;
     this->numRepeat = -1;
@@ -133,7 +133,7 @@ int Pinger::parse_opts(int argc, const char* const *argv) {
 	    interval = strtod(argv[i], &end_ptr);
 	    if (*end_ptr || argv[i] == end_ptr) // invalid conversation
 		return -1;
-	    this->period = interval;
+	    this->period.setSeconds(interval);
 	    continue;
 	}
 
@@ -248,7 +248,7 @@ void Pinger::ping_recv(BasePacket *p, void *data) {
 	Duration timestamp;
 	timestamp.fromArray(&p->buffer[PingTimeStamp]);
 
-	double deltaT= (double)(GEA.lastEventTime - ( self->myT0 + timestamp ) );
+	double deltaT= (GEA.lastEventTime - ( self->myT0 + timestamp ) ).getNanoSecsD();
 	ostream& out = self->dbg();
 
 	out << "received pong from " << uniP.getSrc()
@@ -342,7 +342,7 @@ int Pinger::startPing( Handle *h) {
     resetStats();
     dbg() << "pinging " << dest << endl;
 
-    GEA.waitFor(h, gea::AbsTime::now() + 0.00001, next_ping, static_cast<void *>(this));
+    GEA.waitFor(h, GEA.lastEventTime + gea::Duration(1,10000), next_ping, static_cast<void *>(this));
     //next_ping(h, gea::AbsTime::now(), static_cast<void *>(this));
 
     return 0;

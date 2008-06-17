@@ -68,7 +68,7 @@ namespace awds {
 	 */
 	gea::Duration getValidity() const {
 	    u_int32_t v = fromArray<u_int32_t>(&packet.buffer[OffsetValidity]);
-	    return gea::Duration(double(v) * 0.001);
+	    return gea::Duration(v,1000);
 	}
 
 

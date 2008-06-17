@@ -5,17 +5,17 @@
 #include <map>
 
 namespace awds {
-  class gea2mad;
-  class TTMetric : public UCastMetric {
-  public:
-    struct NodeData {
-      int tt;
-      bool active;
-      gea::AbsTime lastsend;
+    class gea2mad;
+    class TTMetric : public UCastMetric {
+    public:
+	struct NodeData {
+	    int tt;
+	    bool active;
+	    gea::AbsTime lastsend;
 
-      NodeData():tt( RTopology::max_quality()),active(true),lastsend(0) {
-      }
-    };
+	    NodeData() : tt(RTopology::max_quality()), active(true), lastsend(gea::AbsTime::t0()) {
+	    }
+	};
     typedef std::map<NodeId,NodeData> TTData;
     TTData ttData;
     gea::Blocker blocker;

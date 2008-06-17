@@ -23,13 +23,13 @@ namespace awds {
       gea::Duration time;
       int capacity;
       std::vector<gea::Duration> times;
-      int position;
-      s_node_data(int c=0):active(true),lastsend(0),time(0),capacity(c),position(0) {
+	int position;
+	s_node_data(int c=0):active(true),lastsend( GEA.lastEventTime),time(0,1),capacity(c),position(0) {
 	if (capacity) {
 	  //	  std::cout << "constructor: " << position << "  " << capacity << std::endl;
 	  times.resize(capacity);
-	  for (int i(0);i<capacity;++i) {
-	    times[i] = 1;
+	  for (int i=0; i<capacity; ++i) {
+	      times[i].setSeconds(1);
 	  }
 	}
       }
@@ -38,7 +38,7 @@ namespace awds {
 	  times[position++] = t;
 	  position %= capacity;
 	} else {
-	  time = alpha*t+(1-alpha)*(time);;
+	    time.setSeconds(alpha * t.getSecondsD() +(1-alpha) * time.getSecondsD());
 	}
       }
       gea::Duration getTime() {

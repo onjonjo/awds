@@ -33,10 +33,9 @@ awds::AwdsRouting::AwdsRouting(basic *base) :
     FlowRouting(base),
     verbose(false),
     firewall(0), // no firewall by default.
-    sendq(base),
     beaconSeq(0),
-    beaconPeriod((double)(this->period) / 1000.),
-    nextBeacon( GEA.lastEventTime + beaconPeriod),
+    beaconPeriod(this->period, 1000),
+    nextBeacon( GEA.lastEventTime + gea::Duration(1,1000)),
     floodSeq(0),
     unicastSeq(0)
 {
@@ -44,13 +43,13 @@ awds::AwdsRouting::AwdsRouting(basic *base) :
     this->numNeigh = 0;
     this->neighbors = new NodeDescr[MaxNeighbors];
     this->base = base;
-    this->topoPeriod = TOPO_INTERVAL;
+    this->topoPeriod_ms = TOPO_INTERVAL;
     this->topoPeriodType = Adaptive;
 
     GEA.dbg() << "let's go!" << endl;
 
-    this->udpSend = base->sendHandle;
-    this->udpRecv = base->recvHandle;
+    //this->udpSend = base->sendHandle;
+    //this->udpRecv = base->recvHandle;
 
     this->topology = new RTopology(base->MyId,this);
     this->floodHistory = new FloodHistory();
@@ -58,13 +57,20 @@ awds::AwdsRouting::AwdsRouting(basic *base) :
     assert(topology->myNodeId == myNodeId);
 
 
-    GEA.waitFor(this->udpRecv,
-		this->nextBeacon,
-		recv_packet, this);
+//     GEA.waitFor(this->udpRecv,
+//		this->nextBeacon,
+//		recv_packet, this);
 
+    base->recv_callback      = AwdsRouting::recv_packet;
+    base->recv_callback_data = static_cast<void *>(this);
+
+    GEA.waitFor(&this->beaconBlocker,
+		this->nextBeacon,
+		send_beacon,
+		this);
 
     GEA.waitFor( &this->blocker ,
-		 GEA.lastEventTime + gea::Duration( (double)topoPeriod / 1000.),
+		 GEA.lastEventTime + gea::Duration( this->topoPeriod_ms, 1000),
 		 send_periodic_topo, this);
 
 
@@ -119,19 +125,15 @@ void awds::AwdsRouting::send_topo() {
     topo.setNeigh(this);
 
     if (topoPeriodType == Adaptive) {
-        long n = topology->getNumNodes();
-        //    long newPeriod = ((n*n)/ isqrt(n) ) * 200;
-        long newPeriod = (200 * n * n * 4)/ isqrt(n * 16);
-
-        if ( newPeriod > 2 * topoPeriod) { // force slow increase of period
-
-            newPeriod = 2 * topoPeriod;
-        }
-
-        topoPeriod =  newPeriod;
+	long n = topology->getNumNodes();
+	//    long newPeriod = ((n*n)/ isqrt(n) ) * 200;
+	long newPeriod = (200 * n * n * 4)/ isqrt(n * 16);
+	const long maxNewPerion = newPeriod + (newPeriod / 5); // force slow increase of period
+	newPeriod = min(newPeriod, maxNewPerion);
+	topoPeriod_ms =  newPeriod;
     }
 
-    topo.setValidity( 3 * topoPeriod);
+    topo.setValidity( 3 * topoPeriod_ms);
 
 
     // sign the packet
@@ -153,53 +155,30 @@ void awds::AwdsRouting::send_periodic_topo(gea::Handle *h, gea::AbsTime t, void 
 
     self->send_topo();
 
-    GEA.waitFor(h, t + ( (double)self->topoPeriod * 0.001),
+    GEA.waitFor(h, t + gea::Duration(self->topoPeriod_ms,1000),
 		send_periodic_topo, data);
-
 }
 
 
-void awds::AwdsRouting::recv_packet(gea::Handle *h, gea::AbsTime t, void *data) {
+void awds::AwdsRouting::recv_packet(BasePacket *p, void *data) {
     AwdsRouting *self = static_cast<AwdsRouting*>(data);
 
-    if (h->status == gea::Handle::Ready) {
+    if ( (!self->firewall || self->firewall->check_packet(p) ) &&
+	 SrcPacket(*p).getSrc() != self->myNodeId )
 
-	// okay, we received some packet
-
-	BasePacket *p = new BasePacket();
-
-	int ret = p->receive(h);
-
-	if ( (!self->firewall || self->firewall->check_packet(p) ) &&
-	     ret >= 0 &&
-	     SrcPacket(*p).getSrc() != self->myNodeId )
-
-	    switch (p->getType()) {
-	    case PacketTypeBeacon:  self->recv_beacon(p);    break;
-	    case PacketTypeFlood:   self->recv_flood(p);     break;
-	    case PacketTypeUnicast:
-		if (self->verbose) {
-		    GEA.dbg() << "received UC packet from "
-			      << UnicastPacket(*p).getSrc() << endl;
-		}
-		self->recv_unicast(p);
-		break;
-	    case PacketTypeForward:
-		self->sendFlowPacket(p); break;
+	switch (p->getType()) {
+	case PacketTypeBeacon:  self->recv_beacon(p);    break;
+	case PacketTypeFlood:   self->recv_flood(p);     break;
+	case PacketTypeUnicast:
+	    if (self->verbose) {
+		GEA.dbg() << "received UC packet from "
+			  << UnicastPacket(*p).getSrc() << endl;
 	    }
-	p->unref();
-    } else {
-	
-	send_beacon(h, self->nextBeacon, data);
-	
-	self->nextBeacon += self->beaconPeriod;
-    }
-    
-    // prevent scheduling of events in the past.
-    while (self->nextBeacon < GEA.lastEventTime) {
-	self->nextBeacon += self->beaconPeriod;
-    }
-    GEA.waitFor(h, self->nextBeacon, AwdsRouting::recv_packet, data);
+	    self->recv_unicast(p);
+	    break;
+	case PacketTypeForward:
+	    self->sendFlowPacket(p); break;
+	}
 }
 
 void awds::AwdsRouting::send_beacon(gea::Handle *h, gea::AbsTime t, void *data) {
@@ -220,9 +199,16 @@ void awds::AwdsRouting::send_beacon(gea::Handle *h, gea::AbsTime t, void *data) 
 	p->size += 32;
     }
 
-    if (self->sendq.enqueuePacket(p, true) == false)
-	GEA.dbg() << " cannot send"<< std::endl;
+    if (!self->base->send(p, true))
+	GEA.dbg() << "cannot send beacon packets"<< std::endl;
 
+
+    // calculate next period in future.
+    // this is a safty measure to prevent scheduling events in the past
+    while (self->nextBeacon <= GEA.lastEventTime) {
+	self->nextBeacon += self->beaconPeriod;
+    }
+    GEA.waitFor(h, self->nextBeacon, send_beacon, data);
 }
 
 
@@ -282,8 +268,8 @@ bool awds::AwdsRouting::refreshNeigh(BasePacket *p) {
     p->ref();
 
     if (nIdx.updateActive()) {
-        /* At this point a reactive topo packet could be send to propagate
-         * the change of the topology. */
+	/* At this point a reactive topo packet could be send to propagate
+	 * the change of the topology. */
 
 	if ( this->linkFailBlocker.status != gea::Handle::Blocked) {
 	    /* The checkLinkFail-job is currently not running but has to
@@ -315,9 +301,17 @@ void awds::AwdsRouting::checkLinkFailure(gea::Handle *h, gea::AbsTime t, void *d
 	topoChanged = topoChanged || node.updateInactive();
 
 	if (node.active) {
+	    assert( node.linkValidity > GEA.lastEventTime);
 	    if ((minValidity == NULL) || (node.linkValidity < *minValidity))
 		minValidity = &node.linkValidity;
 	}
+    }
+
+    if (minValidity) {
+	if (self->verbose)
+	    GEA.dbg() << "\tnext call: " << std::fixed
+		      << DBGTIME(*minValidity) << " now=" << GEA.lastEventTime << std::endl;
+	GEA.waitFor(h, *minValidity, checkLinkFailure, data);
     }
 
     self->removeOldNeigh();
@@ -328,12 +322,7 @@ void awds::AwdsRouting::checkLinkFailure(gea::Handle *h, gea::AbsTime t, void *d
 	self->send_topo();
     }
 
-    if (minValidity) {
-	if (self->verbose)
-	    GEA.dbg() << "\tnext call: " << std::fixed
-			<< DBGTIME(*minValidity) << std::endl;
-	GEA.waitFor(h, *minValidity, checkLinkFailure, data);
-    }
+
 }
 
 static void cpStat2Dyn(awds::AwdsRouting::Hop2List::value_type& r) {
@@ -429,7 +418,8 @@ void awds::AwdsRouting::sendUnicastVia(BasePacket *p,/*gea::AbsTime t,*/ NodeId 
     ucPacket.setNextHop(nextHop);
     p->setDest(nextHop);
     //    p->ref();
-    sendq.enqueuePacket(p, false);
+    if (!base->send(p, false))
+	GEA.dbg() << " cannot send unicast packet"<< std::endl;
 }
 
 
@@ -515,11 +505,12 @@ void awds::AwdsRouting::recv_flood(BasePacket *p ) {
     if ( ( nIdx >= 0 ) ) {
 	Beacon lastBeacon(*(neighbors[nIdx].lastBeacon));
 	if (lastBeacon.hasNoMpr(myNodeId)) {
+	    //GEA.dbg() << "MPR things happened" << endl;
 	    return;
 	}
     }
 
-    // XXX why do we have LastHop at all???
+    // LastHop is used for the MPR mechanism.
     flood.setLastHop(myNodeId);
     flood.decrTTL();
     if (flood.getTTL() == 0)
@@ -527,10 +518,8 @@ void awds::AwdsRouting::recv_flood(BasePacket *p ) {
 
     p->ref();
 
-    p->setDest( base->BroadcastId );
-    sendq.enqueuePacket(p, true);
-
-
+    if (!base->send(p, false))
+	GEA.dbg() << " cannot send flood packet"<< std::endl;
 }
 
 
@@ -617,8 +606,9 @@ void awds::AwdsRouting::recv_unicast(BasePacket *p) {
     ucPacket.setNextHop(nextHop);
     p->setDest(nextHop);
     p->ref();
-    sendq.enqueuePacket(p, false);
 
+    if (!base->send(p, false))
+	GEA.dbg() << " cannot send unicast packet"<< std::endl;
 }
 
 
@@ -779,7 +769,7 @@ int awds::AwdsRouting::sendFlowPacket(BasePacket *p) {
     // our caller destroys the packet after the call. increase refcount
     p->ref();
 
-    return sendq.enqueuePacket(p, false)?0:-1;
+    return base->send(p, true)?0:-1;
 }
 
 
@@ -794,22 +784,22 @@ static int topoPeriod_command_fn(ShellClient &sc, void *data, int argc, char **a
     AwdsRouting *self = static_cast<AwdsRouting*>(data);
 
     if (argc == 2 && (string(argv[1]) == "show")) {
-        *sc.sockout << (self->topoPeriodType == AwdsRouting::Adaptive ? "Adaptive: " : "Constant: ");
-        *sc.sockout << self->topoPeriod << " ms" << endl;
+	*sc.sockout << (self->topoPeriodType == AwdsRouting::Adaptive ? "Adaptive: " : "Constant: ");
+	*sc.sockout << self->topoPeriod_ms << " ms" << endl;
     } else if (argc == 2 && (string(argv[1]) == "adaptive")) {
-        *sc.sockout << "Setting adaptive period." << endl;
-        self->topoPeriodType = AwdsRouting::Adaptive;
+	*sc.sockout << "Setting adaptive period." << endl;
+	self->topoPeriodType = AwdsRouting::Adaptive;
     } else if (argc == 3 && (string(argv[1]) == "constant")) {
-        int p = atoi(argv[2]);
-        if (p == 0) {
-            *sc.sockout << "Invalid value: " << p << endl;
-            return -1;
-        }
-        *sc.sockout << "Setting constant period to " << p << " ms." << endl;
-        self->topoPeriodType = AwdsRouting::Constant;
-        self->topoPeriod = p;
+	int p = atoi(argv[2]);
+	if (p == 0) {
+	    *sc.sockout << "Invalid value: " << p << endl;
+	    return -1;
+	}
+	*sc.sockout << "Setting constant period to " << p << " ms." << endl;
+	self->topoPeriodType = AwdsRouting::Constant;
+	self->topoPeriod_ms = p;
     } else {
-        *sc.sockout << topoPeriod_cmd_usage;
+	*sc.sockout << topoPeriod_cmd_usage;
     }
 }
 
@@ -824,17 +814,17 @@ static int beaconPeriod_command_fn(ShellClient &sc, void *data, int argc, char *
     AwdsRouting *self = static_cast<AwdsRouting*>(data);
 
     if (argc == 2 && (string(argv[1]) == "show")) {
-        *sc.sockout << self->beaconPeriod * 1000 << " ms" << endl;
+	*sc.sockout << (self->beaconPeriod * 1000) << " ms" << endl;
     } else if (argc == 3 && (string(argv[1]) == "set")) {
-        int p = atoi(argv[2]);
-        if (p == 0) {
-            *sc.sockout << "Invalid value: " << p << endl;
-            return -1;
-        }
-        *sc.sockout << "Setting period to " << p << " ms." << endl;
-        self->beaconPeriod = p / 1000.;
+	int p = atoi(argv[2]);
+	if (p == 0) {
+	    *sc.sockout << "Invalid value: " << p << endl;
+	    return -1;
+	}
+	*sc.sockout << "Setting period to " << p << " ms." << endl;
+	self->beaconPeriod = gea::Duration(p, 1000);
     } else {
-        *sc.sockout << beaconPeriod_cmd_usage;
+	*sc.sockout << beaconPeriod_cmd_usage;
     }
 }
 
@@ -875,10 +865,10 @@ GEA_MAIN_2(awdsrouting, argc, argv)
 
     REP_MAP_OBJ(Shell *, shell);
     if (shell) {
-        shell->add_command("topoperiod", topoPeriod_command_fn, awdsRouting,
-                "set period for topology packets", topoPeriod_cmd_usage);
-        shell->add_command("beaconperiod", beaconPeriod_command_fn, awdsRouting,
-                "set period for beacon packets", beaconPeriod_cmd_usage);
+	shell->add_command("topoperiod", topoPeriod_command_fn, awdsRouting,
+		"set period for topology packets", topoPeriod_cmd_usage);
+	shell->add_command("beaconperiod", beaconPeriod_command_fn, awdsRouting,
+		"set period for beacon packets", beaconPeriod_cmd_usage);
     }
 
     return 0;

@@ -34,7 +34,7 @@ AC_ARG_WITH(gea,
 	AC_MSG_RESULT(no)
 	;;
   *)
-	if test -f $withval/include/gea/API.h -a -f $withval/lib/libgea2-posix.so; then
+	if test -f $withval/include/gea/API.h -a -f $withval/lib/libgea3-posix.so; then
   	  AC_MSG_RESULT(from $withval)
 	  GEAINC="-I$withval/include"
 	  GEALIB="-L$withval/lib -lgea2-posix"
@@ -44,12 +44,12 @@ AC_ARG_WITH(gea,
 	fi
 	;;
   esac ],
-[ if  test -f ${prefix}/include/gea/API.h -a -f ${prefix}/lib/libgea2-posix.so; then
+[ if  test -f ${prefix}/include/gea/API.h -a -f ${prefix}/lib/libgea3-posix.so; then
 	GEAINC="-I${prefix}/include"
 	GEALIB="-L${prefix}/lib -lgea2-posix"
 	GEALIBDIR="${prefix}/lib"
 	AC_MSG_RESULT(found in $prefix)
-  elif  test -f /usr/include/gea/API.h -a -f /usr/lib/libgea2-posix.so; then
+  elif  test -f /usr/include/gea/API.h -a -f /usr/lib/libgea3-posix.so; then
 	GEAINC="-I/usr/include"
 	GEALIB="-L/usr/lib -lgea2-posix"
 	GEALIBDIR="/usr/lib"
