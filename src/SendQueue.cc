@@ -32,12 +32,14 @@ void awds::SendQueue::xmit_cb(gea::Handle *h, gea::AbsTime t, void *data) {
 			GEA.dbg() << "error sending from SendQueue" << std::endl;
 		}
 		p->unref();
+	} else {
+	       	GEA.dbg() << "error: timeout while sending from SendQueue" << std::endl;
 	}
 	if (self->queue.size() > 0)
 		self->registerCallback();
 }
 
 void awds::SendQueue::registerCallback() {
-        GEA.waitFor(h, gea::AbsTime::now() + gea::Duration( 1000.),
-		xmit_cb, this);
+  GEA.waitFor(h, GEA.lastEventTime + gea::Duration(10,1),
+	      xmit_cb, this);
 }

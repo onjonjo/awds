@@ -209,7 +209,7 @@ namespace awds {
 	bool getLocked() const { return locked; }
 	virtual void reset();
 
-	bool hasNode(const NodeId &node) const;
+	virtual bool hasNode(const NodeId &node) const;
 	virtual bool hasLink(const NodeId& from, const NodeId&to) const;
 
 	/**
@@ -235,7 +235,7 @@ namespace awds {
 	gea::AbsTime removeOldNodes();
 
 	void createRemoveMessages(const NodeId& node, const NDescr& nDescr );
-
+	
 	AdjList::iterator getNodeEntry(const NodeId& id, gea::AbsTime t);
 
 	struct awds::Routing::NodesObserver *nodeObservers;

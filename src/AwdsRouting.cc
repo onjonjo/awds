@@ -127,15 +127,11 @@ void awds::AwdsRouting::trigger_topo(gea::Handle *h, gea::AbsTime t, void *data)
 	long n = self->topology->getNumNodes();
 	//    long newPeriod = ((n*n)/ isqrt(n) ) * 200;
 	long newPeriod = (200 * n * n * 4)/ isqrt(n * 16);
-
-	if ( newPeriod > 2 * self->topoPeriod_ms) { // force slow increase of period
-
-	    newPeriod = 2 * self->topoPeriod_ms;
-	}
-
+	const long maxNewPerion = newPeriod + (newPeriod / 5); // force slow increase of period 
+	newPeriod = min(newPeriod, maxNewPerion);
 	self->topoPeriod_ms =  newPeriod;
     }
-
+    
     topo.setValidity( 3 * self->topoPeriod_ms);
 
 
@@ -198,7 +194,7 @@ void awds::AwdsRouting::send_beacon(gea::Handle *h, gea::AbsTime t, void *data) 
     }
 
     if (!self->base->send(p, true))
-	GEA.dbg() << " cannot send"<< std::endl;
+	GEA.dbg() << "cannot send beacon packets"<< std::endl;
 
 
     // calculate next period in future.
@@ -367,7 +363,7 @@ void awds::AwdsRouting::sendUnicastVia(BasePacket *p,/*gea::AbsTime t,*/ NodeId 
     p->setDest(nextHop);
     //    p->ref();
     if (!base->send(p, false))
-	GEA.dbg() << " cannot send"<< std::endl;
+	GEA.dbg() << " cannot send unicast packet"<< std::endl;
 }
 
 
@@ -393,7 +389,7 @@ void awds::AwdsRouting::recv_flood(BasePacket *p ) {
 	//	GEA.dbg() << "received duplicate" << std::endl;
 	return;
     }
-
+    
     /*     GEA.dbg() << "received flood from " << flood.getSrc()
 	   << " seq=" << (unsigned)flood.getSeq()
 	   << " ttl=" << flood.getTTL()
@@ -438,14 +434,14 @@ void awds::AwdsRouting::recv_flood(BasePacket *p ) {
 	ProtocolRegister::iterator itr = broadcastRegister.find(flood.getFloodType());
 	if (itr != broadcastRegister.end()) {
 	    itr->second.first(p,itr->second.second);
-
+	    
 	} else {
 	    if (verbose)
 		GEA.dbg() << "unknown Flood Type " << flood.getFloodType() << std::endl;
 	}
     }
-
-
+    
+    
     // else: we should repeat it!
 
     int nIdx = findNeigh(flood.getLastHop());
@@ -453,20 +449,21 @@ void awds::AwdsRouting::recv_flood(BasePacket *p ) {
     if ( ( nIdx >= 0 ) ) {
 	Beacon lastBeacon(*(neighbors[nIdx].lastBeacon));
 	if (lastBeacon.hasNoMpr(myNodeId)) {
+	    //GEA.dbg() << "MPR things happened" << endl;
 	    return;
 	}
     }
 
-    // XXX why do we have LastHop at all???
+    // LastHop is used for the MPR mechanism.
     flood.setLastHop(myNodeId);
     flood.decrTTL();
     if (flood.getTTL() == 0)
 	return;
-
+    
     p->ref();
 
-    if (!base->send(p, true))
-	GEA.dbg() << " cannot send"<< std::endl;
+    if (!base->send(p, false))
+	GEA.dbg() << " cannot send flood packet"<< std::endl;
 }
 
 
@@ -555,7 +552,7 @@ void awds::AwdsRouting::recv_unicast(BasePacket *p) {
     p->ref();
 
     if (!base->send(p, false))
-	GEA.dbg() << " cannot send"<< std::endl;
+	GEA.dbg() << " cannot send unicast packet"<< std::endl;
 }
 
 
