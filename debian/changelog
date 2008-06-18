@@ -1,3 +1,9 @@
+awds (8.3) unstable; urgency=low
+
+  * Fix bug in sending topo packets
+
+ -- Andre Herms <aherms@ivs.cs.uni-magdeburg.de>  Wed, 18 Jun 2008 16:59:50 +0200
+
 awds (8.2) unstable; urgency=low
 
   * use ETX metric by default
