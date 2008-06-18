@@ -311,7 +311,7 @@ void RTopology::feed(const TopoPacket& p) {
     itr_src = getNodeEntry(src, t); // find entry, create a new one if not found and return it.
     assert(p.getValidity() > Duration(0));
     gea::AbsTime newValidity = t + p.getValidity();
-    GEA.dbg() << "got topo packet from " << src << " validity=" << p.getValidity() << endl;
+    //GEA.dbg() << "got topo packet from " << src << " validity=" << p.getValidity() << endl;
     
     // update validities of node and of the edges
     itr_src->second.update_nodeValidity(newValidity);
