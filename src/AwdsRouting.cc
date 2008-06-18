@@ -48,9 +48,6 @@ awds::AwdsRouting::AwdsRouting(basic *base) :
 
     GEA.dbg() << "let's go!" << endl;
 
-    //this->udpSend = base->sendHandle;
-    //this->udpRecv = base->recvHandle;
-
     this->topology = new RTopology(base->MyId,this);
     this->floodHistory = new FloodHistory();
 
@@ -517,7 +514,7 @@ void awds::AwdsRouting::recv_flood(BasePacket *p ) {
 	return;
 
     p->ref();
-
+    p->setDest( base->BroadcastId );
     if (!base->send(p, false))
 	GEA.dbg() << " cannot send flood packet"<< std::endl;
 }
