@@ -359,7 +359,7 @@ void awds::AwdsRouting::removeOldNeigh() {
 
 	} else {
 	    if (verbose) {
-		GEA.dbg() << "removing old node " << neighbors[i].id << " from list" << std::endl;
+		//GEA.dbg() << "removing old node " << neighbors[i].id << " from list" << std::endl;
 	    }
 
 	}

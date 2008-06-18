@@ -14,4 +14,4 @@ cd $(dirname $0)
 ACTION=--kill
 test "$1" = "--test" && ACTION=-t
 
-exec gea_start daemon.so $ACTION --pidfile /var/run/awds.pid
+exec gea3_start daemon.so $ACTION --pidfile /var/run/awds.pid

@@ -73,7 +73,7 @@ name="$HOSTNAME"
 
 # echo Starting AWDS on $DEVICE
 
-exec gea_start -i <<END
+exec gea3_start -i <<END
 $AWDS_SHELL
 $AWDS_DAEMON
 rawbasic.so $DEVICE

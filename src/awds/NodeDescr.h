@@ -111,7 +111,6 @@ struct NodeDescr {
 	active = false;
 	mpr = true;
 	beaconHist = 0;
-	beaconInterval = gea::Duration(BEACON_INTERVAL, 1000);
 	this->id = _id;
 	lastBeacon = p;
 	lastBeaconTime = t;
