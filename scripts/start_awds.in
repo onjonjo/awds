@@ -78,6 +78,7 @@ $AWDS_SHELL
 $AWDS_DAEMON
 rawbasic.so $DEVICE
 awdsrouting.so --name $name
+etxmetric.so
 pinger.so
 $AESCCM
 tapiface2.so

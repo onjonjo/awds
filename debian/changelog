@@ -1,3 +1,15 @@
+awds (8.2) unstable; urgency=low
+
+  * use ETX metric by default
+
+ -- Andre Herms <aherms@ivs.cs.uni-magdeburg.de>  Wed, 18 Jun 2008 15:40:07 +0200
+
+awds (8.1) unstable; urgency=low
+
+  * rename gea_start to gea3_start
+
+ -- Andre Herms <aherms@ivs.cs.uni-magdeburg.de>  Wed, 18 Jun 2008 13:38:44 +0200
+
 awds (8.0) unstable; urgency=low
 
   * new major release
