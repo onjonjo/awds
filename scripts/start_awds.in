@@ -6,6 +6,41 @@ MODULES_DIR=@AWDS_MOD_DIR@
 CONF_FILE=$CONF_DIR/awds.conf
 [ -e $CONF_FILE ] && . $CONF_FILE
 
+
+function print_help()
+{
+echo "\
+use: $0 [options]
+where [options] is one or more of:
+  -i <if>	set the interface (ath0, wlan0, etc.)
+  -N		run in foreground
+  -v		verbose debug output "
+}
+
+
+PARAM_DEV=''
+VERBOSE=''
+while [ $# -gt 0 ]; do
+  case "$1" in
+    -i) [ "$2" = "" ] && print_help && exit -1
+        PARAM_DEV=$2
+        shift 2
+        ;;
+    -N) DAEMONIZE="no"
+        shift
+        ;;
+    -v) VERBOSE="--verbose"
+        shift
+        ;;
+    -h) print_help
+        exit 0
+        ;;
+    *)  print_help
+        exit -1
+        ;;
+  esac
+done
+
 grep -q tun /proc/modules || find /lib/modules/$(uname -r) -name tun.*o -exec insmod {} \;
 
 # use this for early detection of wrong configured stack:
@@ -23,7 +58,7 @@ AUTODEV=$NET_DEV
 fi
 
 # argv1 can override the setting
-DEVICE=${1:-$AUTODEV}
+DEVICE=${PARAM_DEV:-$AUTODEV}
 
 AESCCM=''
 if [ x$USE_ENCRYPTION = xyes ]
@@ -38,7 +73,6 @@ AWDS_TOPO=''
 [ "$USE_TOPO_EXPORT" = yes ] && AWDS_TOPO='topowatch.so'
 
 AWDS_DAEMON=''
-[ "$2" = -N ] && DAEMONIZE=no
 PIDFILE=${PIDFILE:-/var/run/awds.pid}
 [ "$DAEMONIZE" = yes ] && AWDS_DAEMON="daemon.so --pidfile $PIDFILE"
 
@@ -77,7 +111,7 @@ exec gea3_start -i <<END
 $AWDS_SHELL
 $AWDS_DAEMON
 rawbasic.so --raw-device $DEVICE
-awdsrouting.so --name $name
+awdsrouting.so --name $name $VERBOSE
 etxmetric.so
 pinger.so
 $AESCCM
