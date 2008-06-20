@@ -826,6 +826,29 @@ static int beaconPeriod_command_fn(ShellClient &sc, void *data, int argc, char *
 }
 
 
+static const char *verbose_cmd_usage =
+    "verbose [ on | off ]\n"
+    "  set or unset verbose debug ouput\n";
+
+
+static int verbose_command_fn(ShellClient &sc, void *data, int argc, char **argv) {
+    AwdsRouting *self = static_cast<AwdsRouting*>(data);
+
+    if (argc == 1)
+	*sc.sockout << "verbose: " << (self->verbose ? "on" : "off" ) << std::endl;
+    else if (argc == 2) {
+	    if (string(argv[1]) == "on")
+		    self->verbose = true;
+	    else if (string(argv[1]) == "off")
+		    self->verbose = false;
+	    else
+		    *sc.sockout << verbose_cmd_usage;
+    } else {
+        *sc.sockout << verbose_cmd_usage;
+    }
+}
+
+
 #define MODULE_NAME awdsrouting
 
 GEA_MAIN_2(awdsrouting, argc, argv)
@@ -866,6 +889,8 @@ GEA_MAIN_2(awdsrouting, argc, argv)
 		"set period for topology packets", topoPeriod_cmd_usage);
 	shell->add_command("beaconperiod", beaconPeriod_command_fn, awdsRouting,
 		"set period for beacon packets", beaconPeriod_cmd_usage);
+	shell->add_command("verbose", verbose_command_fn, awdsRouting,
+		"set verbose debug output", verbose_cmd_usage);
     }
 
     return 0;
