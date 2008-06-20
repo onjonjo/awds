@@ -14,11 +14,13 @@ use: $0 [options]
 where [options] is one or more of:
   -i <if>	set the interface (ath0, wlan0, etc.)
   -N		run in foreground
-  -v		verbose debug output "
+  -v		verbose debug output
+  -p <prefix>	prepend <prefix> (e.g. 'strace', 'valgrind')"
 }
 
 
 PARAM_DEV=''
+PREFIX=''
 VERBOSE=''
 while [ $# -gt 0 ]; do
   case "$1" in
@@ -31,6 +33,10 @@ while [ $# -gt 0 ]; do
         ;;
     -v) VERBOSE="--verbose"
         shift
+        ;;
+    -p) [ "$2" = "" ] && print_help && exit -1
+        PREFIX=$2
+        shift 2
         ;;
     -h) print_help
         exit 0
@@ -107,7 +113,7 @@ name="$HOSTNAME"
 
 # echo Starting AWDS on $DEVICE
 
-exec gea3_start -i <<END
+exec $PREFIX gea3_start -i <<END
 $AWDS_SHELL
 $AWDS_DAEMON
 rawbasic.so --raw-device $DEVICE
