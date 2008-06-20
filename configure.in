@@ -23,7 +23,7 @@ dnl check for GEA library
 
 dnl default values:
 GEAINC="-I/usr/include"	
-GEALIB="-L/usr/lib -lgea2-posix"
+GEALIB="-L/usr/lib -lgea3-posix"
 GEALIBDIR="/usr/lib"
 
 AC_MSG_CHECKING(for GEA)
@@ -37,21 +37,21 @@ AC_ARG_WITH(gea,
 	if test -f $withval/include/gea/API.h -a -f $withval/lib/libgea3-posix.so; then
   	  AC_MSG_RESULT(from $withval)
 	  GEAINC="-I$withval/include"
-	  GEALIB="-L$withval/lib -lgea2-posix"
+	  GEALIB="-L$withval/lib -lgea3-posix"
 	  GEALIBDIR="$withval/lib"
 	else 
-	  AC_ERROR(gea/API.h or libgea2-posix.la not found in $withval)
+	  AC_ERROR(gea/API.h or libgea3-posix.la not found in $withval)
 	fi
 	;;
   esac ],
 [ if  test -f ${prefix}/include/gea/API.h -a -f ${prefix}/lib/libgea3-posix.so; then
 	GEAINC="-I${prefix}/include"
-	GEALIB="-L${prefix}/lib -lgea2-posix"
+	GEALIB="-L${prefix}/lib -lgea3-posix"
 	GEALIBDIR="${prefix}/lib"
 	AC_MSG_RESULT(found in $prefix)
   elif  test -f /usr/include/gea/API.h -a -f /usr/lib/libgea3-posix.so; then
 	GEAINC="-I/usr/include"
-	GEALIB="-L/usr/lib -lgea2-posix"
+	GEALIB="-L/usr/lib -lgea3-posix"
 	GEALIBDIR="/usr/lib"
 	AC_MSG_RESULT(found in /usr)
   else 
