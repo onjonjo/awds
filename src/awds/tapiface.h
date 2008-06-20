@@ -26,48 +26,53 @@
 #define PROTO_NR     0x62
 
 namespace awds {
-class TapInterface {
 
-public:
-    int fd;
-    char devname[IFNAMSIZ+1];
-    //    NodeId devMac;
+    class TapInterface {
 
-    gea::UnixFdHandle *tapHandle;
-    Routing *routing;
+    public:
+	int fd;
+	char devname[IFNAMSIZ+1];
 
-    TapInterface(Routing *routing);
+    protected:
+	gea::UnixFdHandle *tapHandle;
+	Routing * const routing;
 
-    virtual ~TapInterface() {}
+	struct MacEntry {
+	    NodeId id;
+	    gea::AbsTime validity;
+	};
 
-    virtual void init(const char*dev);
+	typedef std::map<NodeId, struct MacEntry> MacTable;
+	MacTable macTable;
+    public:
 
-    virtual bool setIfaceHwAddress(const NodeId& id);
+	TapInterface(Routing *routing);
 
-    bool setIfaceMTU(int mtu);
-    bool createDevice(const char *dev);
+	bool init(const char*dev);
 
-    static void tap_recv(gea::Handle *h, gea::AbsTime t, void *data);
-    static void recv_unicast  ( BasePacket *p, void *data);
-    static void recv_broadcast( BasePacket *p, void *data);
+	bool setIfaceMTU(int mtu);
+	bool createDevice(const char *dev);
 
-    static void tap_sendcb(BasePacket &p, void *data, ssize_t len);
+	static void tap_recv(gea::Handle *h, gea::AbsTime t, void *data);
+	static void recv_unicast  ( BasePacket *p, void *data);
+	static void recv_broadcast( BasePacket *p, void *data);
 
-    /** detemine the routing node ID for the given MAC address.
-     *  \param mac pointer to 6 chars with the MAC address
-     *  \praram id reference to a NodeID variable. If a valid destination id is found,
-     *             it is stored here.
-     *  \returns true, if id was found, false otherwise (means broadcast).
-     */
-    virtual bool   getNodeForMacAddress(const char* mac, NodeId& id, gea::AbsTime t);
+	static void tap_sendcb(BasePacket &p, void *data, ssize_t len);
 
-    /** store node ID and src MAC in the internal table.
-     *  this is not used in the basic tap awdsRoutingace
-     */
-    virtual void   storeSrcAndMac(const NodeId &id, const char *bufO, gea::AbsTime t);
+	/** detemine the routing node ID for the given MAC address.
+	 *  \param mac pointer to 6 chars with the MAC address
+	 *  \praram id reference to a NodeID variable. If a valid destination id is found,
+	 *             it is stored here.
+	 *  \returns true, if id was found, false otherwise (means broadcast).
+	 */
+	bool   getNodeForMacAddress(const char* mac, NodeId& id, gea::AbsTime t);
 
+	/** store node ID and src MAC in the internal table.
+	 *  this is not used in the basic tap awdsRoutingace
+	 */
+	void   storeSrcAndMac(const NodeId &id, const char *bufO, gea::AbsTime t);
 
-};
+    };
 }
 
 

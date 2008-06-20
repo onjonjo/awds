@@ -1,57 +1,34 @@
 #include <crypto/CryptoUnit.h>
 #include <awds/tapiface.h>
 
+#include <gea/gea_main.h>
+
 using namespace awds;
+using namespace std;
 
 TapInterface::TapInterface(Routing *routing) :
     routing(routing)
 {}
 
 
-void TapInterface::init(const char *dev)
+bool TapInterface::init(const char *dev)
 {
-    //struct ifreq ifr;
-    //int fd_, err;
-
     if (createDevice(dev) != true) {
-	_exit(1);
+	return false;
     }
 
-    setIfaceHwAddress(routing->myNodeId);
     setIfaceMTU(routing->getMTU());
 
     tapHandle = new gea::UnixFdHandle(this->fd, gea::PosixModeRead);
 
-    GEA.waitFor(tapHandle, gea::AbsTime::now() + gea::Duration(10.),
+    GEA.waitFor(tapHandle, GEA.lastEventTime + gea::Duration(10,1),
 		tap_recv, (void *)this);
 
     routing->registerUnicastProtocol(PROTO_NR, recv_unicast, (void *)this);
     routing->registerBroadcastProtocol(PROTO_NR, recv_broadcast, (void *)this);
+    
+    return true;
 }
-
-
-
-bool TapInterface::setIfaceHwAddress(const NodeId& id) {
-
-    struct ifreq ifr;
-    int fd_, err;
-
-    id.toArray((char*)&ifr.ifr_hwaddr.sa_data);
-
-    ((char*)&ifr.ifr_hwaddr.sa_data)[0] ^= ADDR_TRNSLTR;
-    ifr.ifr_hwaddr.sa_family = ARPHRD_ETHER;
-
-    strncpy(ifr.ifr_name, devname, IFNAMSIZ);
-
-    GEA.dbg() << "setting hardware address" << std::endl;
-
-    fd_ = socket(PF_INET, SOCK_DGRAM, 0);
-    err = ioctl(fd_, SIOCSIFHWADDR, (void *)&ifr);
-    close(fd_);
-    return err == 0;
-
-}
-
 
 bool TapInterface::setIfaceMTU(int mtu) {
 
@@ -106,28 +83,6 @@ bool TapInterface::createDevice(const char *dev) {
     return true;
 }
 
-
-bool TapInterface::getNodeForMacAddress(const char* mac, NodeId& id, gea::AbsTime t) {
-
-    char dest_addr[6];
-    memcpy(dest_addr, mac, 6);
-    dest_addr[0] ^= ADDR_TRNSLTR;
-
-    id.fromArray(dest_addr);
-
-    /* This is obviously a bug! , however this is not used anymore, have a look
-     * in the overloaded version in
-     * TapIface2.cc .
-     */
-    return true;
-}
-
-void TapInterface::storeSrcAndMac(const NodeId &id, const char *bufO, gea::AbsTime t) {
-
-    // dummy, do nothing in basic version.
-}
-
-
 void TapInterface::tap_recv(gea::Handle *h, gea::AbsTime t, void *data) {
 
     TapInterface *self = static_cast<TapInterface *>(data);
@@ -152,9 +107,7 @@ void TapInterface::tap_recv(gea::Handle *h, gea::AbsTime t, void *data) {
 
 	BasePacket *p;
 
-
-
-	if (broadcast) {
+	if (broadcast) { // shall we broadcast this packet?
 
 	    p = self->routing->newFloodPacket(PROTO_NR);
 	    memcpy(&p->buffer[Flood::FloodHeaderEnd], buf, ret);
@@ -223,7 +176,7 @@ void TapInterface::tap_sendcb(BasePacket &p, void *data, ssize_t len) {
     }
 #endif
     /* allow receiving more packets from tapi handle */
-    GEA.waitFor(self->tapHandle, gea::AbsTime::now() + gea::Duration(10.), tap_recv, data);
+    GEA.waitFor(self->tapHandle, GEA.lastEventTime + gea::Duration(10,1), tap_recv, data);
 }
 
 
@@ -262,7 +215,6 @@ void TapInterface::recv_unicast ( BasePacket *p,  void *data) {
 			 GEA.lastEventTime );
 
 }
-
 
 void TapInterface::recv_broadcast ( BasePacket *p, void *data) {
 
@@ -304,6 +256,79 @@ void TapInterface::recv_broadcast ( BasePacket *p, void *data) {
 			  GEA.lastEventTime);
 }
 
+bool  TapInterface::getNodeForMacAddress(const char* mac, NodeId& id, gea::AbsTime t) {
+    NodeId m;
+    m.fromArray(mac);
+
+    MacTable::const_iterator itr = macTable.find(m);
+    if ( (itr == macTable.end())  // not found
+	 || (itr->second.validity < t)  // entry too old
+	 )
+	{
+//	    GEA.dbg() << "cannot find " << m
+//		      << " sending as broadcast" <<std::endl;
+	    return false;
+	}
+    id = itr->second.id;
+    return true;
+}
+
+
+void TapInterface::storeSrcAndMac(const NodeId &id, const char *buf, gea::AbsTime t) {
+
+    NodeId m;
+    m.fromArray(buf+6); // read src mac.
+
+    MacTable::iterator itr = macTable.find(m);
+
+    if ( itr == macTable.end() ) {
+	GEA.dbg() << "adding " << m << "@" << id << " to the mac table" << std::endl;
+    }
+
+    MacEntry& macEntry = macTable[m];
+    macEntry.id = id;
+    macEntry.validity = t + gea::Duration(30.);
+}
+
+GEA_MAIN_2(tapiface, argc, argv) {
+
+    const char *tapiface_name = "awds%d";
+
+    ObjRepository& rep = ObjRepository::instance();
+
+    Routing *routing = (Routing *)rep.getObj("awdsRouting");
+    if (!routing) {
+	GEA.dbg() << "cannot find object 'awdsRouting' in repository" << std::endl;
+	return -1;
+    }
+
+    /* parse options */
+
+    int idx = 1;
+    while (idx < argc) {
+
+	if (!strcmp(argv[idx],"--tapiface-name") && (idx+1 <= argc)) {
+	    ++idx;
+	    tapiface_name = argv[idx];
+	}
+
+	++idx;
+    }
+
+    /* end of parsing options */
+
+    TapInterface *tap = new TapInterface(routing);
+    if (! tap->init(tapiface_name) ) {
+	GEA.dbg() << "error while initializing a tap interface with name '" << tapiface_name << "'" << endl;
+	return 1;
+    }
+
+    rep.insertObj("tap", "TapInterface", (void*)tap);
+
+    GEA.dbg() << "created device " << tap->devname << std::endl;
+
+    return 0;
+}
 
 
 /* This stuff is for emacs

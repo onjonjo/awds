@@ -30,6 +30,7 @@
  */
 
 using namespace awds;
+using namespace std;
 
 class RawBasic;
 
@@ -203,11 +204,29 @@ void RawBasic::getRecvSrc(NodeId& s) {
 GEA_MAIN_2(rawbasic, argc, argv) {
 
     RawBasic *basic;
-    const  char *netif = "ath0";
-
-    if (argc > 1) {
-	netif = argv[1];
+    const  char *netif = 0;
+    
+    /* parse the options */ 
+    
+    int idx = 1;
+    
+    while (idx < argc) {
+	
+	if (!strcmp(argv[idx],"--raw-device") && (idx+1 <= argc)) {
+	    ++idx;
+	    netif = argv[idx];
+	}
+	
+	++idx;
     }
+    
+    if (!netif) {
+	GEA.dbg() << " please specify the network device to use for communication" << endl
+		  << argv[0] << " --raw-device <dev>" << endl;
+    }
+
+    /* end of parsing options */
+
     basic = new RawBasic(netif);
 
     if (basic->raw_socket == -1) {

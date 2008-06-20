@@ -76,12 +76,12 @@ name="$HOSTNAME"
 exec gea3_start -i <<END
 $AWDS_SHELL
 $AWDS_DAEMON
-rawbasic.so $DEVICE
+rawbasic.so --raw-device $DEVICE
 awdsrouting.so --name $name
 etxmetric.so
 pinger.so
 $AESCCM
-tapiface2.so
+tapiface.so
 $AWDS_TOPO
 topolock.so
 $AWDS_EXTENSIONS

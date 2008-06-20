@@ -1,3 +1,9 @@
+awds (8.4) unstable; urgency=low
+
+  * fix debian stuff
+
+ -- Andre Herms <aherms@ivs.cs.uni-magdeburg.de>  Thu, 19 Jun 2008 16:12:02 +0200
+
 awds (8.3) unstable; urgency=low
 
   * Fix bug in sending topo packets

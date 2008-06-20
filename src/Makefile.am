@@ -14,7 +14,7 @@ pkglib_LTLIBRARIES = \
 	awdsrouting.la \
 	udpbasic.la \
 	pinger.la \
-	tapiface2.la \
+	tapiface.la \
 	topowatch.la \
 	shell.la \
 	daemon.la \
@@ -83,15 +83,11 @@ pinger_la_LDFLAGS = $(module_flags)
 pinger_la_CPPFLAGS = -DMODULE_NAME=pinger $(COMMON_CPPFLAGS)
 pinger_la_LIBADD = -lgea3
 
-# tapiface is obsolete
-#tapiface_la_SOURCES = TapInterface.cc tapiface.cc awds/tapiface.h
-#tapiface_la_LDFLAGS = -module  -avoid-version -export-symbols-regex gea_main
-#tapiface_la_LIBADD = -lgea3 -lgea3-posix
 
-tapiface2_la_SOURCES = TapInterface.cc TapInterface2.cc awds/tapiface.h tapiface2.cc  awds/tapiface2.h
-tapiface2_la_CPPFLAGS = -DMODULE_NAME=tapiface2 $(COMMON_CPPFLAGS)
-tapiface2_la_LDFLAGS = $(module_flags)
-tapiface2_la_LIBADD = -lgea3 -lgea3-posix
+tapiface_la_SOURCES = TapInterface.cc  awds/tapiface.h 
+tapiface_la_CPPFLAGS = -DMODULE_NAME=tapiface2 $(COMMON_CPPFLAGS)
+tapiface_la_LDFLAGS = $(module_flags)
+tapiface_la_LIBADD = -lgea3 -lgea3-posix
 
 topowatch_la_SOURCES  = topowatch.cc
 topowatch_la_CPPFLAGS = -DMODULE_NAME=topowatch $(COMMON_CPPFLAGS)
