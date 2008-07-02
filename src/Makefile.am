@@ -6,7 +6,7 @@ module_flags = -module  -avoid-version -export-symbols-regex gea_main
 #AM_CPPFLAGS= @GEAINC@ -pedantic -Wno-long-long
 AM_CPPFLAGS=  -pedantic -Wno-long-long
 
-COMMON_CPPFLAGS = -fvisibility=hidden @GEAINC@
+COMMON_CPPFLAGS = -fvisibility=hidden @GEAINC@ -L@GEALIBDIR@
 
 nobase_include_HEADERS = awds/*.h awds/ext/*.h
 
@@ -84,7 +84,7 @@ pinger_la_CPPFLAGS = -DMODULE_NAME=pinger $(COMMON_CPPFLAGS)
 pinger_la_LIBADD = -lgea3
 
 
-tapiface_la_SOURCES = TapInterface.cc  awds/tapiface.h 
+tapiface_la_SOURCES = TapInterface.cc  awds/tapiface.h
 tapiface_la_CPPFLAGS = -DMODULE_NAME=tapiface2 $(COMMON_CPPFLAGS)
 tapiface_la_LDFLAGS = $(module_flags)
 tapiface_la_LIBADD = -lgea3 -lgea3-posix
