@@ -2,6 +2,7 @@
 #define _CALLBACK_H__
 
 #include <list>
+#include <algorithm>
 
 template<typename P>
 class Callback {

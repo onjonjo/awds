@@ -8,7 +8,7 @@
  * The output format is in big endian (network byte order)
  */
 template <typename T>
-void toArray(T d, char *array) {
+static void toArray(T d, char *array) {
 
     for (size_t i = 0; i < sizeof(T); ++i) {
 	array[sizeof(T) - 1 - i] = (char)(unsigned char)d;
@@ -17,7 +17,7 @@ void toArray(T d, char *array) {
 }
 
 template <typename T>
-T fromArray( const char *array) {
+static T fromArray( const char *array) {
     T d = 0;
     for (size_t i = 0; i < sizeof(T); ++i) {
 	d <<= 8;
@@ -32,22 +32,22 @@ T fromArray( const char *array) {
 #include <byteswap.h>
 
 template <>
-static unsigned short fromArray<unsigned short>(const char *array) {
+unsigned short fromArray<unsigned short>(const char *array) {
     return bswap_16( *(unsigned short *)array );
 }
 
 template <>
-static unsigned long fromArray<unsigned long>(const char *array) {
+unsigned long fromArray<unsigned long>(const char *array) {
     return bswap_32( *(unsigned long *)array );
 }
 
 template <>
-static void toArray<unsigned short>(unsigned short v, char *array) {
+void toArray<unsigned short>(unsigned short v, char *array) {
     *(unsigned short *)array = bswap_16(v);
 }
 
 template <>
-static void toArray<unsigned long>(unsigned long v, char *array) {
+void toArray<unsigned long>(unsigned long v, char *array) {
     *(unsigned long *)array = bswap_32(v);
 }
 
