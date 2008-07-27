@@ -3,6 +3,9 @@
 #include <netinet/tcp.h>
 #include <sys/types.h>
 #include <arpa/inet.h>
+#include <netdb.h>
+
+#include <cstring>
 
 #include <gea/gea_main.h>
 #include <gea/ObjRepository.h>
@@ -106,19 +109,21 @@ bool TopoWatch::write_topo(void *data, std::string& s) {
     return true;
 }
 
-bool  TopoWatch::createSocket() {
+bool TopoWatch::createSocket() {
 
-    struct sockaddr_in addr;
+    struct sockaddr_in6 addr;
     socklen_t socklen;
     int ret;
 
+    // create an IPv6 socket.
+    l_socket = socket(PF_INET6, SOCK_STREAM, 0);
 
-    l_socket = socket(PF_INET, SOCK_STREAM, 0);
+    addr.sin6_family = AF_INET6;
+    addr.sin6_port = htons(PORT);
+    memcpy(&addr.sin6_addr, &in6addr_any, sizeof in6addr_any);
+    addr.sin6_flowinfo = 0;
 
-    addr.sin_family = AF_INET;
-    addr.sin_port = htons(PORT);
-    addr.sin_addr.s_addr = INADDR_ANY;
-    socklen = sizeof( struct sockaddr_in);
+    socklen = sizeof(struct sockaddr_in6);
 
     int one = 1;
     ret = setsockopt(l_socket, SOL_SOCKET,  SO_REUSEADDR, &one, sizeof(int) );
@@ -127,7 +132,7 @@ bool  TopoWatch::createSocket() {
 	return false;
     }
 
-    ret = bind(l_socket, (struct sockaddr *)&addr, sizeof( struct sockaddr_in));
+    ret = bind(l_socket, (struct sockaddr *)&addr, sizeof( struct sockaddr_in6));
     if (ret != 0) {
 	close(l_socket);
 	return false;
@@ -139,7 +144,6 @@ bool  TopoWatch::createSocket() {
 	return false;
     }
 
-
     return true;
 
 }
@@ -147,17 +151,23 @@ bool  TopoWatch::createSocket() {
 
 void TopoWatch::accept_connection(gea::Handle *h, gea::AbsTime t, void *data) {
 
+
     TopoWatch * self = static_cast<TopoWatch *>(data);
 
     if (h->status == Handle::Ready) {
 
-	struct sockaddr_in peer_addr;
-	socklen_t addr_len = sizeof(struct sockaddr_in);
+	struct sockaddr_in6 peer_addr;
+	socklen_t addr_len = sizeof(struct sockaddr_in6);
+	char peername[1023];
+	char peerport[32];
 
 	int client_fd = accept(self->l_socket, (struct sockaddr *)&peer_addr, &addr_len);
 
-	GEA.dbg() << "new client:" << inet_ntoa(peer_addr.sin_addr)
-		  << ":" << ntohs(peer_addr.sin_port)
+	getnameinfo((const struct sockaddr *)&peer_addr, addr_len, peername, sizeof peername,
+		    peerport, sizeof peerport, NI_NUMERICSERV);
+
+	GEA.dbg() << "new client:" << peername
+		  << ":" << peerport
 		  << std::endl;
 
 	//	write(client_fd, "ja\n", 4);
@@ -236,8 +246,6 @@ void TopoWatch::read_client_data(gea::Handle *h, gea::AbsTime t, void *data) {
 	}
     }
 
-
-
     GEA.waitFor(h, t + Duration(10.), read_client_data, data);
 }
 
@@ -252,7 +260,6 @@ GEA_MAIN_2(topowatch, argc, argv)
 	GEA.dbg() << "cannot find object 'topology' in repository" << endl;
 	return -1;
     }
-
 
     new TopoWatch(topology);
 
