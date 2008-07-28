@@ -252,8 +252,6 @@ void TopoWatch::read_client_data(gea::Handle *h, gea::AbsTime t, void *data) {
 
 GEA_MAIN_2(topowatch, argc, argv)
 {
-
-
     ObjRepository& rep = ObjRepository::instance();
     RTopology *topology = (RTopology *)rep.getObj("topology");
     if (!topology) {
