@@ -55,6 +55,7 @@ void awds::Traffic::send(int pCount,int pSize,NodeId d) {
   uniP.packet.size = packetSize;
   p->setDest(dest);
   routing->sendUnicast(p);
+  p->unref();
   GEA.waitFor(&blocker,
 	      GEA.lastEventTime + Duration(10,1),
 	      &Traffic::wait,

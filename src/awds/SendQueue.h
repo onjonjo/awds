@@ -11,14 +11,20 @@ namespace awds {
 		gea::Handle *h; /**< handle to block on */
 		basic *base; /**< needed for setSendDest */
 		std::list<BasePacket*> queue;
+		bool verbose;
 	public:
 
-		SendQueue(basic *_b, gea::Handle *_h) : base(_b), h(_h) {
-		}
+		SendQueue(basic *_b, gea::Handle *_h) : 
+		  h(_h),
+		  base(_b),
+		  verbose(false)
+		    {
+		    }
 
 		bool enqueuePacket(BasePacket *p, bool high_prio);
 
 	private:
+	
 		static void xmit_cb(gea::Handle *h, gea::AbsTime t, void *data);
 		void registerCallback();
 	};

@@ -30,7 +30,6 @@ class TopoLock {
 
 public:
 
-
     TopoLock(AwdsRouting *awdsRouting) :
 	awdsRouting(awdsRouting)
     {
