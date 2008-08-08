@@ -237,7 +237,7 @@ void TcpShell::accept_connection(gea::Handle *h, gea::AbsTime t, void *data) {
     }
 
     GEA.waitFor(h, t + Duration(12.3), accept_connection, data);
-
+    
 }
 
 int TcpShellClient::exec(int argc, char **argv) {
@@ -282,7 +282,7 @@ void TcpShellClient::read_client_data(gea::Handle *h, gea::AbsTime t, void *data
     if (h->status == Handle::Ready) {
 
 	int ret;
-	ret = h->read(&self->cmd_buf[self->cmd_buf_len], CMD_BUF_MAX-self->cmd_buf_len);
+	ret = h->read(&self->cmd_buf[self->cmd_buf_len], 1 /*CMD_BUF_MAX - self->cmd_buf_len*/);
 	if (ret <= 0) {
 	    GEA.dbg() << "closing shell connection "
 		      << inet_ntoa(self->peer_addr.sin_addr) << ":" << ntohs(self->peer_addr.sin_port) << endl;
@@ -324,7 +324,7 @@ void TcpShellClient::read_client_data(gea::Handle *h, gea::AbsTime t, void *data
     }
 
     if (self->state == CS_Idle) {
-	GEA.waitFor(h, t + Duration(120.), read_client_data, data);
+	GEA.waitFor(h, t + Duration(1200000,1), read_client_data, data);
     }
 }
 
@@ -337,8 +337,8 @@ void TcpShellClient::prompt(bool wait) {
 }
 
 void TcpShellClient::block() {
-	assert(state == CS_Idle);
-	state = CS_Blocked;
+    assert(state == CS_Idle);
+    state = CS_Blocked;
 }
 
 void TcpShellClient::unblock() {

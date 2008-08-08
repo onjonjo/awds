@@ -513,7 +513,7 @@ void awds::AwdsRouting::recv_flood(BasePacket *p ) {
     if (flood.getTTL() == 0)
 	return;
 
-    p->ref();
+    //    p->ref();
     p->setDest( base->BroadcastId );
     if (!base->send(p, false)) {
 	//	GEA.dbg() << " cannot send flood packet"<< std::endl;
@@ -524,7 +524,6 @@ void awds::AwdsRouting::recv_flood(BasePacket *p ) {
 BasePacket *awds::AwdsRouting::newFloodPacket(int floodType) {
 
     BasePacket * p = new BasePacket();
-
     if (p) {
 	Flood flood(*p);
 
