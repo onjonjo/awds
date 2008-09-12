@@ -44,34 +44,43 @@ bool SrcFilter::check_packet(awds::BasePacket *p)
 
 int SrcFilter::addRules(int argc, const char *const *argv, std::ostream& os) {
 
-    for (int i = 0; i < argc; ++i) {
+    /* parse the options */ 
+    
+    int idx = 1;
+    
+    while (idx < argc) {
+	
+	    if (!strcmp(argv[idx],"--rule") && (idx+1 <= argc)) {
+	        ++idx;
 
-	bool accept;
-	if (argv[i][0] == '+')
-	    accept = true;
-	else if (argv[i][0] == '-')
-	    accept = false;
-	else {
-	    os << "syntax error: '" << argv[i] << "' should be '+host' or '-host'" << endl;
-	    return 1;
-	}
+        	bool accept;
+	        if (argv[idx][0] == '+')
+	            accept = true;
+	        else if (argv[idx][0] == '-')
+	            accept = false;
+	        else {
+	            os << "syntax error: '" << argv[idx] << "' should be '--rule +host' or '--rule -host'" << endl;
+	            return 1;
+	        }
 
-	string hostname(argv[i] + 1);
-	if (hostname == "default") {
-	    // change the default rule
-	    default_policy = accept;
-	    continue; // go to the next entry.
-	} else {
-	    NodeId id;
-	    bool found = topology->getNodeByName(id, argv[i] + 1);
-	    if (!found) {
-		os << "cannot find a matching node name for rule '" << argv[i] << "'" << endl;
-		continue;
-	    } else {
-		rules[id] = accept; // put the entry into the map, overwrite previous value.
+	        string hostname(argv[idx] + 1);
+	        if (hostname == "default") {
+	            // change the default rule
+	            default_policy = accept;
+	            continue; // go to the next entry.
+	        } else {
+	            NodeId id;
+	            bool found = topology->getNodeByName(id, argv[idx] + 1);
+	            if (!found) {
+		        os << "cannot find a matching node name for rule '" << argv[idx] << "'" << endl;
+		        continue;
+	            } else {
+		        rules[id] = accept; // put the entry into the map, overwrite previous value.
+	            }
+	        }
 	    }
-	}
-
+	
+    	++idx;
     }
 
     return 0;
@@ -127,6 +136,16 @@ int SrcFilter::cmd_filter(awds::ShellClient &sc, void *data, int argc, char **ar
 
 GEA_MAIN_2(src_filter, argc, argv) {
 
+    for (int i(0);i<argc;++i) {
+	    std::string w(argv[i]);
+        if (w == "--help") {
+        	GEA.dbg() << "src_filter\t: please specify source filter rules with the following format:" << endl
+            		  << "src_filter\t: "<< argv[0] << " --rule +host or" << endl
+            		  << "src_filter\t: "<< argv[0] << " --rule -host" << endl;
+            return -1;
+        }
+    }
+
     REP_MAP_OBJ(awds::Firewall **, firewall_pp);
 
     if (!firewall_pp) {
@@ -149,8 +168,8 @@ GEA_MAIN_2(src_filter, argc, argv) {
     *firewall_pp = srcFilter; // plug in the firewall;
 
     if (argc > 1) {
-	srcFilter->addRules(argc-1, argv + 1, GEA.dbg() );
-	srcFilter->dumpRules(GEA.dbg());
+	    srcFilter->addRules(argc, argv, GEA.dbg() );
+	    srcFilter->dumpRules(GEA.dbg());
     }
 
     if (shell) {

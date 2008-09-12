@@ -350,6 +350,13 @@ int Pinger::startPing( Handle *h) {
 
 GEA_MAIN_2(pinger, argc, argv)
 {
+    for (int i(0);i<argc;++i) {
+	    std::string w(argv[i]);
+        if (w == "--help") {
+            return -1;
+        }
+    }
+
     Pinger *pinger;
     REP_MAP_OBJ(awds::Routing *, routing);
 

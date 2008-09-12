@@ -216,13 +216,19 @@ GEA_MAIN_2(rawbasic, argc, argv) {
 	    ++idx;
 	    netif = argv[idx];
 	}
+    else if(!strcmp(argv[idx],"--help")) {
+    	GEA.dbg() << "rawbasic\t: please specify the network device to use for communication" << endl
+        		  << "rawbasic\t: "<< argv[0] << " --raw-device <dev>" << endl;        
+        return -1;
+	}
 	
 	++idx;
     }
     
     if (!netif) {
-	GEA.dbg() << " please specify the network device to use for communication" << endl
-		  << argv[0] << " --raw-device <dev>" << endl;
+    	GEA.dbg() << "rawbasic\t: please specify the network device to use for communication" << endl
+        		  << "rawbasic\t: "<< argv[0] << " --raw-device <dev>" << endl;        
+        return -1;
     }
 
     /* end of parsing options */

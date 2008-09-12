@@ -294,6 +294,16 @@ GEA_MAIN_2(tapiface, argc, argv) {
 
     const char *tapiface_name = "awds%d";
 
+    for (int i(0);i<argc;++i) {
+	    std::string w(argv[i]);
+        if (w == "--help") {
+            GEA.dbg() << "tapiface\t: please specify the tap interface name in the following format (default: "
+                      << tapiface_name << ")" << endl
+                      << "tapiface\t: "<< argv[0] << " --tapiface-name <name>" << endl;
+            return -1;
+        }
+    }
+
     ObjRepository& rep = ObjRepository::instance();
 
     Routing *routing = (Routing *)rep.getObj("awdsRouting");

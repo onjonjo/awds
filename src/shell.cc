@@ -376,6 +376,12 @@ int exit_cmd(ShellClient &sc, void *data, int argc, char **argv) {
 
 GEA_MAIN_2(shell, argc, argv)
 {
+    for (int i(0);i<argc;++i) {
+	    std::string w(argv[i]);
+        if (w == "--help") {
+            return -1;
+        }
+    }
 
     ObjRepository& rep = ObjRepository::instance();
 

@@ -31,23 +31,23 @@ T fromArray( const char *array) {
 
 #include <byteswap.h>
 
-template <>
-static unsigned short fromArray<unsigned short>(const char *array) {
+template <unsigned short>
+static unsigned short fromArray(const char *array) {
     return bswap_16( *(unsigned short *)array );
 }
 
-template <>
-static unsigned long fromArray<unsigned long>(const char *array) {
+template <unsigned long>
+static unsigned long fromArray(const char *array) {
     return bswap_32( *(unsigned long *)array );
 }
 
-template <>
-static void toArray<unsigned short>(unsigned short v, char *array) {
+template <unsigned short>
+static void toArray(unsigned short v, char *array) {
     *(unsigned short *)array = bswap_16(v);
 }
 
-template <>
-static void toArray<unsigned long>(unsigned long v, char *array) {
+template <unsigned long>
+static void toArray(unsigned long v, char *array) {
     *(unsigned long *)array = bswap_32(v);
 }
 

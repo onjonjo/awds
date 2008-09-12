@@ -523,8 +523,8 @@ void RTopology::feed(const TopoPacket& p) {
 
     check_topology(this->adjList);
 
-
-
+    if(dirty)
+    updateTopology();
 }
 
 
@@ -733,18 +733,51 @@ void RTopology::calcRoutes() {
     dirty = false;
 }
 
+void RTopology::updateTopology()
+{
+    removeOldNodes();
 
+    calcRoutes();
+
+
+    int node_count = adjList.size();
+    int c = 0;
+
+    char* topology_data = new char[sizeof(int) + node_count * 2 * NodeId::size];
+
+    int total_bytes = node_count * 2 * NodeId::size;
+    memcpy(topology_data, &total_bytes, sizeof(int));
+    /*
+     * update topology inside awds kernel module
+     */
+    for (AdjList::iterator i = adjList.begin(); i != adjList.end(); ++i) {
+        GEA.dbg() << "insert entry: " << i->first << ":" << i->second.nextHop << std::endl;
+        /* NodeID */
+        i->first.toArray(topology_data + sizeof(int) + (c * NodeId::size));
+        /* NextHop */  
+        i->second.nextHop.toArray(topology_data + sizeof(int) + ((c+1) * NodeId::size));
+        c = c + 2;
+    }
+
+    ObjRepository& rep = ObjRepository::instance();
+    linuxbasic_cb* cb = (linuxbasic_cb *)rep.getObj("linuxbasic_cb");
+    if (!cb) {
+        GEA.dbg() << "cannot find object 'linuxbasic_cb' in repository" << endl;
+        return;
+    }
+    else
+    {
+        (*cb->Func)(cb->Basic, topology_data);
+        delete[] topology_data;
+    }
+}
 
 void RTopology::getNextHop(const NodeId& dest, NodeId& nextHop, bool& found) {
 
 
     if (dirty) {
-
-	removeOldNodes();
-
-	calcRoutes();
+        updateTopology();
     }
-
 
     AdjList::const_iterator itr = adjList.find(dest);
     found = (itr != adjList.end());
