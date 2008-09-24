@@ -265,8 +265,8 @@ bool  TapInterface::getNodeForMacAddress(const char* mac, NodeId& id, gea::AbsTi
 	 || (itr->second.validity < t)  // entry too old
 	 )
 	{
-//	    GEA.dbg() << "cannot find " << m
-//		      << " sending as broadcast" <<std::endl;
+	    GEA.dbg() << "cannot find " << m
+		      << " sending as broadcast" <<std::endl;
 	    return false;
 	}
     id = itr->second.id;
@@ -293,6 +293,16 @@ void TapInterface::storeSrcAndMac(const NodeId &id, const char *buf, gea::AbsTim
 GEA_MAIN_2(tapiface, argc, argv) {
 
     const char *tapiface_name = "awds%d";
+
+    for (int i(0);i<argc;++i) {
+	    std::string w(argv[i]);
+        if (w == "--help") {
+            GEA.dbg() << "tapiface\t: please specify the tap interface name in the following format (default: "
+                      << tapiface_name << ")" << endl
+                      << "tapiface\t: "<< argv[0] << " --tapiface-name <name>" << endl;
+            return -1;
+        }
+    }
 
     ObjRepository& rep = ObjRepository::instance();
 

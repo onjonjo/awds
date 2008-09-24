@@ -241,9 +241,11 @@ GEA_MAIN_2(rawbasic, argc, argv) {
 	if (!strcmp(argv[idx],"--raw-device") && (idx+1 <= argc)) {
 	    ++idx;
 	    netif = argv[idx];
-	}
-
-	if (!strcmp(argv[idx], "--padding")) {
+	} else if(!strcmp(argv[idx],"--help")) {
+    	    GEA.dbg() << "rawbasic\t: please specify the network device to use for communication" << endl
+        	      << "rawbasic\t: "<< argv[0] << " --raw-device <dev>" << endl;        
+            return -1;
+        } else if (!strcmp(argv[idx], "--padding")) {
 	    padding = true;
 	    GEA.dbg() << "using aggeressive padding" << endl;
 	}
@@ -252,8 +254,9 @@ GEA_MAIN_2(rawbasic, argc, argv) {
     }
 
     if (!netif) {
-	GEA.dbg() << " please specify the network device to use for communication" << endl
-		  << argv[0] << " --raw-device <dev>" << endl;
+    	GEA.dbg() << "rawbasic\t: please specify the network device to use for communication" << endl
+        		  << "rawbasic\t: "<< argv[0] << " --raw-device <dev>" << endl;        
+        return -1;
     }
 
     /* end of parsing options */

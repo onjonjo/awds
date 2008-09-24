@@ -593,11 +593,11 @@ void awds::AwdsRouting::recv_unicast(BasePacket *p) {
 	//	topology->print();
 	return;
     } else {
-	if (verbose) {
-	    GEA.dbg() << "next hop to " << dest
-		      << " is " << nextHop
-		      << std::endl;
-	}
+//	if (verbose) {
+//	    GEA.dbg() << "next hop to " << dest
+//		      << " is " << nextHop
+//		      << std::endl;
+//	}
 
     }
     ucPacket.setNextHop(nextHop);
@@ -853,12 +853,20 @@ static int verbose_command_fn(ShellClient &sc, void *data, int argc, char **argv
 
 GEA_MAIN_2(awdsrouting, argc, argv)
 {
+    for (int i(0);i<argc;++i) {
+	    std::string w(argv[i]);
+        if (w == "--help") {
+            GEA.dbg() << "awdsrouting\t: please specify the node name in the following format:" << endl
+                      << "awdsrouting\t: "<< argv[0] << " --name <nodename>" << endl;
+            return -1;
+        }
+    }
 
     ObjRepository& rep = ObjRepository::instance();
     basic *base = (basic *)rep.getObj("basic");
     if (!base) {
 	GEA.dbg() << "cannot find object 'basic' in repository" << endl;
-
+    return -1;
     }
 
     AwdsRouting* awdsRouting = new AwdsRouting(base);
@@ -869,18 +877,26 @@ GEA_MAIN_2(awdsrouting, argc, argv)
     REP_INSERT_OBJ(awds::RTopology *,   topology,    awdsRouting->topology);
     REP_INSERT_OBJ(awds::Firewall **,   firewall_pp, &(awdsRouting->firewall) );
 
-
-    if ( (argc >= 3) && (!strcmp(argv[1], "--name") ) ) {
-	strncpy(awdsRouting->topology->nodeName, argv[2], 32);
-    }
+    bool name_found = false;
 
     for (int i(0);i<argc;++i) {
-	std::string w(argv[i]);
-	if (w == "--verbose") {
-	    awdsRouting->topology->verbose = true;
-	    awdsRouting->verbose = true;
-	    awds::NodeDescr::verbose = true;
-	}
+	    std::string w(argv[i]);
+	    if (w == "--verbose") {
+	        awdsRouting->topology->verbose = true;
+	        awdsRouting->verbose = true;
+	        awds::NodeDescr::verbose = true;
+	    }
+	    else if ((w == "--name") && (i+1 <= argc)) {
+	        strncpy(awdsRouting->topology->nodeName, argv[i+1], 32);
+            name_found = true;
+	    }
+    }
+
+    if(!name_found)
+    {
+        GEA.dbg() << "awdsrouting\t: please specify the node name in the following format:" << endl
+                  << "awdsrouting\t: "<< argv[0] << " --name <nodename>" << endl;
+        return -1;
     }
 
     REP_MAP_OBJ(Shell *, shell);

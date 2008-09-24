@@ -15,6 +15,8 @@
 
 #include <awds/routing.h>
 
+#include <awds/linuxbasicCallback.h>
+
 #include <iostream>
 
 namespace awds {
@@ -247,6 +249,8 @@ namespace awds {
 	void sendLinksChanged() const ;
 	void sendLinkAdded(const NodeId& from, const NodeId& to) const;
 	void sendLinkRemoved(const NodeId& from, const NodeId& to) const;
+
+    void updateTopology();
 
     public:
 	// -------------------------------------------------------

@@ -1,12 +1,12 @@
 SUBDIRS =  crypto
 
 LIBADD = -lgea3
+LDFLAGS = @GEALIB@
+
 module_flags = -module  -avoid-version -export-symbols-regex gea_main
 
-#AM_CPPFLAGS= @GEAINC@ -pedantic -Wno-long-long
-AM_CPPFLAGS=  -pedantic -Wno-long-long
-
-COMMON_CPPFLAGS = -fvisibility=hidden @GEAINC@ -L@GEALIBDIR@
+AM_CPPFLAGS= @GEAINC@ -pedantic -Wno-long-long
+COMMON_CPPFLAGS = -fvisibility=hidden @GEAINC@
 
 nobase_include_HEADERS = awds/*.h awds/ext/*.h
 
@@ -22,6 +22,7 @@ pkglib_LTLIBRARIES = \
 	topolock.la \
 	aesccm.la  \
 	rawbasic.la \
+	linuxbasic.la \
 	etxmetric.la \
 	rttmetric.la \
 	ttmetric.la \
@@ -32,7 +33,7 @@ pkglib_LTLIBRARIES = \
 #	tapiface_crypto.la \
 #
 
-AM_LDFLAGS =  -module -avoid-version
+AM_LDFLAGS = -module -avoid-version
 
 
 awdsrouting_la_SOURCES =  \
@@ -77,6 +78,11 @@ rawbasic_la_SOURCES = rawbasic.cc basic.cc awds/basic.h awds/NodeId.h SendQueue.
 rawbasic_la_CPPFLAGS = -DMODULE_NAME=rawbasic $(COMMON_CPPFLAGS)
 rawbasic_la_LDFLAGS = $(module_flags)
 rawbasic_la_LIBADD = -lgea3 -lgea3-posix
+
+linuxbasic_la_SOURCES = linuxbasic.cc basic.cc awds/basic.h awds/NodeId.h SendQueue.cc
+linuxbasic_la_CPPFLAGS = -DMODULE_NAME=linuxbasic $(COMMON_CPPFLAGS)
+linuxbasic_la_LDFLAGS = $(module_flags)
+linuxbasic_la_LIBADD = -lgea3 -lgea3-posix
 
 pinger_la_SOURCES = pinger.cc
 pinger_la_LDFLAGS = $(module_flags)
@@ -191,6 +197,6 @@ src_filter_la_LDFLAGS  = $(module_flags)
 src_filter_la_LIBADD   = -lgea3
 
 awds_static_SOURCES = awds.cc
-awds_static_LDADD  = -lgea3 -lgea3-posix rawbasic.la awdsrouting.la tapiface2.la
-awds_static_LDFLAGS = -static
+awds_static_LDADD  = -lgea3 -lgea3-posix rawbasic.la linuxbasic.la awdsrouting.la tapiface.la src_filter.la shell.la pinger.la
+awds_static_LDFLAGS = -all-static -shared-libgcc
 awds_static_CPPFLAGS = $(COMMON_CPPFLAGS)
