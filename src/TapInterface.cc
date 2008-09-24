@@ -265,8 +265,8 @@ bool  TapInterface::getNodeForMacAddress(const char* mac, NodeId& id, gea::AbsTi
 	 || (itr->second.validity < t)  // entry too old
 	 )
 	{
-//	    GEA.dbg() << "cannot find " << m
-//		      << " sending as broadcast" <<std::endl;
+	    GEA.dbg() << "cannot find " << m
+		      << " sending as broadcast" <<std::endl;
 	    return false;
 	}
     id = itr->second.id;

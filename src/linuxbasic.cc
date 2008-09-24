@@ -39,10 +39,10 @@
 #define AIOCGCFGNR _IOR(AWDS_IOC_MAGIC, 2, int *)
 
 struct sockaddr_awds {
-	sa_family_t	sa_family;	              /* address family, PF_AWDS      */
+    sa_family_t	sa_family;	          /* address family, PF_AWDS      */
     int         sa_ifindex;               /* the network interface index  */
     char        sa_addr[ETH_ALEN];        /* the network interface index  */
-	char		sa_data[10 - ETH_ALEN];	  /* additional information   	  */
+    char	sa_data[10 - ETH_ALEN];	  /* additional information   	  */
 };
 
 /** \defgroup linuxbasic_mod
@@ -99,7 +99,7 @@ public:
         LinuxBasic* LBasic = static_cast<LinuxBasic*>(Basic);
         int fd = LBasic->raw_socket;
 
-	    ioctl(fd, AIOCSRTTBL, TopoDump);
+	ioctl(fd, AIOCSRTTBL, TopoDump);
     }
 
     LinuxBasic(const char *dev)
@@ -174,19 +174,21 @@ public:
 	    return true;
     }
 
-    int getModuleConfig()
+    short int getModuleConfig()
     {
-        int level = -1;
+        short int level = 0;
 
-        if(raw_socket<0) return level;
-        ioctl(raw_socket, AIOCGCFGNR, (int*)&level);
+        if(raw_socket<0) return -1;
+        if(ioctl(raw_socket, AIOCGCFGNR, (short int*)&level)) {
+          level = -1;
+        }
         return level;
     }
 
-    void setModuleConfig(int level)
+    void setModuleConfig(short int level)
     {
         if(raw_socket<0) return;
-        ioctl(raw_socket, AIOCSCFGNR, (int*)&level);
+        ioctl(raw_socket, AIOCSCFGNR, (short int*)&level);
     }
 
     virtual ~LinuxBasic();
@@ -252,7 +254,7 @@ static int moduleconfig_command_fn(ShellClient &sc, void *data, int argc, char *
     if (argc == 1)
 	*sc.sockout << "moduleconfig: " << self->getModuleConfig() << std::endl;
     else if (argc == 2) {
-        int level = atoi(argv[1]);
+        short int level = atoi(argv[1]);
 
         if((level<0) || (level>3)) {
 		    *sc.sockout << moduleconfig_cmd_usage;

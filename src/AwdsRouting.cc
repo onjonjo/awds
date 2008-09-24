@@ -593,11 +593,11 @@ void awds::AwdsRouting::recv_unicast(BasePacket *p) {
 	//	topology->print();
 	return;
     } else {
-	if (verbose) {
-	    GEA.dbg() << "next hop to " << dest
-		      << " is " << nextHop
-		      << std::endl;
-	}
+//	if (verbose) {
+//	    GEA.dbg() << "next hop to " << dest
+//		      << " is " << nextHop
+//		      << std::endl;
+//	}
 
     }
     ucPacket.setNextHop(nextHop);
