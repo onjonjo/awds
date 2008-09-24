@@ -1,3 +1,9 @@
+awds (8.7) unstable; urgency=low
+
+  * fix reference counting of packets 
+
+ -- Andre Herms <aherms@ivs.cs.uni-magdeburg.de>  Fri, 08 Aug 2008 14:20:45 +0200
+
 awds (8.6) unstable; urgency=low
 
   * awds 8.5 is not accepted by debarchiver

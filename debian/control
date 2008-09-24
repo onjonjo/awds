@@ -3,12 +3,12 @@ Section: net
 Priority: optional
 Maintainer: Andre Herms <aherms@ivs.cs.uni-magdeburg.de>
 Build-Depends: debhelper (>= 4.2.32), autotools-dev, libgea3-dev (>= 3.0), nasm, libtool (>= 1.5), automake1.9|automaken, docbook-utils, docbook-xsl, xsltproc
-Standards-Version: 3.7.2
+Standards-Version: 3.8.0
 Homepage: http://awds.berlios.de
 
 Package: awds
 Architecture: any
-Depends: libgea3 (>= 3.0), lsb-base (>= 3.0-6)
+Depends: libgea3 (>= 3.4), lsb-base (>= 3.0-6)
 Description: A multi-hop routing for wireless ad-hoc networks
  This package contains the multi-hop rounting AWDS. It creates a
  virtual network interface on all participating stations that are 

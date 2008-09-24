@@ -1,2 +1,2 @@
 define(MAJOR_VERSION_NUMBER, 8)dnl
-define(MINOR_VERSION_NUMBER, 3)dnl
+define(MINOR_VERSION_NUMBER, 7)dnl
