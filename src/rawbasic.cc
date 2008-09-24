@@ -69,7 +69,7 @@ public:
 
     SendQueue* sendq;
 
-
+    bool aggressivePadding;
 
     RawBasic(const char *dev)
     {
@@ -79,12 +79,14 @@ public:
 	    raw_socket = -1;
 	getHwAddress();
 
-	static const unsigned char broadcastAddr[] = {0xff, 0xff, 0xff, 0xff, 0xff, 0xff};
+	static const unsigned char broadcastAddr[] =
+	    {0xff, 0xff, 0xff, 0xff, 0xff, 0xff};
 	BroadcastId.fromArray((char*)broadcastAddr);
 
 	sendHandle = new RawHandle(*this, false);
 	recvHandle = new RawHandle(*this, true);
 	sendq = new SendQueue(this, sendHandle);
+	aggressivePadding = false;
     }
 
     virtual bool send(BasePacket *p, bool high_prio) {
@@ -92,7 +94,7 @@ public:
 	return sendq->enqueuePacket(p, high_prio);
     }
 
-    
+
 public:
     bool getHwAddress() {
 	struct ifreq req;
@@ -163,11 +165,28 @@ int RawHandle::write(const char *buf, int size) {
     vector[1].iov_base = (void*)buf;
     vector[1].iov_len  = size;
 
+    if (basic.aggressivePadding) {
+	vector[1].iov_len += 4;
+	while (1) {
+	    unsigned len = vector[1].iov_len + vector[0].iov_len;
+	    if ( (len < 64) || (len % 4))
+		vector[1].iov_len++;
+	    else 
+		break;
+	}
+    }
+
     basic.MyId.toArray((char*)&basic.send_header.ether_shost);
     basic.dest.toArray((char*)&basic.send_header.ether_dhost);
     basic.send_header.ether_type = htons(ETHERTYPE_AWDS);
 
-    return writev(basic.raw_socket, vector, 2);
+    int ret = writev(basic.raw_socket, vector, 2);
+    if (ret < 0) {
+//	GEA.dbg() << "error while raw sending: "
+//		  << strerror(ret) << endl;
+    }
+
+    return ret;
 }
 
 int RawHandle::read(char *buf, int size) {
@@ -178,6 +197,13 @@ int RawHandle::read(char *buf, int size) {
     vector[1].iov_len  = size;
 
     int ret = readv(basic.raw_socket, vector, 2);
+
+    if (ret < 0) {
+	GEA.dbg() << "error while raw receiving: "
+		  << strerror(ret) << endl;
+
+    }
+
     basic.src.fromArray((char*)&basic.recv_header.ether_shost);
 
     if (basic.recv_header.ether_type != htons(ETHERTYPE_AWDS) )
@@ -205,26 +231,28 @@ GEA_MAIN_2(rawbasic, argc, argv) {
 
     RawBasic *basic;
     const  char *netif = 0;
-    
-    /* parse the options */ 
-    
+    bool padding = false;
+    /* parse the options */
+
     int idx = 1;
-    
+
     while (idx < argc) {
-	
+
 	if (!strcmp(argv[idx],"--raw-device") && (idx+1 <= argc)) {
 	    ++idx;
 	    netif = argv[idx];
+	} else if(!strcmp(argv[idx],"--help")) {
+    	    GEA.dbg() << "rawbasic\t: please specify the network device to use for communication" << endl
+        	      << "rawbasic\t: "<< argv[0] << " --raw-device <dev>" << endl;        
+            return -1;
+        } else if (!strcmp(argv[idx], "--padding")) {
+	    padding = true;
+	    GEA.dbg() << "using aggeressive padding" << endl;
 	}
-    else if(!strcmp(argv[idx],"--help")) {
-    	GEA.dbg() << "rawbasic\t: please specify the network device to use for communication" << endl
-        		  << "rawbasic\t: "<< argv[0] << " --raw-device <dev>" << endl;        
-        return -1;
-	}
-	
+
 	++idx;
     }
-    
+
     if (!netif) {
     	GEA.dbg() << "rawbasic\t: please specify the network device to use for communication" << endl
         		  << "rawbasic\t: "<< argv[0] << " --raw-device <dev>" << endl;        
@@ -240,6 +268,8 @@ GEA_MAIN_2(rawbasic, argc, argv) {
 	    ": cannot open raw socket interface on device " << netif << std::endl;
 	return -1;
     }
+
+    basic->aggressivePadding = padding;
 
     basic->start();
     //   basic->init(MyId);

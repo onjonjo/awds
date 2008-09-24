@@ -172,6 +172,7 @@ void awds::RTTMetric::go_measure() {
       GEA.dbg() << "rtt: send request to " << (unsigned long) it->first << std::endl;
     }
     sendvia(p,t,it->first,packetSize);
+    p->unref();
     it->second.lastsend = t;
   }
   GEA.waitFor(&blocker,
@@ -190,12 +191,13 @@ awds::RTTMetric::on_recv(BasePacket *p) {
     if (debug) {
       GEA.dbg() << "rtt: request" << std::endl;
     }
-    BasePacket *p_response(routing->newUnicastPacket(PACKET_TYPE_UC_METRIC));
+    BasePacket *p_response =routing->newUnicastPacket(PACKET_TYPE_UC_METRIC);
     UCMetricPacket response(*p_response,awds::UCMetricPacket::resp,2,1,mp.getTime1());
     if (debug) {
       GEA.dbg() << "rtt: send response to " << (unsigned long) mp.getSrc() << std::endl;
     }
     sendvia(p_response,gea::AbsTime::now(),mp.getSrc());
+    p->unref();
   } else {
     gea::AbsTime t1(mp.getTime1());
     gea::Duration d(GEA.lastEventTime - t1);
@@ -275,3 +277,10 @@ int awdsRouting_gea_main(int argc, const char  * const *argv)
   GEA.dbg() << "RTT-Metric installed" << std::endl;
   return 0;
 }
+
+/* This stuff is for emacs
+ * Local variables:
+ * mode:c++
+ * c-basic-offset: 4
+ * End:
+ */

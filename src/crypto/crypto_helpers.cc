@@ -2,9 +2,12 @@
 
 #include <unistd.h>
 #include <cerrno>
+#include <cstring>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
+
+
 
 #include "crypto_helpers.h"
 

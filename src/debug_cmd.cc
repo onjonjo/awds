@@ -6,6 +6,7 @@
 #include <fcntl.h>
 #include <signal.h>
 
+#include <cstring>
 
 #include <errno.h>
 

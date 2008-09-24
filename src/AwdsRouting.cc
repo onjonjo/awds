@@ -198,7 +198,7 @@ void awds::AwdsRouting::send_beacon(gea::Handle *h, gea::AbsTime t, void *data) 
 
     if (!self->base->send(p, true))
 	GEA.dbg() << "cannot send beacon packets"<< std::endl;
-
+    p->unref(); // we don't need the packet anymore. 
 
     // calculate next period in future.
     // this is a safty measure to prevent scheduling events in the past
@@ -414,7 +414,7 @@ void awds::AwdsRouting::sendUnicastVia(BasePacket *p,/*gea::AbsTime t,*/ NodeId 
 
     ucPacket.setNextHop(nextHop);
     p->setDest(nextHop);
-    //    p->ref();
+
     if (!base->send(p, false))
 	GEA.dbg() << " cannot send unicast packet"<< std::endl;
 }
@@ -513,17 +513,17 @@ void awds::AwdsRouting::recv_flood(BasePacket *p ) {
     if (flood.getTTL() == 0)
 	return;
 
-    p->ref();
+    //    p->ref();
     p->setDest( base->BroadcastId );
-    if (!base->send(p, false))
-	GEA.dbg() << " cannot send flood packet"<< std::endl;
+    if (!base->send(p, false)) {
+	//	GEA.dbg() << " cannot send flood packet"<< std::endl;
+    }
 }
 
 
 BasePacket *awds::AwdsRouting::newFloodPacket(int floodType) {
 
     BasePacket * p = new BasePacket();
-
     if (p) {
 	Flood flood(*p);
 
@@ -602,8 +602,7 @@ void awds::AwdsRouting::recv_unicast(BasePacket *p) {
     }
     ucPacket.setNextHop(nextHop);
     p->setDest(nextHop);
-    p->ref();
-
+  
     if (!base->send(p, false))
 	GEA.dbg() << " cannot send unicast packet"<< std::endl;
 }
@@ -740,6 +739,8 @@ BasePacket *awds::AwdsRouting::newFlowPacket(FlowRouting::FlowId flowid) {
 
 int awds::AwdsRouting::sendFlowPacket(BasePacket *p) {
 
+    int retval;
+    
     assert(p->getType() == PacketTypeForward);
 
     awds::FlowPacket flowP(*p);
@@ -763,10 +764,9 @@ int awds::AwdsRouting::sendFlowPacket(BasePacket *p) {
 
     p->setDest( citr->second );
 
-    // our caller destroys the packet after the call. increase refcount
-    p->ref();
+    retval =  base->send(p, true)?0:-1;
 
-    return base->send(p, true)?0:-1;
+    return retval;
 }
 
 

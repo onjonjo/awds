@@ -90,7 +90,7 @@ pinger_la_CPPFLAGS = -DMODULE_NAME=pinger $(COMMON_CPPFLAGS)
 pinger_la_LIBADD = -lgea3
 
 
-tapiface_la_SOURCES = TapInterface.cc  awds/tapiface.h 
+tapiface_la_SOURCES = TapInterface.cc  awds/tapiface.h
 tapiface_la_CPPFLAGS = -DMODULE_NAME=tapiface2 $(COMMON_CPPFLAGS)
 tapiface_la_LDFLAGS = $(module_flags)
 tapiface_la_LIBADD = -lgea3 -lgea3-posix
