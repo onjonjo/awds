@@ -32,33 +32,26 @@ static T fromArray( const char *array) {
 #include <byteswap.h>
 
 template <>
-unsigned short fromArray<unsigned short>(const char *array) {
+inline unsigned short fromArray<unsigned short>(const char *array) {
     return bswap_16( *(unsigned short *)array );
 }
 
 template <>
-unsigned long fromArray<unsigned long>(const char *array) {
+inline unsigned long fromArray<unsigned long>(const char *array) {
     return bswap_32( *(unsigned long *)array );
 }
 
 template <>
-void toArray<unsigned short>(unsigned short v, char *array) {
+inline void toArray<unsigned short>(unsigned short v, char *array) {
     *(unsigned short *)array = bswap_16(v);
 }
 
 template <>
-void toArray<unsigned long>(unsigned long v, char *array) {
+inline void toArray<unsigned long>(unsigned long v, char *array) {
     *(unsigned long *)array = bswap_32(v);
 }
 
 #endif
-
-
-
-
-
-
-
 
 #endif //TOARRAY_H__
 /* This stuff is for emacs

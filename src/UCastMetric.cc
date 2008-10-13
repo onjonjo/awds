@@ -1,4 +1,5 @@
 #include <awds/UCastMetric.h>
+#include <algorithm>
 
 awds::UCastMetric::UCastMetric(awds::Routing *r):ExtMetric(r) {
   routing->registerUnicastProtocol(PACKET_TYPE_UC_METRIC,recv_packet,(void*)this);
