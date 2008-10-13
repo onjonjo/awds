@@ -14,7 +14,7 @@ namespace awds {
     public:
 	UCastMetric(awds::Routing *r);
 	void send(BasePacket *p,gea::AbsTime t,NodeId dest);
-	void sendvia(BasePacket *p,gea::AbsTime t,NodeId dest,unsigned int size = 0);
+	void sendvia(BasePacket *p,gea::AbsTime t,NodeId dest,size_t size = 0);
     };
 
 }

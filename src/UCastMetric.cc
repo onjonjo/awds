@@ -12,7 +12,7 @@ void awds::UCastMetric::send(BasePacket *p,gea::AbsTime t,NodeId dest) {
   routing->sendUnicast(p);
 }
 
-void awds::UCastMetric::sendvia(BasePacket *p,gea::AbsTime t,NodeId dest,unsigned int size) {
+void awds::UCastMetric::sendvia(BasePacket *p,gea::AbsTime t,NodeId dest,size_t size) {
   UnicastPacket uniP(*p);
   uniP.setUcDest(dest);
   p->setDest(dest);
