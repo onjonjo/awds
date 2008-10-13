@@ -6,7 +6,7 @@ LDFLAGS = @GEALIB@
 module_flags = -module  -avoid-version -export-symbols-regex gea_main
 
 AM_CPPFLAGS= @GEAINC@ -pedantic -Wno-long-long
-COMMON_CPPFLAGS = -fvisibility=hidden @GEAINC@
+COMMON_CPPFLAGS = @VISFLAG@ @GEAINC@
 
 nobase_include_HEADERS = awds/*.h awds/ext/*.h
 
