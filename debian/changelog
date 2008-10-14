@@ -1,3 +1,9 @@
+awds (8.8) unstable; urgency=low
+
+  * fixed bug on 64 bit systems
+
+ -- Andre Herms <aherms@ivs.cs.uni-magdeburg.de>  Tue, 14 Oct 2008 14:21:53 +0200
+
 awds (8.7) unstable; urgency=low
 
   * fix reference counting of packets 
