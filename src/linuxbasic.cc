@@ -258,13 +258,16 @@ static int moduleconfig_command_fn(ShellClient &sc, void *data, int argc, char *
 
         if((level<0) || (level>3)) {
 		    *sc.sockout << moduleconfig_cmd_usage;
+		    return -1;
         }
         else {
             self->setModuleConfig(level);
         }
     } else {
         *sc.sockout << moduleconfig_cmd_usage;
+	return -1;
     }
+    return 0;
 }
 
 #define MODULE_NAME linuxbasic
