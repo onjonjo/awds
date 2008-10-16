@@ -183,7 +183,7 @@ aesccm_la_SOURCES = \
 	crypto/crypto_helpers.h
 
 
-aesccm_la_CPPFLAGS = -DMODULE_NAME=aesccm
+aesccm_la_CPPFLAGS = -DMODULE_NAME=aesccm $(COMMON_CPPFLAGS)
 aesccm_la_LDFLAGS  = $(module_flags)
 
 daemon_la_SOURCES  = debug_cmd.cc
