@@ -10,7 +10,8 @@ namespace awds {
 	class SendQueue {
 		gea::Handle *h; /**< handle to block on */
 		basic *base; /**< needed for setSendDest */
-		std::list<BasePacket*> queue;
+		typedef std::list<BasePacket*> PacketQueue;
+		PacketQueue queue;
 		bool verbose;
 	public:
 
