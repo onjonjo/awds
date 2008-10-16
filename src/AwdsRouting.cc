@@ -797,7 +797,9 @@ static int topoPeriod_command_fn(ShellClient &sc, void *data, int argc, char **a
 	self->topoPeriod_ms = p;
     } else {
 	*sc.sockout << topoPeriod_cmd_usage;
+	return -1;
     }
+    return 0;
 }
 
 
@@ -822,7 +824,9 @@ static int beaconPeriod_command_fn(ShellClient &sc, void *data, int argc, char *
 	self->beaconPeriod = gea::Duration(p, 1000);
     } else {
 	*sc.sockout << beaconPeriod_cmd_usage;
+	return -1;
     }
+    return 0;
 }
 
 
@@ -841,11 +845,15 @@ static int verbose_command_fn(ShellClient &sc, void *data, int argc, char **argv
 		    self->verbose = true;
 	    else if (string(argv[1]) == "off")
 		    self->verbose = false;
-	    else
+	    else {
 		    *sc.sockout << verbose_cmd_usage;
+		    return -1;
+	    }
     } else {
         *sc.sockout << verbose_cmd_usage;
+	return -1;
     }
+    return 0;
 }
 
 
