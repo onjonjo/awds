@@ -24,6 +24,7 @@ static bool operator==(const awds::RTopology::LinkQuality& lq, const awds::NodeI
     return lq.neighbor == n;
 }
 
+/*
 static bool operator==(const awds::RTopology::LinkQuality& lq1, const awds::RTopology::LinkQuality& lq2) {
     return lq1.neighbor == lq2.neighbor;
 }
@@ -32,6 +33,7 @@ static bool operator<(const awds::RTopology::LinkQuality& lq1, const awds::RTopo
     //return lq.neighbor < lq2.neighbor;
     return getNodeId(lq1) < getNodeId(lq2);
 }
+*/
 
 //bool awds::operator==(std::pair<NodeId,RTopology::NDescr> const &a,NodeId const &b) {
 //    return a.first == b;
