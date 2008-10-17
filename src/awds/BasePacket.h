@@ -46,7 +46,7 @@ namespace awds {
 	NodeId dest;
 
 	BasePacket() : size(0), refcount(1), cb(NULL) {
-	    buffer[0] = 0;
+	    memset(buffer, 0, MaxSize);
 	}
 
 	void setSendCallback(SendCallback cb, void *data) {
